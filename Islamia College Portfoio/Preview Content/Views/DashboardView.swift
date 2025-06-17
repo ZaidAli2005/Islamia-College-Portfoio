@@ -107,14 +107,45 @@ struct DashboardContentView: View {
                             .padding(.top, 30)
                         
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 15), count: 4), spacing: 25) {
-                            DashboardItem(icon: "grid.circle.fill", title: "Classes", iconColor: Color(red: 0.2, green: 0.4, blue: 0.8))
-                            DashboardItem(icon: "building.2.fill", title: "Canteen", iconColor: Color.orange)
-                            DashboardItem(icon: "person.fill", title: "Principle", iconColor: Color(red: 0.3, green: 0.6, blue: 0.9))
-                            DashboardItem(icon: "person.2.fill", title: "Teachers", iconColor: Color.purple)
-                            DashboardItem(icon: "trophy.fill", title: "Events", iconColor: Color.orange)
-                            DashboardItem(icon: "clock.fill", title: "Time Table", iconColor: Color.purple)
-                            DashboardItem(icon: "flask.fill", title: "Labs", iconColor: Color.teal)
-                            DashboardItem(icon: "info.circle.fill", title: "About", iconColor: Color(red: 0.4, green: 0.6, blue: 0.9))
+                            NavigationLink(destination: ClassessView()) {
+                                DashboardItem(icon: "grid.circle.fill", title: "Classes", iconColor: Color(red: 0.2, green: 0.4, blue: 0.8))
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: CanteenView()) {
+                                DashboardItem(icon: "building.2.fill", title: "Canteen", iconColor: Color.orange)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: PrincipleView()) {
+                                DashboardItem(icon: "person.fill", title: "Principle", iconColor: Color(red: 0.3, green: 0.6, blue: 0.9))
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: TeachersView()) {
+                                DashboardItem(icon: "person.2.fill", title: "Teachers", iconColor: Color.purple)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: EventsView()) {
+                                DashboardItem(icon: "trophy.fill", title: "Events", iconColor: Color.orange)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: TimeTableView()) {
+                                DashboardItem(icon: "clock.fill", title: "Time Table", iconColor: Color.purple)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: LabsView()) {
+                                DashboardItem(icon: "flask.fill", title: "Labs", iconColor: Color.teal)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            NavigationLink(destination: AboutsVIew()) {
+                                DashboardItem(icon: "info.circle.fill", title: "About", iconColor: Color(red: 0.4, green: 0.6, blue: 0.9))
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
                         .padding(.horizontal, 20)
                     }
@@ -126,23 +157,32 @@ struct DashboardContentView: View {
                             .padding(.horizontal, 20)
                         
                         HStack(spacing: 12) {
-                            MoreItem(
-                                title: "Library",
-                                subtitle: "Study Resources",
-                                imageName: "library_image"
-                            )
+                            NavigationLink(destination: LibraryView()) {
+                                MoreItem(
+                                    title: "Library",
+                                    subtitle: "Study Resources",
+                                    imageName: "library_image"
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
                             
-                            MoreItem(
-                                title: "Sports & Funs",
-                                subtitle: "All Sports",
-                                imageName: "sports_image"
-                            )
+                            NavigationLink(destination: SportsView()) {
+                                MoreItem(
+                                    title: "Sports & Funs",
+                                    subtitle: "All Sports",
+                                    imageName: "sports_image"
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
                             
-                            MoreItem(
-                                title: "Parking",
-                                subtitle: "Parking Resources",
-                                imageName: "parking_image"
-                            )
+                            NavigationLink(destination: ParkingView()) {
+                                MoreItem(
+                                    title: "Parking",
+                                    subtitle: "Parking Resources",
+                                    imageName: "parking_image"
+                                )
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
                         .padding(.horizontal, 20)
                     }
@@ -153,23 +193,26 @@ struct DashboardContentView: View {
                             .foregroundColor(.black)
                             .padding(.horizontal, 20)
                         
-                        HStack(spacing: 15) {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(width: 60, height: 60)
-                                .overlay(
-                                    Image(systemName: "doc.text.fill")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 20))
-                                )
-                            
-                            Text("Admissions")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.black)
-                            
-                            Spacer()
+                        NavigationLink(destination: AdmissionsView()) {
+                            HStack(spacing: 15) {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.gray.opacity(0.3))
+                                    .frame(width: 60, height: 60)
+                                    .overlay(
+                                        Image(systemName: "doc.text.fill")
+                                            .foregroundColor(.white)
+                                            .font(.system(size: 20))
+                                    )
+                                
+                                Text("Admissions")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.black)
+                                
+                                Spacer()
+                            }
+                            .padding(.horizontal, 20)
                         }
-                        .padding(.horizontal, 20)
+                        .buttonStyle(PlainButtonStyle())
                     }
                     
                     Spacer(minLength: 100)
@@ -183,13 +226,34 @@ struct DashboardContentView: View {
     }
 }
 
-// Note: Remove these placeholder views since you have your own separate view files
-// Make sure to import your existing views:
-// - AIChatBotView (from your ChatBot file)
-// - ActivityView (from your Activity file)
-// - ProfileView (from your Profile file)
+struct LibraryView: View {
+    var body: some View {
+        Text("Library View")
+            .navigationTitle("Library")
+    }
+}
 
-// MARK: - Custom Tab Bar
+struct SportsView: View {
+    var body: some View {
+        Text("Sports View")
+            .navigationTitle("Sports & Funs")
+    }
+}
+
+struct ParkingView: View {
+    var body: some View {
+        Text("Parking View")
+            .navigationTitle("Parking")
+    }
+}
+
+struct AdmissionsView: View {
+    var body: some View {
+        Text("Admissions View")
+            .navigationTitle("Admissions")
+    }
+}
+
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
     
@@ -233,8 +297,6 @@ struct CustomTabBar: View {
         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
     }
 }
-
-// MARK: - Supporting Views and Models
 
 struct DashboardItem: View {
     let icon: String
