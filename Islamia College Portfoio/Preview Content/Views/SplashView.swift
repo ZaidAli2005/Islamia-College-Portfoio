@@ -24,8 +24,8 @@ struct SplashView: View {
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color.accentColor,
-                        Color.accentColor.opacity(0.8),
-                        Color.accentColor.opacity(0.5),
+                        Color.accentColor.opacity(0.6),
+                        Color.accentColor.opacity(0.3),
                         Color.white
                     ]),
                     startPoint: .top,
@@ -50,7 +50,6 @@ struct SplashView: View {
                 
                 VStack(spacing: 40) {
                     Spacer()
-                    
                     Image("Splash Img")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
