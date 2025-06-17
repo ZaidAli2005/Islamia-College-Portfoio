@@ -226,34 +226,6 @@ struct DashboardContentView: View {
     }
 }
 
-struct LibraryView: View {
-    var body: some View {
-        Text("Library View")
-            .navigationTitle("Library")
-    }
-}
-
-struct SportsView: View {
-    var body: some View {
-        Text("Sports View")
-            .navigationTitle("Sports & Funs")
-    }
-}
-
-struct ParkingView: View {
-    var body: some View {
-        Text("Parking View")
-            .navigationTitle("Parking")
-    }
-}
-
-struct AdmissionsView: View {
-    var body: some View {
-        Text("Admissions View")
-            .navigationTitle("Admissions")
-    }
-}
-
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
     
