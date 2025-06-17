@@ -1,171 +1,240 @@
 import SwiftUI
 
 struct DashboardView: View {
+    @State private var selectedTab = 0
+    
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 0) {
-                    VStack(spacing: 20) {
-                        HStack {
-                            Circle()
-                                .fill(Color.white.opacity(0.2))
-                                .frame(width: 45, height: 45)
-                                .overlay(
-                                    Image(systemName: "graduationcap.fill")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 20))
-                                )
-                            
-                            Spacer()
-                            
-                            Circle()
-                                .fill(Color.white.opacity(0.2))
-                                .frame(width: 45, height: 45)
-                                .overlay(
-                                    Image(systemName: "bell.fill")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 20))
-                                )
-                        }
-                        .padding(.horizontal, 25)
-                        .padding(.top, 80)
-                        HStack(spacing: 15) {
-                            Circle()
-                                .fill(Color.white)
-                                .frame(width: 55, height: 55)
-                                .overlay(
-                                    Circle()
-                                        .fill(Color.green.opacity(0.8))
-                                        .overlay(
-                                            Image(systemName: "building.2.fill")
-                                                .foregroundColor(.white)
-                                                .font(.system(size: 18))
-                                        )
-                                )
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Welcome To!")
-                                    .font(.system(size: 28, weight: .bold))
-                                    .foregroundColor(.white)
-                                
-                                Text("Islamia College Gujranwala")
-                                    .font(.system(size: 16))
-                                    .foregroundColor(.white.opacity(0.9))
-                            }
-                            
-                            Spacer()
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 60)
+            ZStack {
+                Group {
+                    switch selectedTab {
+                    case 0:
+                        DashboardContentView()
+                    case 1:
+                        AIChatBotView()
+                    case 2:
+                        ActivityView()
+                    case 3:
+                        ProfileView()
+                    default:
+                        DashboardContentView()
                     }
-                    .background(
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                Color(red: 0.2, green: 0.4, blue: 0.5),
-                                Color(red: 0.2, green: 0.4, blue: 0.5)
-                            ]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    VStack(spacing: 30) {
-                        VStack(alignment: .leading, spacing: 30) {
-                            Text("Dashboard")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.black)
-                                .padding(.horizontal, 20)
-                            
-                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 15), count: 4), spacing: 25) {
-                                DashboardItem(icon: "grid.circle.fill", title: "Classes", iconColor: Color(red: 0.2, green: 0.4, blue: 0.8))
-                                DashboardItem(icon: "building.2.fill", title: "Canteen", iconColor: Color.orange)
-                                DashboardItem(icon: "person.fill", title: "Principle", iconColor: Color(red: 0.3, green: 0.6, blue: 0.9))
-                                DashboardItem(icon: "person.2.fill", title: "Teachers", iconColor: Color.purple)
-                                DashboardItem(icon: "trophy.fill", title: "Events", iconColor: Color.orange)
-                                DashboardItem(icon: "clock.fill", title: "Time Table", iconColor: Color.purple)
-                                DashboardItem(icon: "flask.fill", title: "Labs", iconColor: Color.teal)
-                                DashboardItem(icon: "info.circle.fill", title: "About", iconColor: Color(red: 0.4, green: 0.6, blue: 0.9))
-                            }
-                            .padding(.horizontal, 20)
-                        }
-                        VStack(alignment: .leading, spacing: 20) {
-                            Text("More")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.black)
-                                .padding(.horizontal, 20)
-                            
-                            HStack(spacing: 12) {
-                                MoreItem(
-                                    title: "Library",
-                                    subtitle: "Study Resources",
-                                    imageName: "library_image"
-                                )
-                                
-                                MoreItem(
-                                    title: "Sports & Funs",
-                                    subtitle: "All Sports",
-                                    imageName: "sports_image"
-                                )
-                                
-                                MoreItem(
-                                    title: "Parking",
-                                    subtitle: "Parking Resources",
-                                    imageName: "parking_image"
-                                )
-                            }
-                            .padding(.horizontal, 20)
-                        }
-                        VStack(alignment: .leading, spacing: 20) {
-                            Text("Recommended")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.black)
-                                .padding(.horizontal, 20)
-                            
-                            HStack(spacing: 15) {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.gray.opacity(0.3))
-                                    .frame(width: 60, height: 60)
-                                    .overlay(
-                                        Image(systemName: "doc.text.fill")
-                                            .foregroundColor(.white)
-                                            .font(.system(size: 20))
-                                    )
-                                
-                                Text("Admissions")
-                                    .font(.system(size: 18, weight: .semibold))
-                                    .foregroundColor(.black)
-                                
-                                Spacer()
-                            }
-                            .padding(.horizontal, 20)
-                        }
-                        
-                        Spacer(minLength: 100)
-                    }
-                    .background(Color.white)
-                    .cornerRadius(25, corners: [.topLeft, .topRight])
-                    .offset(y: -25)
                 }
-            }
-            .ignoresSafeArea(.all, edges: .top)
-            .overlay(
                 VStack {
                     Spacer()
-                    HStack {
-                        TabBarItem(icon: "house.fill", title: "Home", isSelected: true)
-                        TabBarItem(icon: "message.fill", title: "Chat", isSelected: false)
-                        TabBarItem(icon: "photo.fill", title: "Activity", isSelected: false)
-                        TabBarItem(icon: "person.fill", title: "Profile", isSelected: false)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 15)
-                    .background(Color.white)
-                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
+                    CustomTabBar(selectedTab: $selectedTab)
                 }
-            )
+            }
         }
         .navigationBarHidden(true)
     }
 }
+
+struct DashboardContentView: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                VStack(spacing: 20) {
+                    HStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 45, height: 45)
+                            .overlay(
+                                Image(systemName: "graduationcap.fill")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 20))
+                            )
+                        
+                        Spacer()
+                        
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 45, height: 45)
+                            .overlay(
+                                Image(systemName: "bell.fill")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 20))
+                            )
+                    }
+                    .padding(.horizontal, 25)
+                    .padding(.top, 80)
+                    
+                    HStack(spacing: 15) {
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 55, height: 55)
+                            .overlay(
+                                Circle()
+                                    .fill(Color.green.opacity(0.8))
+                                    .overlay(
+                                        Image(systemName: "building.2.fill")
+                                            .foregroundColor(.white)
+                                            .font(.system(size: 18))
+                                    )
+                            )
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Welcome To!")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.white)
+                            
+                            Text("Islamia College Gujranwala")
+                                .font(.system(size: 16))
+                                .foregroundColor(.white.opacity(0.9))
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 60)
+                }
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 0.2, green: 0.4, blue: 0.5),
+                            Color(red: 0.2, green: 0.4, blue: 0.5)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                VStack(spacing: 30) {
+                    VStack(alignment: .leading, spacing: 30) {
+                        Text("Dashboard")
+                            .font(.system(size: 26, weight: .bold))
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 30)
+                        
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 15), count: 4), spacing: 25) {
+                            DashboardItem(icon: "grid.circle.fill", title: "Classes", iconColor: Color(red: 0.2, green: 0.4, blue: 0.8))
+                            DashboardItem(icon: "building.2.fill", title: "Canteen", iconColor: Color.orange)
+                            DashboardItem(icon: "person.fill", title: "Principle", iconColor: Color(red: 0.3, green: 0.6, blue: 0.9))
+                            DashboardItem(icon: "person.2.fill", title: "Teachers", iconColor: Color.purple)
+                            DashboardItem(icon: "trophy.fill", title: "Events", iconColor: Color.orange)
+                            DashboardItem(icon: "clock.fill", title: "Time Table", iconColor: Color.purple)
+                            DashboardItem(icon: "flask.fill", title: "Labs", iconColor: Color.teal)
+                            DashboardItem(icon: "info.circle.fill", title: "About", iconColor: Color(red: 0.4, green: 0.6, blue: 0.9))
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 20) {
+                        Text("More")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 20)
+                        
+                        HStack(spacing: 12) {
+                            MoreItem(
+                                title: "Library",
+                                subtitle: "Study Resources",
+                                imageName: "library_image"
+                            )
+                            
+                            MoreItem(
+                                title: "Sports & Funs",
+                                subtitle: "All Sports",
+                                imageName: "sports_image"
+                            )
+                            
+                            MoreItem(
+                                title: "Parking",
+                                subtitle: "Parking Resources",
+                                imageName: "parking_image"
+                            )
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 20) {
+                        Text("Recommended")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 20)
+                        
+                        HStack(spacing: 15) {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(width: 60, height: 60)
+                                .overlay(
+                                    Image(systemName: "doc.text.fill")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 20))
+                                )
+                            
+                            Text("Admissions")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.black)
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    
+                    Spacer(minLength: 100)
+                }
+                .background(Color.white)
+                .cornerRadius(25, corners: [.topLeft, .topRight])
+                .offset(y: -25)
+            }
+        }
+        .ignoresSafeArea(.all, edges: .top)
+    }
+}
+
+// Note: Remove these placeholder views since you have your own separate view files
+// Make sure to import your existing views:
+// - AIChatBotView (from your ChatBot file)
+// - ActivityView (from your Activity file)
+// - ProfileView (from your Profile file)
+
+// MARK: - Custom Tab Bar
+struct CustomTabBar: View {
+    @Binding var selectedTab: Int
+    
+    var body: some View {
+        HStack {
+            TabBarItem(
+                icon: "house.fill",
+                title: "Home",
+                isSelected: selectedTab == 0
+            ) {
+                selectedTab = 0
+            }
+            
+            TabBarItem(
+                icon: "message.fill",
+                title: "Chat",
+                isSelected: selectedTab == 1
+            ) {
+                selectedTab = 1
+            }
+            
+            TabBarItem(
+                icon: "chart.bar.fill",
+                title: "Activity",
+                isSelected: selectedTab == 2
+            ) {
+                selectedTab = 2
+            }
+            
+            TabBarItem(
+                icon: "person.fill",
+                title: "Profile",
+                isSelected: selectedTab == 3
+            ) {
+                selectedTab = 3
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 15)
+        .background(Color.white)
+        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
+    }
+}
+
+// MARK: - Supporting Views and Models
 
 struct DashboardItem: View {
     let icon: String
@@ -288,20 +357,24 @@ struct TabBarItem: View {
     let icon: String
     let title: String
     let isSelected: Bool
+    let action: () -> Void
     
     var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.system(size: 22))
-                .foregroundColor(isSelected ? .accentColor : .gray)
-            
-            Text(title)
-                .font(.system(size: 11))
-                .foregroundColor(isSelected ? .accentColor : .gray)
+        Button(action: action) {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 22))
+                    .foregroundColor(isSelected ? .accentColor : .gray)
+                
+                Text(title)
+                    .font(.system(size: 11))
+                    .foregroundColor(isSelected ? .accentColor : .gray)
+            }
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
     }
 }
+
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))
