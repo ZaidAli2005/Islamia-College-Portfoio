@@ -175,7 +175,7 @@ struct DashboardContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             
-                            NavigationLink(destination: ParkingView()) {
+                            NavigationLink(destination: ContactUsView()) {
                                 MoreItem(
                                     title: "Parking",
                                     subtitle: "Parking Resources",
