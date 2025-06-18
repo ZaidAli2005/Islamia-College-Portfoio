@@ -28,6 +28,7 @@ struct ClasssesDetailView: View {
                         .foregroundColor(.primary)
                         .padding(.horizontal, 20)
                         .padding(.top, 30)
+                        .frame(maxWidth: .infinity, alignment: .center)
                     if let headOfDepartment = department.headOfDepartment {
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Head of Department")
@@ -61,7 +62,7 @@ struct ClasssesDetailView: View {
                             .padding(.vertical, 20)
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color(.systemGray6))
+                                    .fill(Color(.white))
                             )
                             .padding(.horizontal, 20)
                         }
@@ -73,24 +74,9 @@ struct ClasssesDetailView: View {
                             .lineSpacing(6)
                             .padding(.horizontal, 20)
                     }
-                    if let studentCount = department.studentCount {
+                    if let studentCount = department.teacherCount {
                         VStack(spacing: 16) {
                             HStack(spacing: 20) {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "person.3.fill")
-                                            .foregroundColor(.blue)
-                                            .font(.system(size: 20))
-                                        Text("Students")
-                                            .font(.system(size: 14, weight: .medium))
-                                            .foregroundColor(.secondary)
-                                    }
-                                    Text("\(studentCount)")
-                                        .font(.system(size: 24, weight: .bold))
-                                        .foregroundColor(.blue)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                
                                 if let teacherCount = department.teacherCount {
                                     VStack(alignment: .leading, spacing: 8) {
                                         HStack(spacing: 8) {
@@ -127,32 +113,6 @@ struct ClasssesDetailView: View {
                                 .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
                         )
                         .padding(.horizontal, 20)
-                    }
-                    if let programs = department.programs, !programs.isEmpty {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Programs Offered")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.primary)
-                                .padding(.horizontal, 20)
-                            
-                            LazyVGrid(columns: [
-                                GridItem(.flexible()),
-                                GridItem(.flexible())
-                            ], spacing: 12) {
-                                ForEach(programs, id: \.self) { program in
-                                    Text(program)
-                                        .font(.system(size: 14, weight: .medium))
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 10)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .fill(Color.blue.opacity(0.1))
-                                        )
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                            .padding(.horizontal, 20)
-                        }
                     }
                     if let facilities = department.facilities, !facilities.isEmpty {
                         VStack(alignment: .leading, spacing: 16) {

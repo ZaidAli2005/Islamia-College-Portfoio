@@ -52,19 +52,19 @@ struct ClassessView: View {
                         let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                         impactFeedback.impactOccurred()
                     }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 16, weight: .semibold))
-                            Text("Back")
-                                .font(.system(size: 17, weight: .medium))
-                        }
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.blue, .cyan],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+//                        HStack(spacing: 6) {
+//                            Image(systemName: "chevron.left")
+//                                .font(.system(size: 16, weight: .semibold))
+//                            Text("Back")
+//                                .font(.system(size: 17, weight: .medium))
+//                        }
+//                        .foregroundStyle(
+//                            LinearGradient(
+//                                colors: [.blue, .cyan],
+//                                startPoint: .leading,
+//                                endPoint: .trailing
+//                            )
+//                        )
                     }
                     .buttonStyle(ScaleButtonStyle())
                 }
@@ -74,7 +74,7 @@ struct ClassessView: View {
                         Image(systemName: "graduationcap.fill")
                             .foregroundStyle(
                                 LinearGradient(
-                                    colors: [.blue, .purple],
+                                    colors: [.accentColor, .accentColor],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -231,7 +231,6 @@ struct ClassessView: View {
     private func departmentRowView(department: Department, index: Int) -> some View {
         NavigationLink(destination: ClasssesDetailView(department: department)) {
             HStack(spacing: 16) {
-                // Department Image with enhanced styling
                 Image(department.imageName)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -263,18 +262,6 @@ struct ClassessView: View {
                             )
                         )
                         .multilineTextAlignment(.leading)
-                    
-                    if let studentCount = department.studentCount {
-                        HStack(spacing: 4) {
-                            Image(systemName: "person.2.fill")
-                                .font(.caption)
-                                .foregroundColor(.blue)
-                            
-                            Text("\(studentCount) students")
-                                .font(.caption.weight(.medium))
-                                .foregroundColor(.secondary)
-                        }
-                    }
                 }
                 
                 Spacer()
@@ -283,7 +270,7 @@ struct ClassessView: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [.blue, .cyan],
+                            colors: [.accentColor, .accentColor],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -291,8 +278,8 @@ struct ClassessView: View {
                     .rotationEffect(.degrees(selectedDepartment?.id == department.id ? 90 : 0))
                     .animation(.spring(response: 0.3), value: selectedDepartment?.id)
             }
-            .padding(.vertical, 20)
-            .padding(.horizontal, 24)
+            .padding(.vertical, 15)
+            .padding(.horizontal, 15)
             .background(
                 RoundedRectangle(cornerRadius: 18)
                     .fill(
@@ -341,8 +328,6 @@ struct ClassessView: View {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 selectedDepartment = selectedDepartment?.id == department.id ? nil : department
             }
-            
-            // Reset selection after a delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     selectedDepartment = nil

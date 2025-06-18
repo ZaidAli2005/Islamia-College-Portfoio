@@ -117,7 +117,7 @@ struct DashboardContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             
-                            NavigationLink(destination: PrincipleView()) {
+                            NavigationLink(destination: PrincipalView()) {
                                 DashboardItem(icon: "person.fill", title: "Principle", iconColor: Color(red: 0.3, green: 0.6, blue: 0.9))
                             }
                             .buttonStyle(PlainButtonStyle())
