@@ -142,7 +142,7 @@ struct DashboardContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             
-                            NavigationLink(destination: AboutsVIew()) {
+                            NavigationLink(destination: AboutsView()) {
                                 DashboardItem(icon: "info.circle.fill", title: "About", iconColor: Color(red: 0.4, green: 0.6, blue: 0.9))
                             }
                             .buttonStyle(PlainButtonStyle())

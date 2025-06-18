@@ -1,17 +1,26 @@
-//
-//  Islamia_College_PortfoioApp.swift
-//  Islamia College Portfoio
-//
-//  Created by Development on 17/06/2025.
-//
-
 import SwiftUI
+import Firebase
 
 @main
 struct Islamia_College_PortfoioApp: App {
+    @StateObject private var session = SessionManager()
+
+    init() {
+        FirebaseApp.configure()
+    }
+
     var body: some Scene {
         WindowGroup {
-            SplashView()
+            Group {
+                if session.isLoggedIn {
+                    SplashView()
+                } else {
+                    LoginView()
+                }
+            }
+            .onAppear {
+                session.listen()
+            }
         }
     }
 }

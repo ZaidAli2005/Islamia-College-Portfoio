@@ -6,8 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3C7E44E6D3DB4F733A10FCE9 /* Pods_Islamia_College_Portfoio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AFCFB827F8F1DCA5B7EB404 /* Pods_Islamia_College_Portfoio.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		0258FE58A84D284809512F60 /* Pods-Islamia College Portfoio.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Islamia College Portfoio.release.xcconfig"; path = "Target Support Files/Pods-Islamia College Portfoio/Pods-Islamia College Portfoio.release.xcconfig"; sourceTree = "<group>"; };
+		1AFCFB827F8F1DCA5B7EB404 /* Pods_Islamia_College_Portfoio.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Islamia_College_Portfoio.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		33ADA7A92E0141F6000E89B4 /* Islamia College Portfoio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Islamia College Portfoio.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4D25824EB06B251ACB3815B /* Pods-Islamia College Portfoio.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Islamia College Portfoio.debug.xcconfig"; path = "Target Support Files/Pods-Islamia College Portfoio/Pods-Islamia College Portfoio.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +30,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C7E44E6D3DB4F733A10FCE9 /* Pods_Islamia_College_Portfoio.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -34,6 +42,8 @@
 			children = (
 				33ADA7AB2E0141F6000E89B4 /* Islamia College Portfoio */,
 				33ADA7AA2E0141F6000E89B4 /* Products */,
+				64E46823B5158DD751D3E43C /* Pods */,
+				5669D2C6E3F00FE4659E3EA8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -45,6 +55,23 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		5669D2C6E3F00FE4659E3EA8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1AFCFB827F8F1DCA5B7EB404 /* Pods_Islamia_College_Portfoio.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		64E46823B5158DD751D3E43C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				D4D25824EB06B251ACB3815B /* Pods-Islamia College Portfoio.debug.xcconfig */,
+				0258FE58A84D284809512F60 /* Pods-Islamia College Portfoio.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -52,9 +79,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 33ADA7B72E0141F7000E89B4 /* Build configuration list for PBXNativeTarget "Islamia College Portfoio" */;
 			buildPhases = (
+				AD30EE87D20BC7025855AC45 /* [CP] Check Pods Manifest.lock */,
 				33ADA7A52E0141F6000E89B4 /* Sources */,
 				33ADA7A62E0141F6000E89B4 /* Frameworks */,
 				33ADA7A72E0141F6000E89B4 /* Resources */,
+				1C6EA1ABAF4C0EC0E02E8547 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -64,8 +93,6 @@
 				33ADA7AB2E0141F6000E89B4 /* Islamia College Portfoio */,
 			);
 			name = "Islamia College Portfoio";
-			packageProductDependencies = (
-			);
 			productName = "Islamia College Portfoio";
 			productReference = 33ADA7A92E0141F6000E89B4 /* Islamia College Portfoio.app */;
 			productType = "com.apple.product-type.application";
@@ -113,6 +140,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		1C6EA1ABAF4C0EC0E02E8547 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Islamia College Portfoio/Pods-Islamia College Portfoio-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Islamia College Portfoio/Pods-Islamia College Portfoio-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Islamia College Portfoio/Pods-Islamia College Portfoio-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AD30EE87D20BC7025855AC45 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Islamia College Portfoio-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		33ADA7A52E0141F6000E89B4 /* Sources */ = {
@@ -162,7 +231,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -225,7 +294,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -246,6 +315,7 @@
 		};
 		33ADA7B82E0141F7000E89B4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D4D25824EB06B251ACB3815B /* Pods-Islamia College Portfoio.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -275,6 +345,7 @@
 		};
 		33ADA7B92E0141F7000E89B4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0258FE58A84D284809512F60 /* Pods-Islamia College Portfoio.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

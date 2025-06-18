@@ -48,46 +48,21 @@ struct ClassessView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        // Handle back action with haptic feedback
                         let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                         impactFeedback.impactOccurred()
                     }) {
-//                        HStack(spacing: 6) {
-//                            Image(systemName: "chevron.left")
-//                                .font(.system(size: 16, weight: .semibold))
-//                            Text("Back")
-//                                .font(.system(size: 17, weight: .medium))
-//                        }
-//                        .foregroundStyle(
-//                            LinearGradient(
-//                                colors: [.blue, .cyan],
-//                                startPoint: .leading,
-//                                endPoint: .trailing
-//                            )
-//                        )
                     }
                     .buttonStyle(ScaleButtonStyle())
                 }
                 
                 ToolbarItem(placement: .principal) {
                     HStack(spacing: 8) {
-                        Image(systemName: "graduationcap.fill")
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.accentColor, .accentColor],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .font(.title2)
-                            .symbolEffect(.bounce, value: animateStats)
-                        
                         Text("Departments")
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundStyle(
                                 LinearGradient(
-                                    colors: [.primary, .secondary],
+                                    colors: [.primary, .primary],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
