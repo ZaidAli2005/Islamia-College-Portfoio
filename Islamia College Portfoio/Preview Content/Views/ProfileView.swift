@@ -192,8 +192,6 @@ struct ProfileView: View {
                                         .onTapGesture {
                                             viewModel.showingImagePicker = true
                                         }
-                                        
-                                        // Camera icon overlay
                                         VStack {
                                             Spacer()
                                             HStack {

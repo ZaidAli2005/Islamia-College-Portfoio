@@ -155,8 +155,6 @@ struct AboutsView: View {
     }
 }
 
-// MARK: - Supporting Views
-
 struct StatCard: View {
     let title: String
     let value: String

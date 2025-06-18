@@ -57,13 +57,12 @@ struct LabsView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 18, weight: .semibold))
-                        Text("Back")
+                        Text("")
                             .font(.system(size: 16, weight: .medium))
                     }
                     .foregroundColor(.green)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(Color.green.opacity(0.1))
                     .cornerRadius(20)
                 }
                 
@@ -260,13 +259,12 @@ struct LabDetailView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 16, weight: .semibold))
-                    Text("Back")
+                    Text("")
                         .font(.system(size: 16, weight: .medium))
                 }
                 .foregroundColor(.green)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
-                .background(Color.green.opacity(0.1))
                 .cornerRadius(25)
             }
             
@@ -362,7 +360,7 @@ struct LabDetailView: View {
                 
                 Spacer()
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 30)
             .offset(y: animateContent ? 0 : 40)
             .opacity(animateContent ? 1.0 : 0.0)
             .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.5), value: animateContent)

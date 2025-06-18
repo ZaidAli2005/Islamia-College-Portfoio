@@ -200,10 +200,10 @@ struct SplashView: View {
             imageScale = 1.0
         }
         
-        withAnimation(.easeOut(duration: 0.8).delay(0.3)) {
+        withAnimation(.easeOut(duration: 0.4).delay(0.3)) {
             textOpacity = 1.0
         }
-        withAnimation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.6)) {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.6).delay(0.6)) {
             buttonScale = 1.0
         }
         startDotAnimation()
