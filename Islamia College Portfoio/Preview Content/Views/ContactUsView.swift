@@ -152,7 +152,6 @@ struct ContactUsView: View {
         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
     }
     
-    // MARK: - Quick Contact Section
     private var quickContactSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Quick Contact")
@@ -199,7 +198,6 @@ struct ContactUsView: View {
         }
     }
     
-    // MARK: - College Info Section
     private var collegeInfoSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("College Information")
@@ -396,7 +394,6 @@ struct InfoRow: View {
     }
 }
 
-// MARK: - Mail Composer
 struct MailComposeView: UIViewControllerRepresentable {
     let recipients: [String]
     let subject: String
@@ -431,7 +428,6 @@ struct MailComposeView: UIViewControllerRepresentable {
     }
 }
 
-// MARK: - Preview
 #Preview {
     ContactUsView()
 }
