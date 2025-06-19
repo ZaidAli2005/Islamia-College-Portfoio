@@ -9,158 +9,108 @@ import SwiftUI
 
 struct SplashView: View {
     @State private var navigateToDashboard = false
-    @State private var currentPage = 0
-    @State private var animationOffset: CGFloat = 0
-    @State private var imageScale: CGFloat = 0.3
-    @State private var textOpacity: Double = 0
-    @State private var buttonScale: CGFloat = 0.8
-    @State private var buttonRotation: Double = 0
-    @State private var gradientAnimation = false
-    @State private var floatingOffset: CGFloat = 0
+    @State private var imageScale: CGFloat = 0.8
+    @State private var contentOpacity: Double = 0
+    @State private var buttonScale: CGFloat = 0.95
+    @State private var gradientOffset: CGFloat = -200
     
     var body: some View {
         NavigationView {
             ZStack {
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color.accentColor,
-                        Color.accentColor.opacity(0.6),
-                        Color.accentColor.opacity(0.3),
-                        Color.white
+                        Color.accentColor.opacity(0.9),
+                        Color.accentColor.opacity(0.7),
+                        Color.white.opacity(0.1)
                     ]),
-                    startPoint: .top,
-                    endPoint: .bottom
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
-                ForEach(0..<6, id: \.self) { index in
-                    Circle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: CGFloat.random(in: 20...60))
-                        .position(
-                            x: CGFloat.random(in: 50...350),
-                            y: CGFloat.random(in: 100...700) + floatingOffset
-                        )
-                        .animation(
-                            .easeInOut(duration: Double.random(in: 2...4))
-                            .repeatForever(autoreverses: true)
-                            .delay(Double(index) * 0.3),
-                            value: floatingOffset
-                        )
-                }
                 
                 VStack(spacing: 40) {
                     Spacer()
+                    
                     Image("Splash Img")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 350, height: 200)
-                        .clipShape(RoundedRectangle(cornerRadius: 25))
+                        .frame(width: 320, height: 200)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 25)
-                                .stroke(
-                                    LinearGradient(
-                                        colors: [Color.white.opacity(0.3), Color.clear],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ),
-                                    lineWidth: 2
-                                )
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
                         )
-                        .shadow(color: .black.opacity(0.4), radius: 20, x: 0, y: 10)
+                        .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
                         .scaleEffect(imageScale)
-                        .rotation3DEffect(
-                            .degrees(imageScale < 1 ? 15 : 0),
-                            axis: (x: 1, y: 0, z: 0)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.clear,
+                                            Color.white.opacity(0.3),
+                                            Color.clear
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .offset(x: gradientOffset)
+                                .clipped()
                         )
                     
-                    VStack(spacing: 25) {
+                    VStack(spacing: 15) {
                         Text("Islamia College")
-                            .font(.system(size: 38, weight: .heavy, design: .rounded))
+                            .font(.system(size: 36, weight: .bold, design: .rounded))
                             .foregroundStyle(
                                 LinearGradient(
-                                    colors: [Color.white, Color.white.opacity(0.8)],
+                                    colors: [
+                                        Color.white,
+                                        Color.white.opacity(0.9)
+                                    ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
                             )
                             .multilineTextAlignment(.center)
                             .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 2)
-                            .opacity(textOpacity)
-                            .offset(y: textOpacity == 0 ? 20 : 0)
                         
                         Text("Gujranwala")
-                            .font(.system(size: 22, weight: .medium, design: .rounded))
-                            .foregroundColor(.white.opacity(0.9))
-                            .opacity(textOpacity)
-                            .offset(y: textOpacity == 0 ? 20 : 0)
+                            .font(.system(size: 20, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.85))
+                            .tracking(1.5)
                         
-                        HStack(spacing: 12) {
+                        HStack(spacing: 8) {
                             ForEach(0..<3, id: \.self) { index in
                                 Circle()
-                                    .fill(
-                                        index == currentPage ?
-                                        LinearGradient(
-                                            colors: [Color.white, Color.white.opacity(0.8)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ) :
-                                        LinearGradient(
-                                            colors: [Color.white.opacity(0.4), Color.white.opacity(0.2)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .frame(
-                                        width: index == currentPage ? 12 : 8,
-                                        height: index == currentPage ? 12 : 8
-                                    )
-                                    .scaleEffect(index == currentPage ? 1.3 : 1.0)
-                                    .shadow(
-                                        color: index == currentPage ? .white.opacity(0.5) : .clear,
-                                        radius: 4
-                                    )
-                                    .animation(.spring(response: 0.4, dampingFraction: 0.6), value: currentPage)
+                                    .fill(Color.white.opacity(index == 1 ? 0.9 : 0.4))
+                                    .frame(width: 8, height: 8)
+                                    .scaleEffect(index == 1 ? 1.2 : 1.0)
                             }
                         }
                         .padding(.top, 10)
-                        .opacity(textOpacity)
                     }
+                    .opacity(contentOpacity)
                     
                     Spacer()
                     
-                    Button(action: {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                            buttonScale = 0.95
-                            buttonRotation += 360
-                        }
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                                buttonScale = 1.0
-                            }
-                        }
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            navigateToDashboard = true
-                        }
-                    }) {
-                        HStack(spacing: 15) {
+                    Button(action: handleButtonTap) {
+                        HStack(spacing: 12) {
                             Text("Let's Go")
-                                .font(.system(size: 20, weight: .bold, design: .rounded))
+                                .font(.system(size: 18, weight: .semibold, design: .rounded))
                                 .foregroundColor(.white)
                             
-                            Image(systemName: "arrow.right.circle.fill")
-                                .font(.system(size: 18, weight: .bold))
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.white)
-                                .rotationEffect(.degrees(buttonRotation))
                         }
-                        .padding(.horizontal, 50)
-                        .padding(.vertical, 18)
+                        .padding(.horizontal, 40)
+                        .padding(.vertical, 16)
                         .background(
                             LinearGradient(
                                 colors: [
-                                    Color(red: 0.15, green: 0.55, blue: 0.35),
-                                    Color(red: 0.25, green: 0.65, blue: 0.45)
+                                    Color(red: 0.15, green: 0.65, blue: 0.45),
+                                    Color(red: 0.1, green: 0.55, blue: 0.35)
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -171,11 +121,10 @@ struct SplashView: View {
                             Capsule()
                                 .stroke(Color.white.opacity(0.2), lineWidth: 1)
                         )
-                        .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
-                        .shadow(color: Color(red: 0.2, green: 0.6, blue: 0.4).opacity(0.5), radius: 20, x: 0, y: 10)
+                        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
                     }
                     .scaleEffect(buttonScale)
-                    .padding(.bottom, 60)
+                    .padding(.bottom, 50)
                     
                     NavigationLink(
                         destination: DashboardView(),
@@ -193,27 +142,40 @@ struct SplashView: View {
         .navigationBarHidden(true)
     }
     
-    private func startAnimations() {
-        floatingOffset = 30
+    private func handleButtonTap() {
+        withAnimation(.easeInOut(duration: 0.1)) {
+            buttonScale = 0.92
+        }
         
-        withAnimation(.spring(response: 1.2, dampingFraction: 0.7, blendDuration: 0)) {
+        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+        impactFeedback.impactOccurred()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                buttonScale = 1.0
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            navigateToDashboard = true
+        }
+    }
+    
+    private func startAnimations() {
+        withAnimation(.spring(response: 1.2, dampingFraction: 0.8)) {
             imageScale = 1.0
         }
         
-        withAnimation(.easeOut(duration: 0.4).delay(0.3)) {
-            textOpacity = 1.0
+        withAnimation(.easeOut(duration: 0.8).delay(0.3)) {
+            contentOpacity = 1.0
         }
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.6).delay(0.6)) {
+        
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.6)) {
             buttonScale = 1.0
         }
-        startDotAnimation()
-    }
-    
-    private func startDotAnimation() {
-        Timer.scheduledTimer(withTimeInterval: 0.8, repeats: true) { _ in
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                currentPage = (currentPage + 1) % 3
-            }
+        
+        withAnimation(.linear(duration: 2.0).delay(1.0)) {
+            gradientOffset = 400
         }
     }
 }

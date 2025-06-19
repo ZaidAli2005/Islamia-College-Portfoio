@@ -4,6 +4,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 import PhotosUI
+import Network
 
 struct UserProfile {
     let id: String
@@ -36,12 +37,54 @@ class ProfileViewModel: ObservableObject {
     @Published var isUploadingImage = false
     @Published var selectedImage: UIImage?
     @Published var showingImagePicker = false
+    @Published var isOffline = false
     
     private let db = Firestore.firestore()
     private let storage = Storage.storage()
+    private let networkMonitor = NWPathMonitor()
+    private let networkQueue = DispatchQueue(label: "NetworkMonitor")
     
     init() {
+        setupFirestore()
+        setupNetworkMonitoring()
         fetchUserProfile()
+    }
+    
+    deinit {
+        networkMonitor.cancel()
+    }
+    
+    private func setupFirestore() {
+        // Enable offline persistence
+        let settings = FirestoreSettings()
+        settings.isPersistenceEnabled = true
+        settings.cacheSizeBytes = FirestoreCacheSizeUnlimited
+        db.settings = settings
+        
+        // Enable network first, then cache
+        db.enableNetwork { [weak self] error in
+            if let error = error {
+                print("Failed to enable Firestore network: \(error.localizedDescription)")
+            } else {
+                print("Firestore network enabled successfully")
+                DispatchQueue.main.async {
+                    self?.fetchUserProfile()
+                }
+            }
+        }
+    }
+    
+    private func setupNetworkMonitoring() {
+        networkMonitor.pathUpdateHandler = { [weak self] path in
+            DispatchQueue.main.async {
+                self?.isOffline = path.status != .satisfied
+                if path.status == .satisfied && self?.userProfile == nil {
+                    // Network is back, retry fetching profile
+                    self?.fetchUserProfile()
+                }
+            }
+        }
+        networkMonitor.start(queue: networkQueue)
     }
     
     func fetchUserProfile() {
@@ -51,18 +94,63 @@ class ProfileViewModel: ObservableObject {
             return
         }
         
-        db.collection("users").document(userId).getDocument { [weak self] document, error in
+        isLoading = true
+        errorMessage = ""
+        
+        // Try to get from cache first, then network
+        let docRef = db.collection("users").document(userId)
+        
+        // First try with cache
+        docRef.getDocument(source: .cache) { [weak self] document, error in
+            if let document = document, document.exists, let data = document.data() {
+                DispatchQueue.main.async {
+                    self?.userProfile = UserProfile(id: userId, data: data)
+                    self?.isLoading = false
+                }
+                // Still try to get fresh data from server
+                self?.fetchFromServer(docRef: docRef, userId: userId)
+            } else {
+                // No cache, try server
+                self?.fetchFromServer(docRef: docRef, userId: userId)
+            }
+        }
+    }
+    
+    private func fetchFromServer(docRef: DocumentReference, userId: String) {
+        docRef.getDocument(source: .server) { [weak self] document, error in
             DispatchQueue.main.async {
                 self?.isLoading = false
                 
                 if let error = error {
-                    self?.errorMessage = error.localizedDescription
-                } else if let document = document, document.exists,
-                          let data = document.data() {
+                    let nsError = error as NSError
+                    if nsError.code == 14 { // UNAVAILABLE error code
+                        self?.errorMessage = "Unable to connect to server. Please check your internet connection."
+                    } else {
+                        self?.errorMessage = error.localizedDescription
+                    }
+                } else if let document = document, document.exists, let data = document.data() {
                     self?.userProfile = UserProfile(id: userId, data: data)
+                    self?.errorMessage = ""
                 } else {
                     self?.errorMessage = "User profile not found"
                 }
+            }
+        }
+    }
+    
+    func retryFetchProfile() {
+        // Clear previous error and retry
+        errorMessage = ""
+        
+        // Force enable network connection
+        db.enableNetwork { [weak self] error in
+            if let error = error {
+                print("Network enable error: \(error.localizedDescription)")
+            }
+            
+            // Wait a moment then retry
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self?.fetchUserProfile()
             }
         }
     }
@@ -167,6 +255,26 @@ struct ProfileView: View {
                         .fill(Color.white.opacity(0.05))
                         .frame(width: 100, height: 100)
                         .position(x: geometry.size.width * 0.1, y: geometry.size.height * 0.8)
+                    
+                    if viewModel.isOffline {
+                        VStack {
+                            HStack {
+                                Image(systemName: "wifi.slash")
+                                    .font(.system(size: 12))
+                                Text("No Internet Connection")
+                                    .font(.caption)
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                Capsule()
+                                    .fill(Color.red.opacity(0.8))
+                            )
+                            Spacer()
+                        }
+                        .padding(.top, 10)
+                    }
                     
                     if viewModel.isLoading {
                         VStack {
@@ -313,23 +421,23 @@ struct ProfileView: View {
                         }
                     } else {
                         VStack(spacing: 20) {
-                            Image(systemName: "exclamationmark.triangle.fill")
+                            Image(systemName: viewModel.isOffline ? "wifi.slash" : "exclamationmark.triangle.fill")
                                 .font(.system(size: 60))
                                 .foregroundColor(.white.opacity(0.8))
                             
-                            Text("Unable to Load Profile")
+                            Text(viewModel.isOffline ? "No Internet Connection" : "Unable to Load Profile")
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                             
-                            Text(viewModel.errorMessage)
+                            Text(viewModel.isOffline ? "Please check your internet connection and try again." : viewModel.errorMessage)
                                 .font(.body)
                                 .foregroundColor(.white.opacity(0.8))
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 40)
                             
                             Button("Retry") {
-                                viewModel.fetchUserProfile()
+                                viewModel.retryFetchProfile()
                             }
                             .foregroundColor(.white)
                             .font(.headline)
@@ -371,6 +479,11 @@ struct ProfileView: View {
         .onChange(of: viewModel.selectedImage) { newImage in
             if let image = newImage {
                 viewModel.uploadProfileImage(image)
+            }
+        }
+        .onAppear {
+            if viewModel.userProfile == nil && !viewModel.isLoading {
+                viewModel.retryFetchProfile()
             }
         }
     }

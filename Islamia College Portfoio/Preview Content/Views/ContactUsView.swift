@@ -80,7 +80,6 @@ struct ContactUsView: View {
         .padding(.top, 20)
     }
     
-    // MARK: - Contact Form Section
     private var contactFormSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Send Message")

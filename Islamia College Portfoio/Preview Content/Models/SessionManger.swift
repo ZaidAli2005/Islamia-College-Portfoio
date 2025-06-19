@@ -1,19 +1,21 @@
-//
-//  SessionManger.swift
-//  Islamia College Portfoio
-//
-//  Created by Development on 18/06/2025.
-//
-
-import Foundation
-import FirebaseAuth
+import SwiftUI
+import Firebase
 
 class SessionManager: ObservableObject {
-    @Published var isLoggedIn: Bool = false
-
+    @Published var isLoggedIn = false
+    private var handle: AuthStateDidChangeListenerHandle?
+    
     func listen() {
-        Auth.auth().addStateDidChangeListener { _, user in
-            self.isLoggedIn = user != nil
+        handle = Auth.auth().addStateDidChangeListener { [weak self] (auth, user) in
+            DispatchQueue.main.async {
+                self?.isLoggedIn = user != nil
+            }
+        }
+    }
+    
+    deinit {
+        if let handle = handle {
+            Auth.auth().removeStateDidChangeListener(handle)
         }
     }
 }

@@ -1,4 +1,6 @@
 import SwiftUI
+import FirebaseAuth
+import Firebase
 
 struct DashboardView: View {
     @State private var selectedTab = 0
@@ -31,146 +33,216 @@ struct DashboardView: View {
 }
 
 struct DashboardContentView: View {
+    @State private var showGreeting = false
+    @State private var showDashboardItems = false
+    @State private var showLogoutAlert = false
+    
+    private func handleLogout() {
+        showLogoutAlert = true
+    }
+    
+    private func performLogout() {
+        do {
+            try Auth.auth().signOut()
+        } catch let signOutError as NSError {
+            print("Error signing out: %@", signOutError)
+        }
+    }
+    
+    @ViewBuilder
+    private func destinationView(for title: String) -> some View {
+        switch title {
+        case "Classes": ClassessView()
+        case "Canteen": CanteenView()
+        case "Principal": PrincipalView()
+        case "Teachers": TeachersView()
+        case "Events": EventsView()
+        case "Timetable": TimeTableView()
+        case "Labs": LabsView()
+        case "About": AboutsView()
+        default: Text("Coming Soon")
+        }
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                VStack(spacing: 20) {
+                VStack(spacing: 0) {
                     HStack {
-                        Circle()
-                            .fill(Color.white.opacity(0.2))
-                            .frame(width: 45, height: 45)
-                            .overlay(
-                                Image(systemName: "graduationcap.fill")
-                                    .foregroundColor(.white)
-                                    .font(.system(size: 20))
-                            )
-                        
-                        Spacer()
-                        
-                        Circle()
-                            .fill(Color.white.opacity(0.2))
-                            .frame(width: 45, height: 45)
-                            .overlay(
-                                Image(systemName: "bell.fill")
-                                    .foregroundColor(.white)
-                                    .font(.system(size: 20))
-                            )
-                    }
-                    .padding(.horizontal, 25)
-                    .padding(.top, 80)
-                    
-                    HStack(spacing: 15) {
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 55, height: 55)
-                            .overlay(
-                                Circle()
-                                    .fill(Color.green.opacity(0.8))
-                                    .overlay(
-                                        Image(systemName: "building.2.fill")
-                                            .foregroundColor(.white)
-                                            .font(.system(size: 18))
-                                    )
-                            )
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Welcome To!")
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.white)
-                            
-                            Text("Islamia College Gujranwala")
-                                .font(.system(size: 16))
-                                .foregroundColor(.white.opacity(0.9))
+                        Button(action: {}) {
+                            Circle()
+                                .fill(.white.opacity(0.15))
+                                .frame(width: 44, height: 44)
+                                .overlay(
+                                    Image(systemName: "graduationcap.fill")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 18, weight: .medium))
+                                )
+                                .scaleEffect(showGreeting ? 1.0 : 0.8)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1), value: showGreeting)
                         }
                         
                         Spacer()
+                        
+                        Button(action: {
+                            handleLogout()
+                        }) {
+                            Circle()
+                                .fill(.white.opacity(0.15))
+                                .frame(width: 44, height: 44)
+                                .overlay(
+                                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 18, weight: .medium))
+                                )
+                                .scaleEffect(showGreeting ? 1.0 : 0.8)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.2), value: showGreeting)
+                        }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 60)
                 }
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color(red: 0.2, green: 0.4, blue: 0.5),
-                            Color(red: 0.2, green: 0.4, blue: 0.5)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                VStack(spacing: 30) {
-                    VStack(alignment: .leading, spacing: 30) {
-                        Text("Dashboard")
-                            .font(.system(size: 26, weight: .bold))
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 20)
-                            .padding(.top, 30)
+                .padding(.horizontal, 24)
+                .padding(.top, 60)
+                
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 64, height: 64)
+                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                         
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 15), count: 4), spacing: 25) {
-                            NavigationLink(destination: ClassessView()) {
-                                DashboardItem(icon: "grid.circle.fill", title: "Classes", iconColor: Color(red: 0.2, green: 0.4, blue: 0.8))
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: CanteenView()) {
-                                DashboardItem(icon: "building.2.fill", title: "Canteen", iconColor: Color.orange)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: PrincipalView()) {
-                                DashboardItem(icon: "person.fill", title: "Principle", iconColor: Color(red: 0.3, green: 0.6, blue: 0.9))
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: TeachersView()) {
-                                DashboardItem(icon: "person.2.fill", title: "Teachers", iconColor: Color.purple)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: EventsView()) {
-                                DashboardItem(icon: "trophy.fill", title: "Events", iconColor: Color.orange)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: TimeTableView()) {
-                                DashboardItem(icon: "clock.fill", title: "Time Table", iconColor: Color.purple)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: LabsView()) {
-                                DashboardItem(icon: "flask.fill", title: "Labs", iconColor: Color.teal)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: AboutsView()) {
-                                DashboardItem(icon: "info.circle.fill", title: "About", iconColor: Color(red: 0.4, green: 0.6, blue: 0.9))
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                        .padding(.horizontal, 20)
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.green.opacity(0.8), Color.green],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 56, height: 56)
+                            .overlay(
+                                Image(systemName: "building.2.fill")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 20, weight: .semibold))
+                            )
+                    }
+                    .scaleEffect(showGreeting ? 1.0 : 0.5)
+                    .animation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.3), value: showGreeting)
+                    
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Welcome Back!")
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .opacity(showGreeting ? 1.0 : 0)
+                            .offset(x: showGreeting ? 0 : -20)
+                            .animation(.easeOut(duration: 0.6).delay(0.4), value: showGreeting)
+                        
+                        Text("Islamia College Gujranwala")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white.opacity(0.9))
+                            .opacity(showGreeting ? 1.0 : 0)
+                            .offset(x: showGreeting ? 0 : -20)
+                            .animation(.easeOut(duration: 0.6).delay(0.5), value: showGreeting)
                     }
                     
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text("More")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 20)
+                    Spacer()
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 32)
+                .padding(.bottom, 40)
+            }
+            .background(
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: Color(red: 0.15, green: 0.35, blue: 0.55), location: 0.0),
+                        .init(color: Color(red: 0.25, green: 0.45, blue: 0.65), location: 0.5),
+                        .init(color: Color(red: 0.2, green: 0.4, blue: 0.6), location: 1.0)
+                    ]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay(
+                HStack {
+                    Spacer()
+                    VStack {
+                        Circle()
+                            .fill(.white.opacity(0.1))
+                            .frame(width: 120, height: 120)
+                            .offset(x: 40, y: -20)
+                        Spacer()
+                    }
+                }
+            )
+            .clipped()
+            
+            VStack(spacing: 32) {
+                VStack(alignment: .leading, spacing: 24) {
+                    HStack {
+                        Text("Dashboard")
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
                         
-                        HStack(spacing: 12) {
+                        Spacer()
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 32)
+                    .opacity(showDashboardItems ? 1.0 : 0)
+                    .offset(y: showDashboardItems ? 0 : 20)
+                    .animation(.easeOut(duration: 0.6).delay(0.6), value: showDashboardItems)
+                    
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 4), spacing: 20) {
+                        let items = [
+                            ("grid.circle.fill", "Classes", Color.blue),
+                            ("building.2.fill", "Canteen", Color.orange),
+                            ("person.fill", "Principal", Color.indigo),
+                            ("person.2.fill", "Teachers", Color.purple),
+                            ("trophy.fill", "Events", Color.pink),
+                            ("clock.fill", "Timetable", Color.teal),
+                            ("flask.fill", "Labs", Color.cyan),
+                            ("info.circle.fill", "About", Color.mint)
+                        ]
+                        
+                        ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                            NavigationLink(destination: destinationView(for: item.1)) {
+                                DashboardItem(
+                                    icon: item.0,
+                                    title: item.1,
+                                    iconColor: item.2
+                                )
+                            }
+                            .buttonStyle(DashboardItemButtonStyle())
+                            .opacity(showDashboardItems ? 1.0 : 0)
+                            .offset(y: showDashboardItems ? 0 : 30)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.7 + Double(index) * 0.1), value: showDashboardItems)
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                }
+                
+                VStack(alignment: .leading, spacing: 20) {
+                    Text("Quick Access")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 24)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
                             NavigationLink(destination: LibraryView()) {
                                 MoreItem(
                                     title: "Library",
                                     subtitle: "Study Resources",
-                                    imageName: "library_image"
+                                    imageName: "library_image",
+                                    gradient: [Color.teal.opacity(0.8), Color.teal.opacity(0.8)]
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
                             
                             NavigationLink(destination: SportsView()) {
                                 MoreItem(
-                                    title: "Sports & Funs",
+                                    title: "Sports & Fun",
                                     subtitle: "All Sports",
-                                    imageName: "sports_image"
+                                    imageName: "sports_image",
+                                    gradient: [Color.accentColor.opacity(0.8), Color.accentColor.opacity(0.8)]
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -178,51 +250,209 @@ struct DashboardContentView: View {
                             NavigationLink(destination: ContactUsView()) {
                                 MoreItem(
                                     title: "Parking",
-                                    subtitle: "Parking Resources",
-                                    imageName: "parking_image"
+                                    subtitle: "Parking Areas",
+                                    imageName: "parking_image",
+                                    gradient: [Color.accentColor.opacity(0.8), Color.accentColor.opacity(0.8)]
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 24)
                     }
+                }
+                
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Recommended")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 24)
                     
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text("Recommended")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 20)
-                        
-                        NavigationLink(destination: AdmissionsView()) {
-                            HStack(spacing: 15) {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.gray.opacity(0.3))
-                                    .frame(width: 60, height: 60)
-                                    .overlay(
-                                        Image(systemName: "doc.text.fill")
-                                            .foregroundColor(.white)
-                                            .font(.system(size: 20))
+                    NavigationLink(destination: AdmissionsView()) {
+                        HStack(spacing: 16) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.accentColor, Color.accentColor],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
                                     )
+                                    .frame(width: 64, height: 64)
                                 
+                                Image(systemName: "doc.text.fill")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 24, weight: .semibold))
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
                                 Text("Admissions")
                                     .font(.system(size: 18, weight: .semibold))
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                                 
-                                Spacer()
+                                Text("Apply for new semester")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
                             }
-                            .padding(.horizontal, 20)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.secondary)
                         }
-                        .buttonStyle(PlainButtonStyle())
+                        .padding(20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color(.systemGray6))
+                        )
+                        .padding(.horizontal, 24)
                     }
-                    
-                    Spacer(minLength: 100)
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .background(Color.white)
-                .cornerRadius(25, corners: [.topLeft, .topRight])
-                .offset(y: -25)
+                
+                Spacer(minLength: 120)
             }
+            .background(Color(.systemBackground))
+            .clipShape(
+                RoundedRectangle(cornerRadius: 32)
+            )
+            .offset(y: -32)
         }
         .ignoresSafeArea(.all, edges: .top)
+        .alert("Logout", isPresented: $showLogoutAlert) {
+            Button("Cancel", role: .cancel) {
+            }
+            
+            Button("Logout", role: .destructive) {
+                performLogout()
+            }
+        } message: {
+            Text("Are you sure you want to logout?")
+        }
+        .onAppear {
+            withAnimation {
+                showGreeting = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation {
+                    showDashboardItems = true
+                }
+            }
+        }
+    }
+}
+
+struct DashboardItem: View {
+    let icon: String
+    let title: String
+    let iconColor: Color
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(iconColor.opacity(0.15))
+                    .frame(width: 56, height: 56)
+                
+                Image(systemName: icon)
+                    .foregroundColor(iconColor)
+                    .font(.system(size: 22, weight: .semibold))
+            }
+            
+            Text(title)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.primary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+struct DashboardItemButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct MoreItem: View {
+    let title: String
+    let subtitle: String
+    let imageName: String
+    let gradient: [Color]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        colors: gradient,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 140, height: 100)
+                .overlay(
+                    getImageContent()
+                )
+                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.primary)
+                
+                Text(subtitle)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func getImageContent() -> some View {
+        switch imageName {
+        case "library_image":
+            HStack(spacing: 2) {
+                ForEach(0..<4) { index in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(.white.opacity(0.8))
+                        .frame(width: 6, height: CGFloat.random(in: 25...35))
+                }
+            }
+            .padding(.leading, 20)
+            
+        case "sports_image":
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(.white)
+                    .frame(width: 16, height: 16)
+                Circle()
+                    .fill(.black)
+                    .frame(width: 12, height: 12)
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(.brown)
+                    .frame(width: 3, height: 20)
+            }
+            .padding(.leading, 20)
+            .padding(.top, 20)
+            
+        case "parking_image":
+            RoundedRectangle(cornerRadius: 8)
+                .fill(.white)
+                .frame(width: 32, height: 24)
+                .overlay(
+                    Text("P")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.blue)
+                )
+        default:
+            EmptyView()
+        }
     }
 }
 
@@ -230,7 +460,7 @@ struct CustomTabBar: View {
     @Binding var selectedTab: Int
     
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             TabBarItem(
                 icon: "house.fill",
                 title: "Home",
@@ -263,127 +493,15 @@ struct CustomTabBar: View {
                 selectedTab = 3
             }
         }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 10)
+        )
         .padding(.horizontal, 20)
-        .padding(.vertical, 15)
-        .background(Color.white)
-        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
-    }
-}
-
-struct DashboardItem: View {
-    let icon: String
-    let title: String
-    let iconColor: Color
-    
-    var body: some View {
-        VStack(spacing: 10) {
-            Circle()
-                .fill(Color.gray.opacity(0.1))
-                .frame(width: 60, height: 60)
-                .overlay(
-                    Image(systemName: icon)
-                        .foregroundColor(iconColor)
-                        .font(.system(size: 24, weight: .medium))
-                )
-            
-            Text(title)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(.black)
-                .multilineTextAlignment(.center)
-        }
-    }
-}
-
-struct MoreItem: View {
-    let title: String
-    let subtitle: String
-    let imageName: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(getImageBackground())
-                .frame(height: 100)
-                .overlay(
-                    getImageContent()
-                )
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.black)
-                
-                Text(subtitle)
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
-            }
-        }
-        .frame(maxWidth: .infinity)
-    }
-    
-    @ViewBuilder
-    private func getImageContent() -> some View {
-        switch imageName {
-        case "library_image":
-            VStack {
-                HStack {
-                    Rectangle()
-                        .fill(Color.brown.opacity(0.6))
-                        .frame(width: 8, height: 40)
-                    Rectangle()
-                        .fill(Color.red.opacity(0.6))
-                        .frame(width: 8, height: 35)
-                    Rectangle()
-                        .fill(Color.blue.opacity(0.6))
-                        .frame(width: 8, height: 38)
-                    Rectangle()
-                        .fill(Color.green.opacity(0.6))
-                        .frame(width: 8, height: 42)
-                    Spacer()
-                }
-                .padding(.leading, 20)
-                Spacer()
-            }
-        case "sports_image":
-            HStack {
-                Circle()
-                    .fill(Color.orange)
-                    .frame(width: 20, height: 20)
-                Circle()
-                    .fill(Color.black)
-                    .frame(width: 15, height: 15)
-                Rectangle()
-                    .fill(Color.brown)
-                    .frame(width: 3, height: 25)
-                Spacer()
-            }
-            .padding(.leading, 20)
-            .padding(.top, 20)
-        case "parking_image":
-            RoundedRectangle(cornerRadius: 6)
-                .fill(Color.blue)
-                .frame(width: 40, height: 30)
-                .overlay(
-                    Text("P")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
-                )
-        default:
-            EmptyView()
-        }
-    }
-    
-    private func getImageBackground() -> Color {
-        switch imageName {
-        case "library_image":
-            return Color(red: 0.9, green: 0.9, blue: 0.85)
-        case "sports_image":
-            return Color(red: 0.7, green: 0.7, blue: 0.7)
-        case "parking_image":
-            return Color(red: 0.85, green: 0.9, blue: 0.95)
-        default:
-            return Color.gray.opacity(0.3)
-        }
+        .padding(.bottom, 8)
     }
 }
 
@@ -395,37 +513,27 @@ struct TabBarItem: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.system(size: 22))
-                    .foregroundColor(isSelected ? .accentColor : .gray)
+            VStack(spacing: 4) {
+                ZStack {
+                    if isSelected {
+                        Circle()
+                            .fill(.blue.opacity(0.2))
+                            .frame(width: 32, height: 32)
+                    }
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(isSelected ? .blue : .secondary)
+                }
                 
                 Text(title)
-                    .font(.system(size: 11))
-                    .foregroundColor(isSelected ? .accentColor : .gray)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(isSelected ? .blue : .secondary)
             }
             .frame(maxWidth: .infinity)
         }
-    }
-}
-
-extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCorner(radius: radius, corners: corners))
-    }
-}
-
-struct RoundedCorner: Shape {
-    var radius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
-
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(width: radius, height: radius)
-        )
-        return Path(path.cgPath)
+        .scaleEffect(isSelected ? 1.1 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
     }
 }
 

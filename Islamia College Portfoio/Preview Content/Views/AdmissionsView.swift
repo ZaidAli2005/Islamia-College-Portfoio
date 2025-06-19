@@ -34,6 +34,29 @@ struct AdmissionsView: View {
                     .padding(.horizontal)
                     DocumentsSection()
                         .padding(.horizontal)
+                    NavigationLink(destination: AdmissionPortalForm()) {
+                        HStack {
+                            Image(systemName: "paperplane.fill")
+                                .font(.title3)
+                            Text("Submit Online Application")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.accentColor, Color.accentColor.opacity(0.8)]),
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(12)
+                        .shadow(color: Color.accentColor.opacity(0.4), radius: 8, x: 0, y: 4)
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 10)
                 }
                 .padding(.vertical)
             }
@@ -148,6 +171,7 @@ struct AdmissionsView: View {
         "BS IT"
     ]
 }
+
 
 struct ProgramCardView: View {
     let name: String
