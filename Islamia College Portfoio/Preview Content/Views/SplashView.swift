@@ -34,7 +34,7 @@ struct SplashView: View {
                     Image("Splash Img")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: 320, height: 200)
+                        .frame(width: 360, height: 200)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
@@ -124,7 +124,7 @@ struct SplashView: View {
                         .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
                     }
                     .scaleEffect(buttonScale)
-                    .padding(.bottom, 50)
+                    .padding(.bottom, 200)
                     
                     NavigationLink(
                         destination: DashboardView(),

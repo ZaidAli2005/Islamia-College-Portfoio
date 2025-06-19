@@ -65,8 +65,7 @@ struct AdmissionsView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {}) {
                         HStack {
-                            Image(systemName: "chevron.left")
-                            Text("Back")
+                            Text("")
                         }
                     }
                 }

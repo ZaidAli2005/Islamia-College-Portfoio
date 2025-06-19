@@ -1,6 +1,8 @@
 import SwiftUI
 import FirebaseAuth
 import Firebase
+import AVKit
+import AVFoundation
 
 struct DashboardView: View {
     @State private var selectedTab = 0
@@ -67,6 +69,7 @@ struct DashboardContentView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
+                // Header section remains the same
                 VStack(spacing: 0) {
                     HStack {
                         Button(action: {}) {
@@ -218,7 +221,6 @@ struct DashboardContentView: View {
                     }
                     .padding(.horizontal, 24)
                 }
-                
                 VStack(alignment: .leading, spacing: 20) {
                     Text("Quick Access")
                         .font(.system(size: 24, weight: .bold, design: .rounded))
@@ -231,8 +233,8 @@ struct DashboardContentView: View {
                                 MoreItem(
                                     title: "Library",
                                     subtitle: "Study Resources",
-                                    imageName: "library_image",
-                                    gradient: [Color.teal.opacity(0.8), Color.teal.opacity(0.8)]
+                                    imageName: "Splash Img",
+                                    gradient: [Color.white.opacity(0.8), Color.white.opacity(0.8)]
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -241,8 +243,8 @@ struct DashboardContentView: View {
                                 MoreItem(
                                     title: "Sports & Fun",
                                     subtitle: "All Sports",
-                                    imageName: "sports_image",
-                                    gradient: [Color.accentColor.opacity(0.8), Color.accentColor.opacity(0.8)]
+                                    imageName: "Splash Img",
+                                    gradient: [Color.white.opacity(0.8), Color.white.opacity(0.8)]
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -251,8 +253,8 @@ struct DashboardContentView: View {
                                 MoreItem(
                                     title: "Parking",
                                     subtitle: "Parking Areas",
-                                    imageName: "parking_image",
-                                    gradient: [Color.accentColor.opacity(0.8), Color.accentColor.opacity(0.8)]
+                                    imageName: "Splash Img",
+                                    gradient: [Color.white.opacity(0.8), Color.white.opacity(0.8)]
                                 )
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -290,7 +292,49 @@ struct DashboardContentView: View {
                                     .font(.system(size: 18, weight: .semibold))
                                     .foregroundColor(.primary)
                                 
-                                Text("Apply for new semester")
+                                Text("Apply Online")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color(.systemGray6))
+                        )
+                        .padding(.horizontal, 24)
+                    }
+                    
+                    NavigationLink(destination: DemoVideos()) {
+                        HStack(spacing: 16) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.accentColor, Color.accentColor],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 64, height: 64)
+                                
+                                Image(systemName: "play.rectangle.fill")
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 24, weight: .semibold))
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Watch Demo")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                
+                                Text("Demos")
                                     .font(.system(size: 14))
                                     .foregroundColor(.secondary)
                             }
@@ -310,6 +354,9 @@ struct DashboardContentView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
+                
+                AutoPlayVideoView(videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
+                    .padding(.top, 16)
                 
                 Spacer(minLength: 120)
             }
@@ -500,8 +547,8 @@ struct CustomTabBar: View {
                 .fill(.regularMaterial)
                 .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 10)
         )
-        .padding(.horizontal, 20)
-        .padding(.bottom, 8)
+        .padding(.horizontal, 2)
+        .padding(.bottom, 0)
     }
 }
 
@@ -523,17 +570,150 @@ struct TabBarItem: View {
                     
                     Image(systemName: icon)
                         .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(isSelected ? .blue : .secondary)
+                        .foregroundColor(isSelected ? .accentColor : .secondary)
                 }
                 
                 Text(title)
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(isSelected ? .blue : .secondary)
+                    .foregroundColor(isSelected ? .accentColor : .secondary)
             }
             .frame(maxWidth: .infinity)
         }
         .scaleEffect(isSelected ? 1.1 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+    }
+}
+
+struct AutoPlayVideoView: View {
+    @State private var player: AVPlayer?
+    @State private var isPlaying = false
+    @State private var showControls = false
+    @State private var playerObserver: NSKeyValueObservation?
+    
+    let videoURL: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Featured Video")
+                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .foregroundColor(.primary)
+                .padding(.horizontal, 24)
+            
+            ZStack {
+                if let player = player {
+                    VideoPlayer(player: player)
+                        .frame(height: 200)
+                        .cornerRadius(16)
+                        .onTapGesture {
+                            togglePlayback()
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.clear)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    togglePlayback()
+                                }
+                        )
+                        .overlay(
+                            VStack {
+                                HStack {
+                                    Spacer()
+                                    VStack {
+                                        Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                            .font(.system(size: 30))
+                                            .foregroundColor(.white)
+                                            .background(
+                                                Circle()
+                                                    .fill(Color.black.opacity(0.3))
+                                                    .frame(width: 40, height: 40)
+                                            )
+                                            .opacity(showControls ? 1.0 : 0.0)
+                                        Spacer()
+                                    }
+                                    .padding(.top, 16)
+                                    .padding(.trailing, 16)
+                                }
+                                Spacer()
+                            }
+                        )
+                } else {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 200)
+                        .overlay(
+                            VStack {
+                                Image(systemName: "video.slash")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.gray)
+                                Text("Video not available")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                        )
+                }
+            }
+            .padding(.horizontal, 24)
+            .onAppear {
+                setupPlayer()
+            }
+            .onDisappear {
+                cleanupPlayer()
+            }
+        }
+    }
+    
+    private func setupPlayer() {
+        guard let url = URL(string: videoURL) else { return }
+        
+        player = AVPlayer(url: url)
+        NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: player?.currentItem,
+            queue: .main
+        ) { _ in
+            player?.seek(to: .zero)
+            if isPlaying {
+                player?.play()
+            }
+        }
+        
+        playerObserver = player?.observe(\.status, options: [.new]) { [self] observedPlayer, _ in
+            DispatchQueue.main.async {
+                if observedPlayer.status == .readyToPlay {
+                    observedPlayer.play()
+                    self.isPlaying = true
+                }
+            }
+        }
+    }
+    
+    private func togglePlayback() {
+        guard let player = player else { return }
+        
+        if isPlaying {
+            player.pause()
+            isPlaying = false
+        } else {
+            player.play()
+            isPlaying = true
+        }
+        
+        showControls = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation(.easeOut(duration: 0.5)) {
+                showControls = false
+            }
+        }
+    }
+    
+    private func cleanupPlayer() {
+        player?.pause()
+        player = nil
+        playerObserver?.invalidate()
+        playerObserver = nil
+        
+        NotificationCenter.default.removeObserver(self)
     }
 }
 

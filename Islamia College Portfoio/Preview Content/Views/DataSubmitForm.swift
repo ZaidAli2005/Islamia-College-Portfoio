@@ -109,8 +109,6 @@ class PDFGenerator {
             var yPosition: CGFloat = 50
             let margin: CGFloat = 50
             let contentWidth = pageWidth - (2 * margin)
-            
-            // Header
             let headerFont = UIFont.boldSystemFont(ofSize: 24)
             let titleText = "Islamia College - Admission Application"
             let titleRect = CGRect(x: margin, y: yPosition, width: contentWidth, height: 40)
@@ -120,7 +118,6 @@ class PDFGenerator {
             ])
             yPosition += 60
             
-            // Reference ID
             if !data.referenceID.isEmpty {
                 let refText = "Reference ID: \(data.referenceID)"
                 let refRect = CGRect(x: margin, y: yPosition, width: contentWidth, height: 20)
@@ -131,7 +128,6 @@ class PDFGenerator {
                 yPosition += 40
             }
             
-            // Personal Information Section
             yPosition = addSectionToPDF(title: "Personal Information", yPosition: yPosition, margin: margin, contentWidth: contentWidth)
             yPosition = addTextToPDF(text: "Name: \(data.personalInfo.firstName) \(data.personalInfo.lastName)", yPosition: yPosition, margin: margin)
             yPosition = addTextToPDF(text: "Email: \(data.personalInfo.email)", yPosition: yPosition, margin: margin)
@@ -141,7 +137,6 @@ class PDFGenerator {
             yPosition = addTextToPDF(text: "City: \(data.personalInfo.city), ZIP: \(data.personalInfo.zipCode)", yPosition: yPosition, margin: margin)
             yPosition += 20
             
-            // Academic Information Section
             yPosition = addSectionToPDF(title: "Academic Information", yPosition: yPosition, margin: margin, contentWidth: contentWidth)
             yPosition = addTextToPDF(text: "Previous School: \(data.academicInfo.previousSchoolName)", yPosition: yPosition, margin: margin)
             yPosition = addTextToPDF(text: "Previous College: \(data.academicInfo.previousCollegeName)", yPosition: yPosition, margin: margin)
@@ -153,7 +148,6 @@ class PDFGenerator {
             yPosition = addTextToPDF(text: "Intended Major: \(data.academicInfo.intendedMajor)", yPosition: yPosition, margin: margin)
             yPosition += 20
             
-            // Guardian Information Section
             yPosition = addSectionToPDF(title: "Guardian Information", yPosition: yPosition, margin: margin, contentWidth: contentWidth)
             yPosition = addTextToPDF(text: "Guardian Name: \(data.guardianInfo.guardianName)", yPosition: yPosition, margin: margin)
             yPosition = addTextToPDF(text: "Guardian CNIC: \(data.guardianInfo.guardianCNIC)", yPosition: yPosition, margin: margin)
@@ -162,16 +156,13 @@ class PDFGenerator {
             yPosition = addTextToPDF(text: "Relationship: \(data.guardianInfo.relationship.displayName)", yPosition: yPosition, margin: margin)
             yPosition += 20
             
-            // Personal Statement Section
             if !data.personalStatement.isEmpty {
                 yPosition = addSectionToPDF(title: "Personal Statement", yPosition: yPosition, margin: margin, contentWidth: contentWidth)
                 yPosition = addTextToPDF(text: data.personalStatement, yPosition: yPosition, margin: margin, isMultiline: true)
                 yPosition += 20
             }
             
-            // Student Photo
             if let photo = data.studentPhoto {
-                // Start new page if needed
                 if yPosition > pageHeight - 200 {
                     context.beginPage()
                     yPosition = 50
@@ -183,15 +174,12 @@ class PDFGenerator {
                 yPosition += 170
             }
             
-            // Documents Section
             if !data.documents.isEmpty {
                 yPosition = addSectionToPDF(title: "Uploaded Documents", yPosition: yPosition, margin: margin, contentWidth: contentWidth)
                 for document in data.documents {
                     yPosition = addTextToPDF(text: "• \(document.name) (\(document.type))", yPosition: yPosition, margin: margin)
                 }
             }
-            
-            // Footer
             let footerText = "Application submitted on: \(Date().formatted(date: .abbreviated, time: .shortened))"
             let footerRect = CGRect(x: margin, y: pageHeight - 50, width: contentWidth, height: 20)
             footerText.draw(in: footerRect, withAttributes: [
@@ -271,12 +259,7 @@ class AdmissionAPIService {
               data.agreedToTerms else {
             return .failure(APIError.missingRequiredFields)
         }
-        let referenceID = "ISL\(Int.random(in: 10000...99999))"
-        
-        // In a real implementation, you would:
-        // 1. Send data to your backend
-        // 2. Backend sends email to zaidali786908@gmail.com
-        // 3. Return success with reference ID
+        _ = "ISL\(Int.random(in: 10000...99999))"
         return await withCheckedContinuation { continuation in
             EmailService.shared.sendApplicationEmail(data: data) { result in
                 switch result {
@@ -375,7 +358,6 @@ struct AdmissionPortalForm: View {
     
     private var headerView: some View {
         VStack(spacing: 16) {
-            // Logo and Title
             HStack {
                 ZStack {
                     Circle()
@@ -496,7 +478,7 @@ struct AdmissionPortalForm: View {
         ModernSectionCard(
             title: "Personal Information",
             icon: "person.crop.circle.fill",
-            color: .blue,
+            color: .accentColor,
             isCompleted: !applicationData.personalInfo.firstName.isEmpty && !applicationData.personalInfo.email.isEmpty
         ) {
             VStack(spacing: 20) {
@@ -533,11 +515,10 @@ struct AdmissionPortalForm: View {
                 )
                 .keyboardType(.phonePad)
                 
-                // Date picker with modern styling
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Image(systemName: "calendar")
-                            .foregroundColor(.blue)
+                            .foregroundColor(.teal)
                             .font(.system(size: 16, weight: .medium))
                         Text("Date of Birth")
                             .font(.subheadline)
@@ -554,7 +535,7 @@ struct AdmissionPortalForm: View {
                                 .fill(Color(.systemGray6))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                                        .stroke(Color.accentColor.opacity(0.3), lineWidth: 1)
                                 )
                         )
                 }
@@ -583,11 +564,10 @@ struct AdmissionPortalForm: View {
                     .keyboardType(.numberPad)
                 }
                 
-                // Gender selection with modern cards
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Image(systemName: "person.2.fill")
-                            .foregroundColor(.blue)
+                            .foregroundColor(.teal)
                             .font(.system(size: 16, weight: .medium))
                         Text("Gender")
                             .font(.subheadline)
@@ -605,7 +585,7 @@ struct AdmissionPortalForm: View {
                                 HStack(spacing: 8) {
                                     ZStack {
                                         Circle()
-                                            .fill(applicationData.personalInfo.gender == gender ? .blue : Color.gray.opacity(0.3))
+                                            .fill(applicationData.personalInfo.gender == gender ? .accentColor : Color.gray.opacity(0.3))
                                             .frame(width: 20, height: 20)
                                         
                                         if applicationData.personalInfo.gender == gender {
@@ -624,10 +604,10 @@ struct AdmissionPortalForm: View {
                                 .padding(.vertical, 12)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(applicationData.personalInfo.gender == gender ? .blue.opacity(0.1) : Color(.systemGray6))
+                                        .fill(applicationData.personalInfo.gender == gender ? .accentColor.opacity(0.1) : Color(.systemGray6))
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .stroke(applicationData.personalInfo.gender == gender ? .blue : Color.clear, lineWidth: 2)
+                                                .stroke(applicationData.personalInfo.gender == gender ? .accentColor : Color.clear, lineWidth: 2)
                                         )
                                 )
                             }
@@ -645,7 +625,7 @@ struct AdmissionPortalForm: View {
         ModernSectionCard(
             title: "Academic Information",
             icon: "book.closed.fill",
-            color: .green,
+            color: .accentColor,
             isCompleted: !applicationData.academicInfo.previousSchoolName.isEmpty
         ) {
             VStack(spacing: 20) {
@@ -715,13 +695,12 @@ struct AdmissionPortalForm: View {
                     .keyboardType(.numberPad)
                 }
                 
-                // Major selection dropdown
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Image(systemName: "star.fill")
-                            .foregroundColor(.green)
+                            .foregroundColor(.teal)
                             .font(.system(size: 16, weight: .medium))
-                        Text("Intended Major")
+                        Text("Selecte Department")
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.primary)
@@ -759,21 +738,17 @@ struct AdmissionPortalForm: View {
         }
     }
     
-    // Complete the majors array
     private let majors = [
-        "Computer Science", "Software Engineering", "Information Technology",
-        "Business Administration", "Economics", "English Literature",
-        "Mathematics", "Physics", "Chemistry", "Biology",
-        "Psychology", "Sociology", "Political Science", "History",
-        "Islamic Studies", "Arabic", "Urdu", "Philosophy"
+        "Information Technology (IT)", "Economics", "English ",
+        "Mathematics", "Physics", "Chemistry", "Biology", "Political Science",
+        "Islamic Studies", "Urdu",
     ]
     
-    // Guardian Information Section
     private var guardianInformationSection: some View {
         ModernSectionCard(
             title: "Guardian Information",
             icon: "person.2.fill",
-            color: .orange,
+            color: .accentColor,
             isCompleted: !applicationData.guardianInfo.guardianName.isEmpty
         ) {
             VStack(spacing: 20) {
@@ -807,11 +782,10 @@ struct AdmissionPortalForm: View {
                     icon: "briefcase.fill"
                 )
                 
-                // Relationship selection
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Image(systemName: "heart.fill")
-                            .foregroundColor(.orange)
+                            .foregroundColor(.teal)
                             .font(.system(size: 16, weight: .medium))
                         Text("Relationship")
                             .font(.subheadline)
@@ -829,7 +803,7 @@ struct AdmissionPortalForm: View {
                                 HStack(spacing: 8) {
                                     ZStack {
                                         Circle()
-                                            .fill(applicationData.guardianInfo.relationship == relationship ? .orange : Color.gray.opacity(0.3))
+                                            .fill(applicationData.guardianInfo.relationship == relationship ? .accentColor : Color.gray.opacity(0.3))
                                             .frame(width: 20, height: 20)
                                         
                                         if applicationData.guardianInfo.relationship == relationship {
@@ -850,10 +824,10 @@ struct AdmissionPortalForm: View {
                                 .padding(.vertical, 12)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(applicationData.guardianInfo.relationship == relationship ? .orange.opacity(0.1) : Color(.systemGray6))
+                                        .fill(applicationData.guardianInfo.relationship == relationship ? .accentColor.opacity(0.1) : Color(.systemGray6))
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 12)
-                                                .stroke(applicationData.guardianInfo.relationship == relationship ? .orange : Color.clear, lineWidth: 2)
+                                                .stroke(applicationData.guardianInfo.relationship == relationship ? .accentColor : Color.clear, lineWidth: 2)
                                         )
                                 )
                             }
@@ -866,12 +840,11 @@ struct AdmissionPortalForm: View {
         }
     }
     
-    // Student Photo Section
     private var studentPhotoSection: some View {
         ModernSectionCard(
             title: "Student Photo",
             icon: "camera.fill",
-            color: .purple,
+            color: .accentColor,
             isCompleted: applicationData.studentPhoto != nil
         ) {
             VStack(spacing: 20) {
@@ -886,14 +859,14 @@ struct AdmissionPortalForm: View {
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke(LinearGradient(colors: [.accentColor, .accentColor], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 3)
                             )
-                            .shadow(color: .purple.opacity(0.3), radius: 10, x: 0, y: 5)
+                            .shadow(color: .accent.opacity(0.3), radius: 10, x: 0, y: 5)
                         
                         Button("Change Photo") {
                             showingImagePicker = true
                         }
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.purple)
+                        .foregroundColor(.accentColor)
                     }
                 } else {
                     Button(action: {
@@ -908,18 +881,18 @@ struct AdmissionPortalForm: View {
                                 VStack(spacing: 12) {
                                     Image(systemName: "camera.fill")
                                         .font(.system(size: 40, weight: .medium))
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.accentColor)
                                     
                                     Text("Upload Photo")
                                         .font(.subheadline)
                                         .fontWeight(.medium)
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.accentColor)
                                 }
                             }
                             .overlay(
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke(style: StrokeStyle(lineWidth: 2, dash: [8]))
-                                    .foregroundColor(.purple.opacity(0.5))
+                                    .foregroundColor(.accentColor.opacity(0.5))
                             )
                             
                             Text("Tap to select a photo from your gallery")
@@ -938,18 +911,17 @@ struct AdmissionPortalForm: View {
         ModernSectionCard(
             title: "Upload Documents",
             icon: "doc.fill",
-            color: .indigo,
+            color: .accentColor,
             isCompleted: !applicationData.documents.isEmpty
         ) {
             VStack(spacing: 20) {
-                // Document upload button
                 Button(action: {
                     showingDocumentPicker = true
                 }) {
                     HStack(spacing: 12) {
                         Image(systemName: "plus.circle.fill")
                             .font(.title2)
-                            .foregroundColor(.indigo)
+                            .foregroundColor(.accentColor)
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Add Documents")
@@ -971,7 +943,7 @@ struct AdmissionPortalForm: View {
                     .padding(16)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(.indigo.opacity(0.1))
+                            .fill(.teal.opacity(0.1))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(.indigo.opacity(0.3), lineWidth: 1)
@@ -979,7 +951,6 @@ struct AdmissionPortalForm: View {
                     )
                 }
                 
-                // Uploaded documents list
                 if !applicationData.documents.isEmpty {
                     VStack(spacing: 12) {
                         ForEach(applicationData.documents) { document in
@@ -1362,7 +1333,7 @@ struct AdmissionPortalForm: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Image(systemName: icon)
-                        .foregroundColor(.blue)
+                        .foregroundColor(.teal)
                         .font(.system(size: 16, weight: .medium))
                     Text(title)
                         .font(.subheadline)

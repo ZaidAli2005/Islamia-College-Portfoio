@@ -170,7 +170,7 @@ struct ContactUsView: View {
                 QuickContactRow(
                     icon: "envelope.fill",
                     title: "Email",
-                    subtitle: "info@islamiacollege.edu.pk",
+                    subtitle: "zaidali786908@gmail.com",
                     color: .blue
                 ) {
                     sendQuickEmail()
@@ -262,8 +262,12 @@ struct ContactUsView: View {
             subject = "Quick Contact - Islamia College App"
             showingMailComposer = true
         } else {
-            if let emailURL = URL(string: "zaidali786908@gmail.com") {
+            if let emailURL = URL(string: "mailto:zaidali786908@gmail.com"),
+               UIApplication.shared.canOpenURL(emailURL) {
                 UIApplication.shared.open(emailURL)
+            } else {
+                alertMessage = "No email app found. Please configure your Mail app or install one to send emails."
+                showingAlert = true
             }
         }
     }
