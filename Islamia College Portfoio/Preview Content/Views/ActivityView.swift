@@ -466,7 +466,7 @@ struct MediaGridView: View {
         }
         .fullScreenCover(isPresented: $showingVideoPlayer) {
             if let videoURL = selectedVideoURL {
-                VideoPlayerView(videoURL: videoURL, isPresented: $showingVideoPlayer)
+                VideosPlayerView(videoURL: videoURL, isPresented: $showingVideoPlayer)
             }
         }
         .sheet(isPresented: $showingAllMedia) {
@@ -571,14 +571,14 @@ struct AllMediaView: View {
             }
             .fullScreenCover(isPresented: $showingVideoPlayer) {
                 if let videoURL = selectedVideoURL {
-                    VideoPlayerView(videoURL: videoURL, isPresented: $showingVideoPlayer)
+                    VideosPlayerView(videoURL: videoURL, isPresented: $showingVideoPlayer)
                 }
             }
         }
     }
 }
 
-struct VideoPlayerView: View {
+struct VideosPlayerView: View {
     let videoURL: URL
     @Binding var isPresented: Bool
     @State private var player: AVPlayer?

@@ -277,7 +277,7 @@ struct CanteenView: View {
     }
 }
 
-struct CategoryButton: View {
+struct CategorysButton: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void

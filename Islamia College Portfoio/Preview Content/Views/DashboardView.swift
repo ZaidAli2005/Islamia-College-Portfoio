@@ -69,7 +69,6 @@ struct DashboardContentView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                // Header section remains the same
                 VStack(spacing: 0) {
                     HStack {
                         Button(action: {}) {
@@ -109,11 +108,6 @@ struct DashboardContentView: View {
                 HStack(spacing: 16) {
                     ZStack {
                         Circle()
-                            .fill(.white)
-                            .frame(width: 64, height: 64)
-                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                        
-                        Circle()
                             .fill(
                                 LinearGradient(
                                     colors: [Color.green.opacity(0.8), Color.green],
@@ -123,7 +117,8 @@ struct DashboardContentView: View {
                             )
                             .frame(width: 56, height: 56)
                             .overlay(
-                                Image(systemName: "building.2.fill")
+                                Image("Splash Img")
+                                    .resizable()
                                     .foregroundColor(.white)
                                     .font(.system(size: 20, weight: .semibold))
                             )
@@ -508,7 +503,7 @@ struct CustomTabBar: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            TabBarItem(
+            TabBarItems(
                 icon: "house.fill",
                 title: "Home",
                 isSelected: selectedTab == 0
@@ -516,7 +511,7 @@ struct CustomTabBar: View {
                 selectedTab = 0
             }
             
-            TabBarItem(
+            TabBarItems(
                 icon: "message.fill",
                 title: "Chat",
                 isSelected: selectedTab == 1
@@ -524,7 +519,7 @@ struct CustomTabBar: View {
                 selectedTab = 1
             }
             
-            TabBarItem(
+            TabBarItems(
                 icon: "chart.bar.fill",
                 title: "Activity",
                 isSelected: selectedTab == 2
@@ -532,7 +527,7 @@ struct CustomTabBar: View {
                 selectedTab = 2
             }
             
-            TabBarItem(
+            TabBarItems(
                 icon: "person.fill",
                 title: "Profile",
                 isSelected: selectedTab == 3
@@ -552,7 +547,7 @@ struct CustomTabBar: View {
     }
 }
 
-struct TabBarItem: View {
+struct TabBarItems: View {
     let icon: String
     let title: String
     let isSelected: Bool
