@@ -23,7 +23,7 @@ struct TeachersDetailView: View {
                         Text("Back")
                             .font(.system(size: 17, weight: .regular))
                     }
-                    .foregroundColor(Color(red: 0.2, green: 0.6, blue: 0.4))
+                    .foregroundColor(.accentColor)
                 }
                 
                 Spacer()
@@ -77,7 +77,7 @@ struct TeachersDetailView: View {
                     VStack(spacing: 0) {
                         DetailSectionView(
                             icon: "book.fill",
-                            iconColor: Color(red: 0.2, green: 0.6, blue: 0.4),
+                            iconColor: .accentColor,
                             title: "Education",
                             content: AnyView(
                                 VStack(alignment: .leading, spacing: 8) {
@@ -94,7 +94,7 @@ struct TeachersDetailView: View {
                             .padding(.vertical, 16)
                         DetailSectionView(
                             icon: "graduationcap.fill",
-                            iconColor: Color(red: 0.2, green: 0.6, blue: 0.4),
+                            iconColor: .accentColor,
                             title: "Designation",
                             content: AnyView(
                                 Text(teacher.designation)
@@ -107,7 +107,7 @@ struct TeachersDetailView: View {
                             .padding(.vertical, 16)
                         DetailSectionView(
                             icon: "envelope.fill",
-                            iconColor: Color(red: 0.2, green: 0.6, blue: 0.4),
+                            iconColor: .accentColor,
                             title: "Email",
                             content: AnyView(
                                 Text(teacher.email)
@@ -120,7 +120,7 @@ struct TeachersDetailView: View {
                             .padding(.vertical, 16)
                         DetailSectionView(
                             icon: "phone.fill",
-                            iconColor: Color(red: 0.2, green: 0.6, blue: 0.4),
+                            iconColor: .accentColor,
                             title: "Contact",
                             content: AnyView(
                                 Text(teacher.contactNumbers.joined(separator: "  "))

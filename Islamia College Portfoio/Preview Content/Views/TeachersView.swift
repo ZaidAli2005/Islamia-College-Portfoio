@@ -36,18 +36,6 @@ struct TeachersView: View {
         NavigationView {
             VStack(spacing: 0) {
                 HStack {
-                    Button(action: {
-                        
-                    }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 16, weight: .medium))
-                            Text("Back")
-                                .font(.system(size: 17, weight: .regular))
-                        }
-                        .foregroundColor(Color(red: 0.2, green: 0.6, blue: 0.4))
-                    }
-                    
                     Spacer()
                     
                     Text("Faculty Directory")
@@ -88,7 +76,7 @@ struct TeachersView: View {
                                     .padding(.vertical, 10)
                                     .background(
                                         selectedDepartment == department
-                                            ? Color(red: 0.2, green: 0.6, blue: 0.4)
+                                        ? .accentColor
                                             : Color(UIColor.systemGray5)
                                     )
                                     .foregroundColor(
