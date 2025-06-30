@@ -55,13 +55,11 @@ class ProfileViewModel: ObservableObject {
     }
     
     private func setupFirestore() {
-        // Enable offline persistence
         let settings = FirestoreSettings()
         settings.isPersistenceEnabled = true
         settings.cacheSizeBytes = FirestoreCacheSizeUnlimited
         db.settings = settings
         
-        // Enable network first, then cache
         db.enableNetwork { [weak self] error in
             if let error = error {
                 print("Failed to enable Firestore network: \(error.localizedDescription)")
@@ -79,7 +77,6 @@ class ProfileViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self?.isOffline = path.status != .satisfied
                 if path.status == .satisfied && self?.userProfile == nil {
-                    // Network is back, retry fetching profile
                     self?.fetchUserProfile()
                 }
             }
@@ -97,20 +94,16 @@ class ProfileViewModel: ObservableObject {
         isLoading = true
         errorMessage = ""
         
-        // Try to get from cache first, then network
         let docRef = db.collection("users").document(userId)
         
-        // First try with cache
         docRef.getDocument(source: .cache) { [weak self] document, error in
             if let document = document, document.exists, let data = document.data() {
                 DispatchQueue.main.async {
                     self?.userProfile = UserProfile(id: userId, data: data)
                     self?.isLoading = false
                 }
-                // Still try to get fresh data from server
                 self?.fetchFromServer(docRef: docRef, userId: userId)
             } else {
-                // No cache, try server
                 self?.fetchFromServer(docRef: docRef, userId: userId)
             }
         }
@@ -123,7 +116,7 @@ class ProfileViewModel: ObservableObject {
                 
                 if let error = error {
                     let nsError = error as NSError
-                    if nsError.code == 14 { // UNAVAILABLE error code
+                    if nsError.code == 14 {
                         self?.errorMessage = "Unable to connect to server. Please check your internet connection."
                     } else {
                         self?.errorMessage = error.localizedDescription
@@ -139,16 +132,12 @@ class ProfileViewModel: ObservableObject {
     }
     
     func retryFetchProfile() {
-        // Clear previous error and retry
         errorMessage = ""
-        
-        // Force enable network connection
         db.enableNetwork { [weak self] error in
             if let error = error {
                 print("Network enable error: \(error.localizedDescription)")
             }
             
-            // Wait a moment then retry
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self?.fetchUserProfile()
             }
