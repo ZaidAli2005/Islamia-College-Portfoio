@@ -55,7 +55,6 @@ struct LibraryView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-//                headerView
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         searchAndTitleSection
@@ -74,29 +73,6 @@ struct LibraryView: View {
             }
         }
     }
-    
-    // MARK: - Header View
-//    private var headerView: some View {
-//        HStack {
-//            Button(action: {
-//                // Handle back action
-//            }) {
-//                HStack(spacing: 6) {
-//                    Image(systemName: "chevron.left")
-//                        .font(.system(size: 16, weight: .semibold))
-//                    Text("Back")
-//                        .font(.system(size: 16, weight: .medium))
-//                }
-//                .foregroundColor(.accentColor)
-//            }
-//            
-//            Spacer()
-//        }
-//        .padding(.horizontal, 20)
-//        .padding(.top, 10)
-//        .padding(.bottom, 8)
-//        .background(Color(.systemBackground))
-//    }
     
     private var searchAndTitleSection: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -225,7 +201,6 @@ struct LibraryView: View {
         .background(Color(.systemGroupedBackground))
     }
     
-    // MARK: - Statistics View
     private var statisticsView: some View {
         HStack(spacing: 0) {
             StatisticView(
@@ -278,7 +253,6 @@ struct LibraryView: View {
     }
 }
 
-// MARK: - Book Row View
 struct BookRowView: View {
     let book: Book
     let onTap: () -> Void
@@ -421,7 +395,6 @@ struct StatisticView: View {
     }
 }
 
-// MARK: - Book Details View
 struct BookDetailsView: View {
     let book: Book
     @Environment(\.presentationMode) var presentationMode
@@ -443,7 +416,6 @@ struct BookDetailsView: View {
         }
     }
     
-    // MARK: - Book Header View
     private var bookHeaderView: some View {
         VStack(spacing: 24) {
             HStack {
@@ -547,7 +519,6 @@ struct BookDetailsView: View {
         )
     }
     
-    // MARK: - Book Details Section
     private var bookDetailsSection: some View {
         VStack(spacing: 0) {
             Text("Book Information")
@@ -574,7 +545,6 @@ struct BookDetailsView: View {
         )
     }
     
-    // MARK: - Description Section
     private var descriptionSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Description")
@@ -594,7 +564,6 @@ struct BookDetailsView: View {
         )
     }
     
-    // MARK: - Detail Row
     private func detailRow(label: String, value: String, icon: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
