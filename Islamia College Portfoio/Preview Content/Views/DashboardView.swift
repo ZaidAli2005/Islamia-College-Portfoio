@@ -73,13 +73,14 @@ struct DashboardContentView: View {
                     HStack {
                         Button(action: {}) {
                             Circle()
-                                .fill(.white.opacity(0.15))
-                                .frame(width: 44, height: 44)
+                                .fill(.white.opacity(0.2))
+                                .frame(width: 48, height: 48)
                                 .overlay(
                                     Image(systemName: "graduationcap.fill")
                                         .foregroundColor(.white)
-                                        .font(.system(size: 18, weight: .medium))
+                                        .font(.system(size: 20, weight: .semibold))
                                 )
+                                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                                 .scaleEffect(showGreeting ? 1.0 : 0.8)
                                 .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1), value: showGreeting)
                         }
@@ -90,276 +91,215 @@ struct DashboardContentView: View {
                             handleLogout()
                         }) {
                             Circle()
-                                .fill(.white.opacity(0.15))
-                                .frame(width: 44, height: 44)
+                                .fill(.white.opacity(0.2))
+                                .frame(width: 48, height: 48)
                                 .overlay(
                                     Image(systemName: "rectangle.portrait.and.arrow.right")
                                         .foregroundColor(.white)
-                                        .font(.system(size: 18, weight: .medium))
+                                        .font(.system(size: 18, weight: .semibold))
                                 )
+                                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
                                 .scaleEffect(showGreeting ? 1.0 : 0.8)
                                 .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.2), value: showGreeting)
                         }
                     }
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 60)
-                
-                HStack(spacing: 16) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.green.opacity(0.8), Color.green],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                    .padding(.horizontal, 24)
+                    .padding(.top, 60)
+                    
+                    HStack(spacing: 20) {
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [.white.opacity(0.3), .white.opacity(0.1)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
                                 )
-                            )
-                            .frame(width: 56, height: 56)
-                            .overlay(
-                                Image("Splash Img")
-                                    .resizable()
-                                    .foregroundColor(.white)
-                                    .font(.system(size: 20, weight: .semibold))
-                            )
-                    }
-                    .scaleEffect(showGreeting ? 1.0 : 0.5)
-                    .animation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.3), value: showGreeting)
-                    
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Welcome Back!")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .opacity(showGreeting ? 1.0 : 0)
-                            .offset(x: showGreeting ? 0 : -20)
-                            .animation(.easeOut(duration: 0.6).delay(0.4), value: showGreeting)
+                                .frame(width: 64, height: 64)
+                                .shadow(color: .black.opacity(0.1), radius: 12, x: 0, y: 6)
+                            
+                            Image("Splash Img")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 40, height: 40)
+                                .foregroundColor(.white)
+                        }
+                        .scaleEffect(showGreeting ? 1.0 : 0.5)
+                        .animation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.3), value: showGreeting)
                         
-                        Text("Islamia College Gujranwala")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white.opacity(0.9))
-                            .opacity(showGreeting ? 1.0 : 0)
-                            .offset(x: showGreeting ? 0 : -20)
-                            .animation(.easeOut(duration: 0.6).delay(0.5), value: showGreeting)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Welcome Back!")
+                                .font(.system(size: 34, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .opacity(showGreeting ? 1.0 : 0)
+                                .offset(x: showGreeting ? 0 : -30)
+                                .animation(.easeOut(duration: 0.6).delay(0.4), value: showGreeting)
+                            
+                            Text("Islamia College Gujranwala")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white.opacity(0.9))
+                                .opacity(showGreeting ? 1.0 : 0)
+                                .offset(x: showGreeting ? 0 : -30)
+                                .animation(.easeOut(duration: 0.6).delay(0.5), value: showGreeting)
+                        }
+                        
+                        Spacer()
                     }
-                    
-                    Spacer()
+                    .padding(.horizontal, 24)
+                    .padding(.top, 40)
+                    .padding(.bottom, 50)
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 32)
-                .padding(.bottom, 40)
-            }
-            .background(
-                LinearGradient(
-                    gradient: Gradient(stops: [
-                        .init(color: Color(red: 0.15, green: 0.35, blue: 0.55), location: 0.0),
-                        .init(color: Color(red: 0.25, green: 0.45, blue: 0.65), location: 0.5),
-                        .init(color: Color(red: 0.2, green: 0.4, blue: 0.6), location: 1.0)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 0.2, green: 0.4, blue: 0.5),
+                            Color(red: 0.2, green: 0.4, blue: 0.5)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
                 )
-            )
-            .overlay(
-                HStack {
-                    Spacer()
-                    VStack {
-                        Circle()
-                            .fill(.white.opacity(0.1))
-                            .frame(width: 120, height: 120)
-                            .offset(x: 40, y: -20)
-                        Spacer()
-                    }
-                }
-            )
-            .clipped()
-            
-            VStack(spacing: 32) {
-                VStack(alignment: .leading, spacing: 24) {
-                    HStack {
-                        Text("Dashboard")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
-                        
-                        Spacer()
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 32)
-                    .opacity(showDashboardItems ? 1.0 : 0)
-                    .offset(y: showDashboardItems ? 0 : 20)
-                    .animation(.easeOut(duration: 0.6).delay(0.6), value: showDashboardItems)
-                    
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 4), spacing: 20) {
-                        let items = [
-                            ("grid.circle.fill", "Classes", Color.blue),
-                            ("building.2.fill", "Canteen", Color.orange),
-                            ("person.fill", "Principal", Color.indigo),
-                            ("person.2.fill", "Teachers", Color.purple),
-                            ("trophy.fill", "Events", Color.pink),
-                            ("clock.fill", "Timetable", Color.teal),
-                            ("flask.fill", "Labs", Color.cyan),
-                            ("info.circle.fill", "About", Color.mint)
-                        ]
-                        
-                        ForEach(Array(items.enumerated()), id: \.offset) { index, item in
-                            NavigationLink(destination: destinationView(for: item.1)) {
-                                DashboardItem(
-                                    icon: item.0,
-                                    title: item.1,
-                                    iconColor: item.2
-                                )
-                            }
-                            .buttonStyle(DashboardItemButtonStyle())
-                            .opacity(showDashboardItems ? 1.0 : 0)
-                            .offset(y: showDashboardItems ? 0 : 30)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.7 + Double(index) * 0.1), value: showDashboardItems)
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                }
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("Quick Access")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                        .padding(.horizontal, 24)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            NavigationLink(destination: LibraryView()) {
-                                MoreItem(
-                                    title: "Library",
-                                    subtitle: "Study Resources",
-                                    imageName: "Splash Img",
-                                    gradient: [Color.white.opacity(0.8), Color.white.opacity(0.8)]
-                                )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: SportsView()) {
-                                MoreItem(
-                                    title: "Sports & Fun",
-                                    subtitle: "All Sports",
-                                    imageName: "Splash Img",
-                                    gradient: [Color.white.opacity(0.8), Color.white.opacity(0.8)]
-                                )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            NavigationLink(destination: ContactUsView()) {
-                                MoreItem(
-                                    title: "Parking",
-                                    subtitle: "Parking Areas",
-                                    imageName: "Splash Img",
-                                    gradient: [Color.white.opacity(0.8), Color.white.opacity(0.8)]
-                                )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                        .padding(.horizontal, 24)
-                    }
-                }
+                .clipped()
                 
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Recommended")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                        .padding(.horizontal, 24)
-                    
-                    NavigationLink(destination: AdmissionsView()) {
-                        HStack(spacing: 16) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [Color.accentColor, Color.accentColor],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .frame(width: 64, height: 64)
-                                
-                                Image(systemName: "doc.text.fill")
-                                    .foregroundColor(.white)
-                                    .font(.system(size: 24, weight: .semibold))
-                            }
-                            
+                VStack(spacing: 40) {
+                    VStack(alignment: .leading, spacing: 28) {
+                        HStack {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Admissions")
-                                    .font(.system(size: 18, weight: .semibold))
+                                Text("Dashboard")
+                                    .font(.system(size: 32, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
-                                
-                                Text("Apply Online")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.secondary)
                             }
                             
                             Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.secondary)
                         }
-                        .padding(20)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color(.systemGray6))
-                        )
+                        .padding(.horizontal, 24)
+                        .padding(.top, 36)
+                        .opacity(showDashboardItems ? 1.0 : 0)
+                        .offset(y: showDashboardItems ? 0 : 20)
+                        .animation(.easeOut(duration: 0.6).delay(0.6), value: showDashboardItems)
+                        
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20), count: 4), spacing: 24) {
+                            let items = [
+                                ("grid.circle.fill", "Classes", Color.blue),
+                                ("building.2.fill", "Canteen", Color.orange),
+                                ("person.fill", "Principal", Color.indigo),
+                                ("person.2.fill", "Teachers", Color.purple),
+                                ("trophy.fill", "Events", Color.pink),
+                                ("clock.fill", "Timetable", Color.teal),
+                                ("flask.fill", "Labs", Color.cyan),
+                                ("info.circle.fill", "About", Color.mint)
+                            ]
+                            
+                            ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                                NavigationLink(destination: destinationView(for: item.1)) {
+                                    EnhancedDashboardItem(
+                                        icon: item.0,
+                                        title: item.1,
+                                        iconColor: item.2
+                                    )
+                                }
+                                .buttonStyle(EnhancedDashboardItemButtonStyle())
+                                .opacity(showDashboardItems ? 1.0 : 0)
+                                .offset(y: showDashboardItems ? 0 : 40)
+                                .animation(.spring(response: 0.7, dampingFraction: 0.8).delay(0.7 + Double(index) * 0.08), value: showDashboardItems)
+                            }
+                        }
                         .padding(.horizontal, 24)
                     }
                     
-                    NavigationLink(destination: DemoVideos()) {
-                        HStack(spacing: 16) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [Color.accentColor, Color.accentColor],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .frame(width: 64, height: 64)
-                                
-                                Image(systemName: "play.rectangle.fill")
-                                    .foregroundColor(.white)
-                                    .font(.system(size: 24, weight: .semibold))
-                            }
-                            
+                    VStack(alignment: .leading, spacing: 24) {
+                        HStack {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Watch Demo")
-                                    .font(.system(size: 18, weight: .semibold))
+                                Text("Quick Access")
+                                    .font(.system(size: 26, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
+                            }
+                            Spacer()
+                        }
+                        .padding(.horizontal, 24)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 20) {
+                                NavigationLink(destination: LibraryView()) {
+                                    EnhancedMoreItem(
+                                        title: "Library",
+                                        subtitle: "Study Resources",
+                                        icon: "book.fill",
+                                        gradient: [Color.green.opacity(0.8), Color.green]
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
                                 
-                                Text("Demos")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.secondary)
+                                NavigationLink(destination: SportsView()) {
+                                    EnhancedMoreItem(
+                                        title: "Sports & Fun",
+                                        subtitle: "All Sports",
+                                        icon: "sportscourt.fill",
+                                        gradient: [Color.red.opacity(0.8), Color.red]
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                
+                                NavigationLink(destination: ContactUsView()) {
+                                    EnhancedMoreItem(
+                                        title: "Contact",
+                                        subtitle: "Contact Us",
+                                        icon: "person.crop.circle.fill.badge.checkmark",
+                                        gradient: [Color.blue.opacity(0.8), Color.blue]
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                            .padding(.horizontal, 24)
+                        }
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 20) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Recommended")
+                                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                            }
+                            Spacer()
+                        }
+                        .padding(.horizontal, 24)
+                        
+                        VStack(spacing: 16) {
+                            NavigationLink(destination: AdmissionsView()) {
+                                EnhancedRecommendedItem(
+                                    icon: "doc.text.fill",
+                                    title: "Admissions",
+                                    subtitle: "Apply Online",
+                                    iconColor: .accentColor
+                                )
                             }
                             
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.secondary)
+                            NavigationLink(destination: FeeView()) {
+                                EnhancedRecommendedItem(
+                                    icon: "creditcard.fill",
+                                    title: "Fee",
+                                    subtitle: "About Fee",
+                                    iconColor: .accentColor
+                                )
+                            }
                         }
-                        .padding(20)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color(.systemGray6))
-                        )
                         .padding(.horizontal, 24)
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    
+                    AutoPlayVideoView(videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
+                        .padding(.top, 20)
+                    
+                    Spacer(minLength: 140)
                 }
-                
-                AutoPlayVideoView(videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
-                    .padding(.top, 16)
-                
-                Spacer(minLength: 120)
+                .background(Color(.systemBackground))
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 36)
+                )
+                .offset(y: -36)
+                .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: -10)
             }
-            .background(Color(.systemBackground))
-            .clipShape(
-                RoundedRectangle(cornerRadius: 32)
-            )
-            .offset(y: -32)
         }
         .ignoresSafeArea(.all, edges: .top)
         .alert("Logout", isPresented: $showLogoutAlert) {
@@ -385,51 +325,53 @@ struct DashboardContentView: View {
     }
 }
 
-struct DashboardItem: View {
+struct EnhancedDashboardItem: View {
     let icon: String
     let title: String
     let iconColor: Color
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             ZStack {
                 Circle()
-                    .fill(iconColor.opacity(0.15))
-                    .frame(width: 56, height: 56)
+                    .fill(iconColor.opacity(0.12))
+                    .frame(width: 64, height: 64)
+                    .shadow(color: iconColor.opacity(0.3), radius: 8, x: 0, y: 4)
                 
                 Image(systemName: icon)
                     .foregroundColor(iconColor)
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.system(size: 24, weight: .semibold))
             }
             
             Text(title)
-                .font(.system(size: 12, weight: .medium))
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
         }
         .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
     }
 }
 
-struct DashboardItemButtonStyle: ButtonStyle {
+struct EnhancedDashboardItemButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
             .opacity(configuration.isPressed ? 0.8 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
     }
 }
 
-struct MoreItem: View {
+struct EnhancedMoreItem: View {
     let title: String
     let subtitle: String
-    let imageName: String
+    let icon: String
     let gradient: [Color]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            RoundedRectangle(cornerRadius: 16)
+        VStack(alignment: .leading, spacing: 16) {
+            RoundedRectangle(cornerRadius: 20)
                 .fill(
                     LinearGradient(
                         colors: gradient,
@@ -437,64 +379,80 @@ struct MoreItem: View {
                         endPoint: .bottomTrailing
                     )
                 )
-                .frame(width: 140, height: 100)
+                .frame(width: 160, height: 120)
                 .overlay(
-                    getImageContent()
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Image(systemName: icon)
+                                .font(.system(size: 28, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(.top, 20)
+                                .padding(.trailing, 20)
+                        }
+                        Spacer()
+                    }
                 )
-                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(title)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(.primary)
                 
                 Text(subtitle)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.secondary)
             }
         }
     }
+}
+
+struct EnhancedRecommendedItem: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let iconColor: Color
     
-    @ViewBuilder
-    private func getImageContent() -> some View {
-        switch imageName {
-        case "library_image":
-            HStack(spacing: 2) {
-                ForEach(0..<4) { index in
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(.white.opacity(0.8))
-                        .frame(width: 6, height: CGFloat.random(in: 25...35))
-                }
+    var body: some View {
+        HStack(spacing: 20) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(
+                        LinearGradient(
+                            colors: [iconColor, iconColor],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 72, height: 72)
+                
+                Image(systemName: icon)
+                    .foregroundColor(.white)
+                    .font(.system(size: 16, weight: .semibold))
             }
-            .padding(.leading, 20)
             
-        case "sports_image":
-            HStack(spacing: 8) {
-                Circle()
-                    .fill(.white)
-                    .frame(width: 16, height: 16)
-                Circle()
-                    .fill(.black)
-                    .frame(width: 12, height: 12)
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(.brown)
-                    .frame(width: 3, height: 20)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.primary)
+                
+                Text(subtitle)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.secondary)
             }
-            .padding(.leading, 20)
-            .padding(.top, 20)
             
-        case "parking_image":
-            RoundedRectangle(cornerRadius: 8)
-                .fill(.white)
-                .frame(width: 32, height: 24)
-                .overlay(
-                    Text("P")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.blue)
-                )
-        default:
-            EmptyView()
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.secondary)
         }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color(.systemGray6))
+                .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 4)
+        )
     }
 }
 
@@ -535,15 +493,15 @@ struct CustomTabBar: View {
                 selectedTab = 3
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 16)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 10)
         .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(.regularMaterial)
-                .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 10)
+            RoundedRectangle(cornerRadius: 28)
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.15), radius: 25, x: 0, y: 12)
         )
-        .padding(.horizontal, 2)
-        .padding(.bottom, 0)
+        .padding(.horizontal, 10)
+        .padding(.bottom, 8)
     }
 }
 
@@ -555,27 +513,27 @@ struct TabBarItems: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
+            VStack(spacing: 6) {
                 ZStack {
                     if isSelected {
                         Circle()
-                            .fill(.blue.opacity(0.2))
-                            .frame(width: 32, height: 32)
+                            .fill(.blue.opacity(0.15))
+                            .frame(width: 36, height: 36)
                     }
                     
                     Image(systemName: icon)
-                        .font(.system(size: 18, weight: .medium))
+                        .font(.system(size: 20, weight: .medium))
                         .foregroundColor(isSelected ? .accentColor : .secondary)
                 }
                 
                 Text(title)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(isSelected ? .accentColor : .secondary)
             }
             .frame(maxWidth: .infinity)
         }
-        .scaleEffect(isSelected ? 1.1 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+        .scaleEffect(isSelected ? 1.05 : 1.0)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isSelected)
     }
 }
 
@@ -588,22 +546,32 @@ struct AutoPlayVideoView: View {
     let videoURL: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Featured Video")
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundColor(.primary)
-                .padding(.horizontal, 24)
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Featured Video")
+                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                    
+                    Text("Educational content")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 24)
             
             ZStack {
                 if let player = player {
                     VideoPlayer(player: player)
-                        .frame(height: 200)
-                        .cornerRadius(16)
+                        .frame(height: 220)
+                        .cornerRadius(20)
+                        .shadow(color: .black.opacity(0.2), radius: 15, x: 0, y: 8)
                         .onTapGesture {
                             togglePlayback()
                         }
                         .overlay(
-                            RoundedRectangle(cornerRadius: 16)
+                            RoundedRectangle(cornerRadius: 20)
                                 .fill(Color.clear)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
@@ -615,37 +583,40 @@ struct AutoPlayVideoView: View {
                                 HStack {
                                     Spacer()
                                     VStack {
-                                        Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                            .font(.system(size: 30))
-                                            .foregroundColor(.white)
-                                            .background(
-                                                Circle()
-                                                    .fill(Color.black.opacity(0.3))
-                                                    .frame(width: 40, height: 40)
-                                            )
-                                            .opacity(showControls ? 1.0 : 0.0)
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.black.opacity(0.4))
+                                                .frame(width: 50, height: 50)
+                                                .blur(radius: 1)
+                                            
+                                            Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                                .font(.system(size: 32, weight: .semibold))
+                                                .foregroundColor(.white)
+                                        }
+                                        .opacity(showControls ? 1.0 : 0.0)
                                         Spacer()
                                     }
-                                    .padding(.top, 16)
-                                    .padding(.trailing, 16)
+                                    .padding(.top, 20)
+                                    .padding(.trailing, 20)
                                 }
                                 Spacer()
                             }
                         )
                 } else {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(height: 200)
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: 220)
                         .overlay(
-                            VStack {
+                            VStack(spacing: 12) {
                                 Image(systemName: "video.slash")
-                                    .font(.system(size: 30))
+                                    .font(.system(size: 36))
                                     .foregroundColor(.gray)
                                 Text("Video not available")
-                                    .font(.caption)
+                                    .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(.gray)
                             }
                         )
+                        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 4)
                 }
             }
             .padding(.horizontal, 24)

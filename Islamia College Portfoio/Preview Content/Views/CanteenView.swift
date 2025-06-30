@@ -134,63 +134,63 @@ struct CanteenView: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    CategoryButton(
+                    CategorysButton(
                         title: "Cold Drinks",
                         isSelected: canteenModel.selectedCategory == .coldDrinks
                     ) {
                         canteenModel.selectedCategory = .coldDrinks
                     }
                     
-                    CategoryButton(
+                    CategorysButton(
                         title: "Sandwiches",
                         isSelected: canteenModel.selectedCategory == .sandwiches
                     ) {
                         canteenModel.selectedCategory = .sandwiches
                     }
                     
-                    CategoryButton(
+                    CategorysButton(
                         title: "Fast Foods",
                         isSelected: canteenModel.selectedCategory == .fastFoods
                     ) {
                         canteenModel.selectedCategory = .fastFoods
                     }
                     
-                    CategoryButton(
+                    CategorysButton(
                         title: "Desserts",
                         isSelected: canteenModel.selectedCategory == .desserts
                     ) {
                         canteenModel.selectedCategory = .desserts
                     }
                     
-                    CategoryButton(
+                    CategorysButton(
                         title: "Breakfast",
                         isSelected: canteenModel.selectedCategory == .breakfast
                     ) {
                         canteenModel.selectedCategory = .breakfast
                     }
                     
-                    CategoryButton(
+                    CategorysButton(
                         title: "Lunch",
                         isSelected: canteenModel.selectedCategory == .lunch
                     ) {
                         canteenModel.selectedCategory = .lunch
                     }
                     
-                    CategoryButton(
+                    CategorysButton(
                         title: "Dinner",
                         isSelected: canteenModel.selectedCategory == .dinner
                     ) {
                         canteenModel.selectedCategory = .dinner
                     }
                     
-                    CategoryButton(
+                    CategorysButton(
                         title: "Snacks",
                         isSelected: canteenModel.selectedCategory == .snacks
                     ) {
                         canteenModel.selectedCategory = .snacks
                     }
                     
-                    CategoryButton(
+                    CategorysButton(
                         title: "Beverages",
                         isSelected: canteenModel.selectedCategory == .beverages
                     ) {

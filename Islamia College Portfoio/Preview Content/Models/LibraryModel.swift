@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Book Model
 struct Book: Identifiable, Codable {
-    let id = UUID()
+    var id = UUID()
     let title: String
     let author: String
     let publisher: String
@@ -75,7 +75,6 @@ enum SortOption: String, CaseIterable {
     }
 }
 
-// MARK: - Sample Data
 struct SampleData {
     static let books: [Book] = [
         Book(

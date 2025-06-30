@@ -423,10 +423,4 @@ struct DocumentCategory: View {
 
 #Preview {
     AdmissionsView()
-        .preferredColorScheme(.light)
-}
-
-#Preview {
-    AdmissionsView()
-        .preferredColorScheme(.dark)
 }

@@ -91,7 +91,7 @@ struct AboutsView: View {
                 .clipped()
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
                     ForEach(Array(collegeStats.enumerated()), id: \.offset) { index, stat in
-                        StatCard(title: stat.0, value: stat.1, index: index, showStats: showStats)
+                        StatsCard(title: stat.0, value: stat.1, index: index, showStats: showStats)
                     }
                 }
                 .padding(.horizontal)
@@ -155,7 +155,7 @@ struct AboutsView: View {
     }
 }
 
-struct StatCard: View {
+struct StatsCard: View {
     let title: String
     let value: String
     let index: Int

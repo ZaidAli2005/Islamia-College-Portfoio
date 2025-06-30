@@ -312,22 +312,6 @@ struct BookRowView: View {
                             .foregroundColor(.secondary)
                             .labelStyle(.titleAndIcon)
                         
-                        Text("•")
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 12))
-                        
-                        Text("\(book.year)")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                        
-                        Text("•")
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 12))
-                        
-                        Text("\(book.pages) pages")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                        
                         Spacer()
                         
                         HStack(spacing: 3) {
@@ -345,12 +329,7 @@ struct BookRowView: View {
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.blue)
                             .labelStyle(.titleAndIcon)
-                        
                         Spacer()
-                        
-                        Text("Borrowed \(book.timesBorrowed) times")
-                            .font(.system(size: 11))
-                            .foregroundColor(.secondary)
                     }
                 }
                 
@@ -478,24 +457,6 @@ struct BookDetailsView: View {
                 Spacer()
             }
             HStack(spacing: 0) {
-                VStack(spacing: 8) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "arrow.triangle.2.circlepath")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(.blue)
-                        
-                        Text("\(book.timesBorrowed)")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(.blue)
-                    }
-                    
-                    Text("Times Borrowed")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
                 VStack(spacing: 8) {
                     HStack(spacing: 3) {
                         ForEach(1...5, id: \.self) { star in

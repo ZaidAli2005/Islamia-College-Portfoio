@@ -110,7 +110,6 @@ struct ClasssesDetailView: View {
                         .background(
                             RoundedRectangle(cornerRadius: 16)
                                 .fill(Color(.systemBackground))
-                                .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
                         )
                         .padding(.horizontal, 20)
                     }
@@ -138,7 +137,6 @@ struct ClasssesDetailView: View {
                                     .padding(.vertical, 12)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.green.opacity(0.1))
                                     )
                                 }
                             }
@@ -156,7 +154,6 @@ struct ClasssesDetailView: View {
                                 if let email = department.contactEmail {
                                     HStack(spacing: 16) {
                                         Circle()
-                                            .fill(Color.blue.opacity(0.2))
                                             .frame(width: 40, height: 40)
                                             .overlay(
                                                 Image(systemName: "envelope.fill")

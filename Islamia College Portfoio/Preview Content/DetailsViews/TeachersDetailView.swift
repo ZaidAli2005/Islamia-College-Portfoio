@@ -13,85 +13,83 @@ struct TeachersDetailView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            // Header
             HStack {
                 Button(action: {
                     presentationMode.wrappedValue.dismiss()
                 }) {
-                    HStack(spacing: 4) {
+                    HStack(spacing: 6) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .medium))
+                            .font(.system(size: 16, weight: .semibold))
                         Text("Back")
-                            .font(.system(size: 17, weight: .regular))
+                            .font(.system(size: 17, weight: .medium))
                     }
                     .foregroundColor(.accentColor)
                 }
                 
                 Spacer()
                 
-                Text("Details")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.black)
+                Text("Faculty Details")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.primary)
                 
                 Spacer()
-                HStack(spacing: 4) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .medium))
-                    Text("Back")
-                        .font(.system(size: 17, weight: .regular))
-                }
-                .opacity(0)
+                
+                // Empty spacer for layout balance
+                Color.clear
+                    .frame(width: 60, height: 20)
             }
             .padding(.horizontal, 16)
             .padding(.top, 10)
-            .padding(.bottom, 30)
+            .padding(.bottom, 20)
             
             ScrollView {
-                VStack(spacing: 24) {
-                    VStack(spacing: 16) {
-                        AsyncImage(url: URL(string: "https://via.placeholder.com/120")) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Circle()
-                                .fill(Color.blue.opacity(0.3))
-                                .overlay(
-                                    Text(String(teacher.name.prefix(1)))
-                                        .font(.system(size: 40, weight: .medium))
-                                        .foregroundColor(.white)
-                                )
+                VStack(spacing: 32) {
+                    // Profile Section
+                    VStack(spacing: 20) {
+                        // Profile Image
+                        Group {
+                            if !teacher.imageName.isEmpty {
+                                Image(teacher.imageName)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 130, height: 130)
+                                    .clipShape(Circle())
+                            } else {
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [.accentColor, .accentColor],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 130, height: 130)
+                                    .overlay(
+                                        Text(String(teacher.name.prefix(1)))
+                                            .font(.system(size: 48, weight: .bold))
+                                            .foregroundColor(.white)
+                                    )
+                            }
                         }
-                        .frame(width: 120, height: 120)
-                        .clipShape(Circle())
+                        .shadow(color: .black, radius: 8, x: 0, y: 4)
+                        
                         VStack(spacing: 8) {
                             Text(teacher.name)
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.black)
+                                .font(.system(size: 26, weight: .bold))
+                                .foregroundColor(.primary)
+                                .multilineTextAlignment(.center)
                             
                             Text(teacher.department)
-                                .font(.system(size: 16, weight: .regular))
-                                .foregroundColor(.gray)
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
                         }
                     }
                     .padding(.top, 20)
-                    VStack(spacing: 0) {
-                        DetailSectionView(
-                            icon: "book.fill",
-                            iconColor: .accentColor,
-                            title: "Education",
-                            content: AnyView(
-                                VStack(alignment: .leading, spacing: 8) {
-                                    ForEach(teacher.education, id: \.self) { edu in
-                                        Text(edu)
-                                            .font(.system(size: 16, weight: .medium))
-                                            .foregroundColor(.black)
-                                    }
-                                }
-                            )
-                        )
-                        
-                        Divider()
-                            .padding(.vertical, 16)
+                    
+                    // Details Section
+                    VStack(spacing: 24) {
                         DetailSectionView(
                             icon: "graduationcap.fill",
                             iconColor: .accentColor,
@@ -99,46 +97,93 @@ struct TeachersDetailView: View {
                             content: AnyView(
                                 Text(teacher.designation)
                                     .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.primary)
                             )
                         )
                         
                         Divider()
-                            .padding(.vertical, 16)
+                            .background(Color(.systemGray4))
+                        
+                        DetailSectionView(
+                            icon: "book.fill",
+                            iconColor: .accentColor,
+                            title: "Education",
+                            content: AnyView(
+                                VStack(alignment: .leading, spacing: 8) {
+                                    ForEach(teacher.education, id: \.self) { edu in
+                                        HStack {
+                                            Circle()
+                                                .fill(Color.accentColor)
+                                                .frame(width: 6, height: 6)
+                                            Text(edu)
+                                                .font(.system(size: 16, weight: .medium))
+                                                .foregroundColor(.primary)
+                                            Spacer()
+                                        }
+                                    }
+                                }
+                            )
+                        )
+                        
+                        Divider()
+                            .background(Color(.systemGray4))
+                        
                         DetailSectionView(
                             icon: "envelope.fill",
                             iconColor: .accentColor,
                             title: "Email",
                             content: AnyView(
-                                Text(teacher.email)
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.black)
+                                Button(action: {
+                                    if let url = URL(string: "mailto:\(teacher.email)") {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }) {
+                                    Text(teacher.email)
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.accentColor)
+                                        .underline()
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             )
                         )
                         
                         Divider()
-                            .padding(.vertical, 16)
+                            .background(Color(.systemGray4))
+                        
                         DetailSectionView(
                             icon: "phone.fill",
                             iconColor: .accentColor,
                             title: "Contact",
                             content: AnyView(
-                                Text(teacher.contactNumbers.joined(separator: "  "))
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.black)
+                                VStack(alignment: .leading, spacing: 8) {
+                                    ForEach(teacher.contactNumbers, id: \.self) { contact in
+                                        Button(action: {
+                                            if let url = URL(string: "tel:\(contact)") {
+                                                UIApplication.shared.open(url)
+                                            }
+                                        }) {
+                                            Text(contact)
+                                                .font(.system(size: 16, weight: .medium))
+                                                .foregroundColor(.accentColor)
+                                                .underline()
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                    }
+                                }
                             )
                         )
                     }
-                    .padding(20)
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(12)
+                    .padding(24)
+                    .background(Color.white)
+                    .cornerRadius(20)
+                    .shadow(color: .black, radius: 8, x: 0, y: 4)
                     .padding(.horizontal, 16)
                     
                     Spacer(minLength: 100)
                 }
             }
         }
-        .background(Color(UIColor.systemBackground))
+        .background(Color(.systemGroupedBackground))
         .navigationBarHidden(true)
     }
 }
@@ -150,16 +195,23 @@ struct DetailSectionView: View {
     let content: AnyView
     
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(iconColor)
-                .frame(width: 20)
+        HStack(alignment: .top, spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(iconColor)
+                    .frame(width: 36, height: 36)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(iconColor)
+            }
             
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundColor(.gray)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.secondary)
+                    .textCase(.uppercase)
+                    .tracking(0.5)
                 
                 content
             }
