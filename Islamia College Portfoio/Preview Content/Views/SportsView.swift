@@ -52,8 +52,6 @@ struct SportsView: View {
                     endPoint: .bottom
                 )
             )
-            .navigationTitle("Sports & Fun")
-            .navigationBarTitleDisplayMode(.large)
             .onAppear {
                 withAnimation(.easeInOut(duration: 0.8).delay(0.2)) {
                     animateCards = true

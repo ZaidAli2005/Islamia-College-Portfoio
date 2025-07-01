@@ -16,43 +16,52 @@ struct ClasssesDetailView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                 }
-                .frame(height: 200)
+                .frame(height: 220)
                 .clipped()
-                .cornerRadius(20)
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
-                
-                VStack(alignment: .leading, spacing: 24) {
+                .cornerRadius(16)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                VStack(alignment: .leading, spacing: 28) {
                     Text(department.name)
-                        .font(.system(size: 32, weight: .bold))
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                         .padding(.horizontal, 20)
-                        .padding(.top, 30)
+                        .padding(.top, 24)
                         .frame(maxWidth: .infinity, alignment: .center)
+                    
                     if let headOfDepartment = department.headOfDepartment {
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Head of Department")
-                                .font(.system(size: 16, weight: .medium))
+                                .font(.system(size: 14, weight: .semibold))
                                 .foregroundColor(.secondary)
+                                .textCase(.uppercase)
+                                .tracking(0.5)
                                 .padding(.horizontal, 20)
                             
                             HStack(spacing: 16) {
-                                Circle()
-                                    .fill(Color.green)
-                                    .frame(width: 40, height: 40)
-                                    .overlay(
-                                        Image(systemName: "person.fill")
-                                            .foregroundColor(.white)
-                                            .font(.system(size: 18, weight: .medium))
-                                    )
+                                ZStack {
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [.accentColor.opacity(0.8), .accentColor],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 50, height: 50)
+                                    
+                                    Image(systemName: "person.fill")
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 20, weight: .medium))
+                                }
                                 
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Hod of \(department.name.replacingOccurrences(of: "BS ", with: "")) is")
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(.primary)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Head of \(department.name.replacingOccurrences(of: "BS ", with: ""))")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.secondary)
                                     
                                     Text(headOfDepartment)
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .font(.system(size: 17, weight: .semibold))
                                         .foregroundColor(.primary)
                                 }
                                 
@@ -62,108 +71,150 @@ struct ClasssesDetailView: View {
                             .padding(.vertical, 20)
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color(.white))
+                                    .fill(.ultraThinMaterial)
+                                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
                             )
                             .padding(.horizontal, 20)
                         }
                     }
+                    
                     if let description = department.description {
-                        Text(description)
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(.secondary)
-                            .lineSpacing(6)
-                            .padding(.horizontal, 20)
-                    }
-                    if let studentCount = department.teacherCount {
-                        VStack(spacing: 16) {
-                            HStack(spacing: 20) {
-                                if let teacherCount = department.teacherCount {
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        HStack(spacing: 8) {
-                                            Image(systemName: "person.fill")
-                                                .foregroundColor(.green)
-                                                .font(.system(size: 20))
-                                            Text("Teachers")
-                                                .font(.system(size: 14, weight: .medium))
-                                                .foregroundColor(.secondary)
-                                        }
-                                        Text("\(teacherCount)")
-                                            .font(.system(size: 24, weight: .bold))
-                                            .foregroundColor(.green)
-                                    }
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                            }
-                            if let establishedYear = department.establishedYear {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "calendar")
-                                        .foregroundColor(.orange)
-                                        .font(.system(size: 20))
-                                    Text("Established in \(establishedYear)")
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(.primary)
-                                    Spacer()
-                                }
-                            }
-                        }
-                        .padding(20)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color(.systemBackground))
-                        )
-                        .padding(.horizontal, 20)
-                    }
-                    if let facilities = department.facilities, !facilities.isEmpty {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Facilities")
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("About Department")
                                 .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(.primary)
                                 .padding(.horizontal, 20)
                             
-                            VStack(spacing: 12) {
+                            Text(description)
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundColor(.secondary)
+                                .lineSpacing(8)
+                                .padding(.horizontal, 20)
+                        }
+                    }
+                    
+                    if let teacherCount = department.teacherCount {
+                        VStack(spacing: 16) {
+                            HStack(spacing: 24) {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "person.2.fill")
+                                            .foregroundColor(.accentColor)
+                                            .font(.system(size: 18))
+                                        Text("Teachers")
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Text("\(teacherCount)")
+                                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                                        .foregroundColor(.accentColor)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                
+                                Spacer()
+                            }
+                            
+                            if let establishedYear = department.establishedYear {
+                                HStack(spacing: 12) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.orange.opacity(0.15))
+                                            .frame(width: 36, height: 36)
+                                        
+                                        Image(systemName: "calendar")
+                                            .foregroundColor(.orange)
+                                            .font(.system(size: 16, weight: .medium))
+                                    }
+                                    
+                                    Text("Established in \(establishedYear)")
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundColor(.primary)
+                                    
+                                    Spacer()
+                                }
+                            }
+                        }
+                        .padding(24)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(.ultraThinMaterial)
+                                .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 4)
+                        )
+                        .padding(.horizontal, 20)
+                    }
+                    
+                    if let facilities = department.facilities, !facilities.isEmpty {
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text("Facilities")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundColor(.primary)
+                                .padding(.horizontal, 20)
+                            
+                            LazyVGrid(columns: [
+                                GridItem(.flexible()),
+                                GridItem(.flexible())
+                            ], spacing: 12) {
                                 ForEach(facilities, id: \.self) { facility in
                                     HStack(spacing: 12) {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(.green)
-                                            .font(.system(size: 18))
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.accentColor.opacity(0.15))
+                                                .frame(width: 28, height: 28)
+                                            
+                                            Image(systemName: "checkmark")
+                                                .foregroundColor(.accentColor)
+                                                .font(.system(size: 12, weight: .bold))
+                                        }
                                         
                                         Text(facility)
-                                            .font(.system(size: 16, weight: .medium))
+                                            .font(.system(size: 14, weight: .medium))
                                             .foregroundColor(.primary)
+                                            .multilineTextAlignment(.leading)
                                         
-                                        Spacer()
+                                        Spacer(minLength: 0)
                                     }
                                     .padding(.horizontal, 16)
-                                    .padding(.vertical, 12)
+                                    .padding(.vertical, 16)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color(.systemBackground))
+                                            .shadow(color: .black.opacity(0.03), radius: 4, x: 0, y: 2)
                                     )
                                 }
                             }
                             .padding(.horizontal, 20)
                         }
                     }
+                    
                     if department.contactEmail != nil || department.contactPhone != nil {
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 20) {
                             Text("Contact Information")
-                                .font(.system(size: 20, weight: .bold))
+                                .font(.system(size: 22, weight: .bold))
                                 .foregroundColor(.primary)
                                 .padding(.horizontal, 20)
                             
-                            VStack(spacing: 12) {
+                            VStack(spacing: 16) {
                                 if let email = department.contactEmail {
                                     HStack(spacing: 16) {
-                                        Circle()
-                                            .frame(width: 40, height: 40)
-                                            .overlay(
-                                                Image(systemName: "envelope.fill")
-                                                    .foregroundColor(.blue)
-                                                    .font(.system(size: 16))
-                                            )
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.blue.opacity(0.15))
+                                                .frame(width: 48, height: 48)
+                                            
+                                            Image(systemName: "envelope.fill")
+                                                .foregroundColor(.blue)
+                                                .font(.system(size: 18))
+                                        }
                                         
-                                        Text(email)
-                                            .font(.system(size: 16, weight: .medium))
-                                            .foregroundColor(.primary)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Email Address")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.secondary)
+                                            
+                                            Text(email)
+                                                .font(.system(size: 16, weight: .medium))
+                                                .foregroundColor(.primary)
+                                        }
                                         
                                         Spacer()
                                     }
@@ -171,36 +222,54 @@ struct ClasssesDetailView: View {
                                 
                                 if let phone = department.contactPhone {
                                     HStack(spacing: 16) {
-                                        Circle()
-                                            .fill(Color.green.opacity(0.2))
-                                            .frame(width: 40, height: 40)
-                                            .overlay(
-                                                Image(systemName: "phone.fill")
-                                                    .foregroundColor(.green)
-                                                    .font(.system(size: 16))
-                                            )
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.accentColor.opacity(0.15))
+                                                .frame(width: 48, height: 48)
+                                            
+                                            Image(systemName: "phone.fill")
+                                                .foregroundColor(.accentColor)
+                                                .font(.system(size: 18))
+                                        }
                                         
-                                        Text(phone)
-                                            .font(.system(size: 16, weight: .medium))
-                                            .foregroundColor(.primary)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Phone Number")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.secondary)
+                                            
+                                            Text(phone)
+                                                .font(.system(size: 16, weight: .medium))
+                                                .foregroundColor(.primary)
+                                        }
                                         
                                         Spacer()
                                     }
                                 }
                             }
-                            .padding(20)
+                            .padding(24)
                             .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color(.systemGray6))
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(.ultraThinMaterial)
+                                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 4)
                             )
                             .padding(.horizontal, 20)
                         }
                     }
-                    Spacer(minLength: 100)
+                    
+                    Spacer(minLength: 40)
                 }
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(
+            LinearGradient(
+                colors: [
+                    Color(.systemGroupedBackground),
+                    Color(.systemGroupedBackground).opacity(0.8)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -208,20 +277,17 @@ struct ClasssesDetailView: View {
                 Button(action: {
                     dismiss()
                 }) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .medium))
-                        Text("Back")
-                            .font(.system(size: 17, weight: .regular))
+                            .font(.system(size: 22, weight: .semibold))
                     }
-                    .foregroundColor(.green)
+                    .foregroundColor(.accentColor)
                 }
             }
         }
     }
 }
 
-// MARK: - Preview
 #Preview {
     NavigationView {
         ClasssesDetailView(department: Department.sampleDepartments[0])

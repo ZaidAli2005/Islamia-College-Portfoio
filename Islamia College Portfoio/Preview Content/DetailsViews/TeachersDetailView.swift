@@ -13,16 +13,13 @@ struct TeachersDetailView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
             HStack {
                 Button(action: {
                     presentationMode.wrappedValue.dismiss()
                 }) {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text("Back")
-                            .font(.system(size: 17, weight: .medium))
+                            .font(.system(size: 22, weight: .semibold))
                     }
                     .foregroundColor(.accentColor)
                 }
@@ -35,7 +32,6 @@ struct TeachersDetailView: View {
                 
                 Spacer()
                 
-                // Empty spacer for layout balance
                 Color.clear
                     .frame(width: 60, height: 20)
             }
@@ -45,9 +41,7 @@ struct TeachersDetailView: View {
             
             ScrollView {
                 VStack(spacing: 32) {
-                    // Profile Section
                     VStack(spacing: 20) {
-                        // Profile Image
                         Group {
                             if !teacher.imageName.isEmpty {
                                 Image(teacher.imageName)
@@ -88,7 +82,6 @@ struct TeachersDetailView: View {
                     }
                     .padding(.top, 20)
                     
-                    // Details Section
                     VStack(spacing: 24) {
                         DetailSectionView(
                             icon: "graduationcap.fill",

@@ -54,21 +54,6 @@ struct ClassessView: View {
                     }
                     .buttonStyle(ScaleButtonStyle())
                 }
-                
-                ToolbarItem(placement: .principal) {
-                    HStack(spacing: 8) {
-                        Text("Departments")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.primary, .primary],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                    }
-                }
             }
         }
         .onAppear {
@@ -84,7 +69,6 @@ struct ClassessView: View {
         }
     }
     
-    // MARK: - Stats Header View
     private var statsHeaderView: some View {
         HStack(spacing: 0) {
             statCard(
@@ -159,6 +143,7 @@ struct ClassessView: View {
                 .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 4)
                 .shadow(color: .blue.opacity(0.1), radius: 20, x: 0, y: 8)
         )
+        .padding(.top, 5)
     }
     
     private func statCard(icon: String, value: String, label: String, color: Color, delay: Double) -> some View {

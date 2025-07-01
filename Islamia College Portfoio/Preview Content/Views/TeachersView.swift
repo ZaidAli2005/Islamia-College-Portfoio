@@ -35,21 +35,6 @@ struct TeachersView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // Header
-                HStack {
-                    Spacer()
-                    
-                    Text("Faculty Directory")
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(.primary)
-                    
-                    Spacer()
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 10)
-                .padding(.bottom, 20)
-                
-                // Search Bar
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.accentColor)
@@ -62,12 +47,12 @@ struct TeachersView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
                 .background(Color.white)
-                .cornerRadius(25)
+                .cornerRadius(12)
                 .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
                 .padding(.horizontal, 16)
                 .padding(.bottom, 20)
+                .padding(.top, 16)
                 
-                // Department Filter
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(Departments.allCases, id: \.self) { department in
@@ -100,7 +85,6 @@ struct TeachersView: View {
                 }
                 .padding(.bottom, 20)
                 
-                // Teachers List
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(filteredTeachers) { teacher in
@@ -127,7 +111,6 @@ struct TeacherRowView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Profile Image with fallback
             Group {
                 if !teacher.imageName.isEmpty {
                     Image(teacher.imageName)

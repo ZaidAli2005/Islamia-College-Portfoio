@@ -76,14 +76,6 @@ struct LibraryView: View {
     
     private var searchAndTitleSection: some View {
         VStack(alignment: .leading, spacing: 20) {
-            HStack {
-                Text("College Library")
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-                
-                Spacer()
-            }
-            .padding(.horizontal, 20)
             
             HStack(spacing: 12) {
                 Image(systemName: "magnifyingglass")
@@ -113,9 +105,9 @@ struct LibraryView: View {
             )
             .padding(.horizontal, 20)
         }
-        .padding(.top, 8)
-        .padding(.bottom, 24)
-        .background(Color(.systemBackground))
+        .padding(.top, 16)
+        .padding(.bottom, 14)
+        .background(Color(.systemGroupedBackground))
     }
     private var filterTabsView: some View {
         VStack(spacing: 16) {
@@ -144,6 +136,7 @@ struct LibraryView: View {
                             }
                         }
                     }
+                    .padding(.top, 3)
                     .padding(.horizontal, 20)
                 }
                 HStack(spacing: 12) {
@@ -197,6 +190,7 @@ struct LibraryView: View {
                 .padding(.trailing, 20)
             }
         }
+        .padding(.top, 15)
         .padding(.bottom, 30)
         .background(Color(.systemGroupedBackground))
     }

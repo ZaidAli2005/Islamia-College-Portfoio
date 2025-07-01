@@ -284,6 +284,15 @@ struct DashboardContentView: View {
                                     iconColor: .accentColor
                                 )
                             }
+                            
+                            NavigationLink(destination: ManagementView()) {
+                                EnhancedRecommendedItem(
+                                    icon: "person.crop.circle.fill",
+                                    title: "Managment",
+                                    subtitle: "About Managment People",
+                                    iconColor: .accentColor
+                                )
+                            }
                         }
                         .padding(.horizontal, 24)
                     }

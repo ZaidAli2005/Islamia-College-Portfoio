@@ -21,7 +21,7 @@ struct SplashView: View {
     @State private var backgroundOffset: CGFloat = 0
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 LinearGradient(
                     gradient: Gradient(colors: [
@@ -34,6 +34,7 @@ struct SplashView: View {
                 )
                 .ignoresSafeArea()
                 .offset(x: backgroundOffset)
+                
                 ForEach(0..<6, id: \.self) { index in
                     Circle()
                         .fill(Color.white.opacity(0.1))
@@ -50,32 +51,25 @@ struct SplashView: View {
                             value: pulseAnimation
                         )
                 }
-                
+
                 VStack(spacing: 40) {
                     Spacer()
-                    
+
                     Image("Splash Img")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 360, height: 200)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white.opacity(0.3), lineWidth: 0)
-                        )
                         .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
                         .scaleEffect(imageScale)
                         .rotationEffect(.degrees(imageRotation))
-                    
+
                     VStack(spacing: 15) {
                         Text("Islamia College")
                             .font(.system(size: 36, weight: .bold, design: .rounded))
                             .foregroundStyle(
                                 LinearGradient(
-                                    colors: [
-                                        Color.white,
-                                        Color.white.opacity(0.9)
-                                    ],
+                                    colors: [Color.white, Color.white.opacity(0.9)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -83,13 +77,13 @@ struct SplashView: View {
                             .multilineTextAlignment(.center)
                             .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 2)
                             .offset(y: titleOffset)
-                        
+
                         Text("Gujranwala")
                             .font(.system(size: 20, weight: .medium, design: .rounded))
                             .foregroundColor(.white.opacity(0.85))
                             .tracking(1.5)
                             .offset(y: subtitleOffset)
-                        
+
                         HStack(spacing: 8) {
                             ForEach(0..<3, id: \.self) { index in
                                 Circle()
@@ -108,15 +102,15 @@ struct SplashView: View {
                         .padding(.top, 10)
                     }
                     .opacity(contentOpacity)
-                    
+
                     Spacer()
-                    
+
                     Button(action: handleButtonTap) {
                         HStack(spacing: 12) {
                             Text("Let's Go")
                                 .font(.system(size: 18, weight: .semibold, design: .rounded))
                                 .foregroundColor(.white)
-                            
+
                             Image(systemName: "arrow.right")
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.white)
@@ -127,8 +121,8 @@ struct SplashView: View {
                         .background(
                             LinearGradient(
                                 colors: [
-                                    Color(red: 0.15, green: 0.65, blue: 0.45),
-                                    Color(red: 0.1, green: 0.55, blue: 0.35)
+                                    Color(red: 0.1, green: 0.55, blue: 0.35),
+                                    Color(red: 0.15, green: 0.65, blue: 0.45)
                                 ],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
@@ -143,22 +137,19 @@ struct SplashView: View {
                     }
                     .scaleEffect(buttonScale)
                     .padding(.bottom, 200)
-                    
-                    NavigationLink(
-                        destination: DashboardView(),
-                        isActive: $navigateToDashboard
-                    ) {
-                        EmptyView()
-                    }
                 }
                 .padding(.horizontal, 30)
                 .onAppear {
                     startAnimations()
                 }
+                .navigationDestination(isPresented: $navigateToDashboard) {
+                    DashboardView()
+                }
             }
         }
         .navigationBarHidden(true)
     }
+
     
     private func handleButtonTap() {
         withAnimation(.easeInOut(duration: 0.1)) {
@@ -186,9 +177,6 @@ struct SplashView: View {
     }
     
     private func startAnimations() {
-        withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
-            backgroundOffset = 20
-        }
         withAnimation(.spring(response: 1.5, dampingFraction: 0.7)) {
             imageScale = 1.0
             imageRotation = 360

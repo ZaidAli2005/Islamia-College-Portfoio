@@ -4,753 +4,623 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 import PhotosUI
-import Network
-
-struct UserProfile {
-    let id: String
-    let fullName: String
-    let email: String
-    let studentID: String
-    let profileImageURL: String?
-    let createdAt: Date
-    
-    init(id: String, data: [String: Any]) {
-        self.id = id
-        self.fullName = data["fullName"] as? String ?? ""
-        self.email = data["email"] as? String ?? ""
-        self.studentID = data["studentID"] as? String ?? ""
-        self.profileImageURL = data["profileImageURL"] as? String
-        
-        if let timestamp = data["createdAt"] as? Timestamp {
-            self.createdAt = timestamp.dateValue()
-        } else {
-            self.createdAt = Date()
-        }
-    }
-}
 
 class ProfileViewModel: ObservableObject {
     @Published var userProfile: UserProfile?
-    @Published var isLoading = true
+    @Published var isLoading = false
     @Published var errorMessage = ""
-    @Published var showingEditProfile = false
-    @Published var isUploadingImage = false
-    @Published var selectedImage: UIImage?
+    @Published var isEditing = false
     @Published var showingImagePicker = false
-    @Published var isOffline = false
+    @Published var selectedImage: UIImage?
+    @Published var profileImageURL: String?
+    @Published var isUploadingImage = false
+    @Published var showingProfileSetup = false
     
     private let db = Firestore.firestore()
     private let storage = Storage.storage()
-    private let networkMonitor = NWPathMonitor()
-    private let networkQueue = DispatchQueue(label: "NetworkMonitor")
     
     init() {
-        setupFirestore()
-        setupNetworkMonitoring()
         fetchUserProfile()
     }
     
-    deinit {
-        networkMonitor.cancel()
-    }
-    
-    private func setupFirestore() {
-        let settings = FirestoreSettings()
-        settings.isPersistenceEnabled = true
-        settings.cacheSizeBytes = FirestoreCacheSizeUnlimited
-        db.settings = settings
-        
-        db.enableNetwork { [weak self] error in
-            if let error = error {
-                print("Failed to enable Firestore network: \(error.localizedDescription)")
-            } else {
-                print("Firestore network enabled successfully")
-                DispatchQueue.main.async {
-                    self?.fetchUserProfile()
-                }
-            }
-        }
-    }
-    
-    private func setupNetworkMonitoring() {
-        networkMonitor.pathUpdateHandler = { [weak self] path in
-            DispatchQueue.main.async {
-                self?.isOffline = path.status != .satisfied
-                if path.status == .satisfied && self?.userProfile == nil {
-                    self?.fetchUserProfile()
-                }
-            }
-        }
-        networkMonitor.start(queue: networkQueue)
-    }
-    
     func fetchUserProfile() {
-        guard let userId = Auth.auth().currentUser?.uid else {
-            errorMessage = "No user logged in"
-            isLoading = false
-            return
-        }
+        guard let currentUser = Auth.auth().currentUser else { return }
         
         isLoading = true
         errorMessage = ""
         
-        let docRef = db.collection("users").document(userId)
-        
-        docRef.getDocument(source: .cache) { [weak self] document, error in
-            if let document = document, document.exists, let data = document.data() {
-                DispatchQueue.main.async {
-                    self?.userProfile = UserProfile(id: userId, data: data)
-                    self?.isLoading = false
-                }
-                self?.fetchFromServer(docRef: docRef, userId: userId)
-            } else {
-                self?.fetchFromServer(docRef: docRef, userId: userId)
-            }
-        }
-    }
-    
-    private func fetchFromServer(docRef: DocumentReference, userId: String) {
-        docRef.getDocument(source: .server) { [weak self] document, error in
+        db.collection("users").document(currentUser.uid).getDocument { [weak self] document, error in
             DispatchQueue.main.async {
                 self?.isLoading = false
-                
                 if let error = error {
-                    let nsError = error as NSError
-                    if nsError.code == 14 {
-                        self?.errorMessage = "Unable to connect to server. Please check your internet connection."
-                    } else {
-                        self?.errorMessage = error.localizedDescription
-                    }
-                } else if let document = document, document.exists, let data = document.data() {
-                    self?.userProfile = UserProfile(id: userId, data: data)
-                    self?.errorMessage = ""
+                    self?.errorMessage = error.localizedDescription
+                } else if let document = document, document.exists {
+                    let data = document.data() ?? [:]
+                    self?.userProfile = UserProfile(
+                        id: currentUser.uid,
+                        fullName: data["fullName"] as? String ?? "",
+                        email: data["email"] as? String ?? "",
+                        studentID: data["studentID"] as? String ?? "",
+                        profileImageURL: data["profileImageURL"] as? String,
+                        phoneNumber: data["phoneNumber"] as? String,
+                        department: data["department"] as? String,
+                        semester: data["semester"] as? String,
+                        createdAt: data["createdAt"] as? Timestamp ?? Timestamp()
+                    )
+                    self?.profileImageURL = data["profileImageURL"] as? String
                 } else {
-                    self?.errorMessage = "User profile not found"
+                    self?.createBasicProfile(for: currentUser)
                 }
             }
         }
     }
     
-    func retryFetchProfile() {
-        errorMessage = ""
-        db.enableNetwork { [weak self] error in
-            if let error = error {
-                print("Network enable error: \(error.localizedDescription)")
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self?.fetchUserProfile()
+    private func createBasicProfile(for user: User) {
+        let basicProfile = UserProfile(
+            id: user.uid,
+            fullName: user.displayName ?? "",
+            email: user.email ?? "",
+            studentID: "",
+            profileImageURL: user.photoURL?.absoluteString,
+            phoneNumber: nil,
+            department: nil,
+            semester: nil,
+            createdAt: Timestamp()
+        )
+        
+        let userData: [String: Any] = [
+            "fullName": basicProfile.fullName,
+            "email": basicProfile.email,
+            "studentID": basicProfile.studentID,
+            "profileImageURL": basicProfile.profileImageURL ?? "",
+            "phoneNumber": basicProfile.phoneNumber ?? "",
+            "department": basicProfile.department ?? "",
+            "semester": basicProfile.semester ?? "",
+            "createdAt": basicProfile.createdAt
+        ]
+        
+        db.collection("users").document(user.uid).setData(userData) { [weak self] error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.errorMessage = error.localizedDescription
+                } else {
+                    self?.userProfile = basicProfile
+                    self?.profileImageURL = basicProfile.profileImageURL
+                    self?.showingProfileSetup = true
+                    self?.isEditing = true
+                }
             }
         }
     }
     
-    func uploadProfileImage(_ image: UIImage) {
-        guard let userId = Auth.auth().currentUser?.uid else { return }
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
+    func updateProfile() {
+        guard let userId = Auth.auth().currentUser?.uid,
+              let profile = userProfile else { return }
+        
+        isLoading = true
+        errorMessage = ""
+        
+        let userData: [String: Any] = [
+            "fullName": profile.fullName,
+            "email": profile.email,
+            "studentID": profile.studentID,
+            "phoneNumber": profile.phoneNumber ?? "",
+            "department": profile.department ?? "",
+            "semester": profile.semester ?? "",
+            "profileImageURL": profileImageURL ?? ""
+        ]
+        
+        db.collection("users").document(userId).updateData(userData) { [weak self] error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                if let error = error {
+                    self?.errorMessage = error.localizedDescription
+                } else {
+                    self?.isEditing = false
+                    self?.showingProfileSetup = false
+                }
+            }
+        }
+    }
+    
+    func uploadProfileImage() {
+        guard let userId = Auth.auth().currentUser?.uid,
+              let image = selectedImage,
+              let imageData = image.jpegData(compressionQuality: 0.7) else { return }
         
         isUploadingImage = true
+        let storageRef = storage.reference().child("profile_images/\(userId).jpg")
         
-        let imageRef = storage.reference().child("profile_images/\(userId).jpg")
-        
-        imageRef.putData(imageData, metadata: nil) { [weak self] metadata, error in
+        storageRef.putData(imageData, metadata: nil) { [weak self] _, error in
             if let error = error {
                 DispatchQueue.main.async {
                     self?.isUploadingImage = false
-                    self?.errorMessage = "Failed to upload image: \(error.localizedDescription)"
+                    self?.errorMessage = error.localizedDescription
                 }
                 return
             }
             
-            imageRef.downloadURL { [weak self] url, error in
+            storageRef.downloadURL { url, error in
                 DispatchQueue.main.async {
                     self?.isUploadingImage = false
-                    
                     if let error = error {
-                        self?.errorMessage = "Failed to get download URL: \(error.localizedDescription)"
+                        self?.errorMessage = error.localizedDescription
                     } else if let url = url {
-                        self?.updateProfileImageURL(url.absoluteString)
+                        self?.profileImageURL = url.absoluteString
+                        self?.updateProfileImageURL(url: url.absoluteString)
                     }
                 }
             }
         }
     }
     
-    private func updateProfileImageURL(_ imageURL: String) {
+    private func updateProfileImageURL(url: String) {
         guard let userId = Auth.auth().currentUser?.uid else { return }
         
-        db.collection("users").document(userId).updateData([
-            "profileImageURL": imageURL
-        ]) { [weak self] error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    self?.errorMessage = error.localizedDescription
-                } else {
-                    self?.fetchUserProfile()
-                }
+        db.collection("users").document(userId).updateData(["profileImageURL": url]) { error in
+            if let error = error {
+                print("Error updating profile image URL: \(error.localizedDescription)")
             }
         }
     }
-    
-    func signOut() {
-        do {
-            try Auth.auth().signOut()
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-    
-    func updateProfile(fullName: String) {
-        guard let userId = Auth.auth().currentUser?.uid else { return }
-        
-        db.collection("users").document(userId).updateData([
-            "fullName": fullName
-        ]) { [weak self] error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    self?.errorMessage = error.localizedDescription
-                } else {
-                    self?.fetchUserProfile()
-                    self?.showingEditProfile = false
-                }
-            }
-        }
-    }
+}
+
+struct UserProfile {
+    let id: String
+    var fullName: String
+    var email: String
+    let studentID: String
+    var profileImageURL: String?
+    var phoneNumber: String?
+    var department: String?
+    var semester: String?
+    let createdAt: Timestamp
 }
 
 struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
-    @State private var showingSignOutAlert = false
+    @StateObject private var authViewModel = AuthViewModel()
+    @State private var selectedPhoto: PhotosPickerItem?
+    @State private var showSettingsSheet = false
     
     var body: some View {
         NavigationView {
-            GeometryReader { geometry in
-                ZStack {
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.4, green: 0.6, blue: 0.8),
-                            Color(red: 0.3, green: 0.5, blue: 0.7)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
+            ZStack {
+                Color(.systemGroupedBackground)
                     .ignoresSafeArea()
-                    
-                    Circle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: 150, height: 150)
-                        .position(x: geometry.size.width * 0.9, y: geometry.size.height * 0.1)
-                    
-                    Circle()
-                        .fill(Color.white.opacity(0.05))
-                        .frame(width: 100, height: 100)
-                        .position(x: geometry.size.width * 0.1, y: geometry.size.height * 0.8)
-                    
-                    if viewModel.isOffline {
-                        VStack {
-                            HStack {
-                                Image(systemName: "wifi.slash")
-                                    .font(.system(size: 12))
-                                Text("No Internet Connection")
-                                    .font(.caption)
-                            }
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(
-                                Capsule()
-                                    .fill(Color.red.opacity(0.8))
-                            )
-                            Spacer()
+                
+                if viewModel.isLoading {
+                    loadingView()
+                } else if let profile = viewModel.userProfile {
+                    ScrollView(showsIndicators: false) {
+                        LazyVStack(spacing: 20) {
+                            topNavigationBar()
+                            profileHeaderCard(profile: profile)
+                            personalInfoCard(profile: profile)
+                            academicInfoCard(profile: profile)
                         }
-                        .padding(.top, 10)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 30)
                     }
-                    
-                    if viewModel.isLoading {
-                        VStack {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                .scaleEffect(1.5)
-                            
-                            Text("Loading Profile...")
-                                .foregroundColor(.white)
-                                .font(.headline)
-                                .padding(.top, 16)
-                        }
-                    } else if let userProfile = viewModel.userProfile {
-                        ScrollView {
-                            VStack(spacing: 30) {
-                                VStack(spacing: 20) {
-                                    ZStack {
-                                        ProfileImageView(
-                                            imageURL: userProfile.profileImageURL,
-                                            fallbackText: userProfile.fullName.prefix(2).uppercased(),
-                                            isUploading: viewModel.isUploadingImage
-                                        )
-                                        .onTapGesture {
-                                            viewModel.showingImagePicker = true
-                                        }
-                                        VStack {
-                                            Spacer()
-                                            HStack {
-                                                Spacer()
-                                                ZStack {
-                                                    Circle()
-                                                        .fill(Color.blue)
-                                                        .frame(width: 32, height: 32)
-                                                    
-                                                    Image(systemName: "camera.fill")
-                                                        .foregroundColor(.white)
-                                                        .font(.system(size: 14))
-                                                }
-                                                .offset(x: -8, y: -8)
-                                            }
-                                        }
-                                        .frame(width: 120, height: 120)
-                                    }
-                                    
-                                    VStack(spacing: 8) {
-                                        Text(userProfile.fullName)
-                                            .font(.title2)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.white)
-                                        
-                                        Text("Student ID: \(userProfile.studentID)")
-                                            .font(.subheadline)
-                                            .foregroundColor(.white.opacity(0.8))
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 6)
-                                            .background(
-                                                Capsule()
-                                                    .fill(Color.white.opacity(0.2))
-                                            )
-                                    }
-                                }
-                                .padding(.top, 20)
-                                
-                                VStack(spacing: 16) {
-                                    ProfileInfoCard(
-                                        icon: "envelope.fill",
-                                        title: "Email Address",
-                                        value: userProfile.email,
-                                        iconColor: .blue
-                                    )
-                                    
-                                    ProfileInfoCard(
-                                        icon: "calendar.circle.fill",
-                                        title: "Member Since",
-                                        value: formatDate(userProfile.createdAt),
-                                        iconColor: .blue
-                                    )
-                                    
-                                    ProfileInfoCard(
-                                        icon: "graduationcap.fill",
-                                        title: "Institution",
-                                        value: "Islamia College Gujranwala",
-                                        iconColor: .blue
-                                    )
-                                    
-                                    ProfileInfoCard(
-                                        icon: "person.badge.shield.checkmark.fill",
-                                        title: "Account Status",
-                                        value: "Active Student",
-                                        iconColor: .blue
-                                    )
-                                }
-                                VStack(spacing: 12) {
-                                    Button(action: {
-                                        viewModel.showingEditProfile = true
-                                    }) {
-                                        HStack {
-                                            Image(systemName: "pencil.circle.fill")
-                                                .font(.system(size: 20))
-                                            Text("Edit Profile")
-                                                .font(.headline)
-                                                .fontWeight(.semibold)
-                                        }
-                                        .foregroundColor(.white)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 16)
-                                        .background(
-                                            LinearGradient(
-                                                colors: [Color.accentColor, Color.accentColor],
-                                                startPoint: .leading,
-                                                endPoint: .trailing
-                                            )
-                                        )
-                                        .cornerRadius(25)
-                                    }
-                                    Button(action: {
-                                        showingSignOutAlert = true
-                                    }) {
-                                        HStack {
-                                            Image(systemName: "arrow.right.square.fill")
-                                                .font(.system(size: 20))
-                                            Text("Sign Out")
-                                                .font(.headline)
-                                                .fontWeight(.semibold)
-                                        }
-                                        .foregroundColor(.white)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 16)
-                                        .background(
-                                            LinearGradient(
-                                                colors: [Color.red.opacity(0.8), Color.pink.opacity(0.8)],
-                                                startPoint: .leading,
-                                                endPoint: .trailing
-                                            )
-                                        )
-                                        .cornerRadius(25)
-                                    }
-                                }
-                                .padding(.top, 20)
-                                
-                                Spacer(minLength: 50)
-                            }
-                            .padding(.horizontal, 20)
-                        }
-                    } else {
-                        VStack(spacing: 20) {
-                            Image(systemName: viewModel.isOffline ? "wifi.slash" : "exclamationmark.triangle.fill")
-                                .font(.system(size: 60))
-                                .foregroundColor(.white.opacity(0.8))
-                            
-                            Text(viewModel.isOffline ? "No Internet Connection" : "Unable to Load Profile")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            
-                            Text(viewModel.isOffline ? "Please check your internet connection and try again." : viewModel.errorMessage)
-                                .font(.body)
-                                .foregroundColor(.white.opacity(0.8))
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 40)
-                            
-                            Button("Retry") {
-                                viewModel.retryFetchProfile()
-                            }
-                            .foregroundColor(.white)
-                            .font(.headline)
-                            .padding(.horizontal, 30)
-                            .padding(.vertical, 12)
-                            .background(
-                                Capsule()
-                                    .fill(Color.white.opacity(0.3))
-                            )
-                        }
-                    }
+                } else {
+                    errorStateView()
                 }
             }
-            .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.clear, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .navigationBarHidden(true)
         }
-        .navigationViewStyle(StackNavigationViewStyle())
-        .alert("Sign Out", isPresented: $showingSignOutAlert) {
-            Button("Cancel", role: .cancel) { }
-            Button("Sign Out", role: .destructive) {
-                viewModel.signOut()
+        .photosPicker(
+            isPresented: $viewModel.showingImagePicker,
+            selection: $selectedPhoto,
+            matching: .images,
+            photoLibrary: .shared()
+        )
+        .onChange(of: selectedPhoto) { newPhoto in
+            Task {
+                if let data = try? await newPhoto?.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    viewModel.selectedImage = image
+                    viewModel.uploadProfileImage()
+                }
             }
-        } message: {
-            Text("Are you sure you want to sign out?")
         }
-        .sheet(isPresented: $viewModel.showingEditProfile) {
-            if let userProfile = viewModel.userProfile {
-                EditProfileView(
-                    currentName: userProfile.fullName,
-                    onSave: viewModel.updateProfile
+    }
+    
+    @ViewBuilder
+    private func topNavigationBar() -> some View {
+        HStack {
+            Text("Profile")
+                .font(.largeTitle)
+                .fontWeight(.heavy)
+                .foregroundColor(.primary)
+            
+            Spacer()
+            
+            Button(action: {
+                authViewModel.signOut()
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .font(.system(size: 22, weight: .medium))
+                }
+                .foregroundColor(.accentColor)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 8)
+                .clipShape(Capsule())
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
+    }
+    
+    @ViewBuilder
+    private func profileHeaderCard(profile: UserProfile) -> some View {
+        VStack(spacing: 24) {
+            HStack {
+                Spacer()
+                ZStack {
+                    Group {
+                        if let profileImageURL = viewModel.profileImageURL,
+                           !profileImageURL.isEmpty,
+                           let url = URL(string: profileImageURL) {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                case .failure(_):
+                                    defaultAvatar()
+                                case .empty:
+                                    ZStack {
+                                        defaultAvatar()
+                                        ProgressView()
+                                            .tint(.primary)
+                                    }
+                                @unknown default:
+                                    defaultAvatar()
+                                }
+                            }
+                        } else {
+                            defaultAvatar()
+                        }
+                    }
+                    .frame(width: 120, height: 120)
+                    .clipShape(Circle())
+                    .overlay(
+                        Circle()
+                            .stroke(Color(.systemBackground), lineWidth: 4)
+                    )
+                    .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+                    
+                    Button(action: {
+                        viewModel.showingImagePicker = true
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.accentColor)
+                                .frame(width: 36, height: 36)
+                            
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                        .shadow(color: .blue.opacity(0.4), radius: 6, x: 0, y: 3)
+                    }
+                    .offset(x: 40, y: 40)
+                    
+                    if viewModel.isUploadingImage {
+                        Circle()
+                            .fill(Color.black.opacity(0.6))
+                            .frame(width: 120, height: 120)
+                            .overlay(
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(1.2)
+                            )
+                    }
+                }
+                Spacer()
+            }
+            
+            VStack(spacing: 8) {
+                Text(profile.fullName)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                HStack(spacing: 6) {
+                    Image(systemName: "studentdesk")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Text(profile.studentID)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(Capsule())
+            }
+        }
+        .padding(.vertical, 30)
+        .frame(maxWidth: .infinity)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+    }
+    
+    @ViewBuilder
+    private func personalInfoCard(profile: UserProfile) -> some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Text("Personal Information")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                Spacer()
+                Button(action: {
+                    withAnimation(.spring()) {
+                        viewModel.isEditing.toggle()
+                    }
+                }) {
+                    Text(viewModel.isEditing ? "Done" : "Edit")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.accentColor)
+                }
+            }
+            
+            VStack(spacing: 16) {
+                ModernInfoRow(
+                    icon: "person.circle.fill",
+                    title: "Full Name",
+                    value: Binding(
+                        get: { viewModel.userProfile?.fullName ?? "" },
+                        set: { viewModel.userProfile?.fullName = $0 }
+                    ),
+                    isEditing: viewModel.isEditing,
+                    iconColor: .accentColor
+                )
+                
+                ModernInfoRow(
+                    icon: "envelope.circle.fill",
+                    title: "Email",
+                    value: .constant(profile.email),
+                    isEditing: false,
+                    iconColor: .accentColor
+                )
+                
+                ModernInfoRow(
+                    icon: "phone.circle.fill",
+                    title: "Phone",
+                    value: Binding(
+                        get: { viewModel.userProfile?.phoneNumber ?? "" },
+                        set: { viewModel.userProfile?.phoneNumber = $0 }
+                    ),
+                    isEditing: viewModel.isEditing,
+                    placeholder: "Your phone number",
+                    iconColor: .accentColor
+                )
+            }
+            
+            if viewModel.isEditing {
+                Button(action: {
+                    viewModel.updateProfile()
+                }) {
+                    HStack {
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(0.8)
+                        }
+                        
+                        Text("Save Changes")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.accentColor)
+                    .foregroundColor(.white)
+                    .clipShape(Capsule())
+                }
+                .disabled(viewModel.isLoading)
+                .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .padding(20)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 5))
+        .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
+    }
+    
+    @ViewBuilder
+    private func academicInfoCard(profile: UserProfile) -> some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Text("Academic Details")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+            }
+            
+            VStack(spacing: 16) {
+                ModernInfoRow(
+                    icon: "book.circle.fill",
+                    title: "Department",
+                    value: Binding(
+                        get: { viewModel.userProfile?.department ?? "" },
+                        set: { viewModel.userProfile?.department = $0 }
+                    ),
+                    isEditing: viewModel.isEditing,
+                    placeholder: "e.g., Computer Science",
+                    iconColor: .accentColor
+                )
+                
+                ModernInfoRow(
+                    icon: "book.circle.fill",
+                    title: "Semester",
+                    value: Binding(
+                        get: { viewModel.userProfile?.semester ?? "" },
+                        set: { viewModel.userProfile?.semester = $0 }
+                    ),
+                    isEditing: viewModel.isEditing,
+                    placeholder: "e.g., 8th Semester",
+                    iconColor: .accentColor
+                )
+                
+                ModernInfoRow(
+                    icon: "calendar.circle.fill",
+                    title: "Member Since",
+                    value: .constant(formatDate(profile.createdAt.dateValue())),
+                    isEditing: false,
+                    iconColor: .accentColor
                 )
             }
         }
-        .sheet(isPresented: $viewModel.showingImagePicker) {
-            ImagePicker(selectedImage: $viewModel.selectedImage)
+        .padding(20)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
+    }
+    
+    @ViewBuilder
+    private func defaultAvatar() -> some View {
+        Circle()
+            .fill(
+                LinearGradient(
+                    colors: [.accentColor.opacity(0.6), .accentColor.opacity(0.6)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay(
+                Image(systemName: "person.fill")
+                    .font(.system(size: 40, weight: .medium))
+                    .foregroundColor(.white)
+            )
+    }
+    
+    @ViewBuilder
+    private func loadingView() -> some View {
+        VStack(spacing: 20) {
+            ProgressView()
+                .scaleEffect(1.5)
+            
+            Text("Loading Profile...")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
         }
-        .onChange(of: viewModel.selectedImage) { newImage in
-            if let image = newImage {
-                viewModel.uploadProfileImage(image)
+    }
+    
+    @ViewBuilder
+    private func errorStateView() -> some View {
+        VStack(spacing: 24) {
+            Image(systemName: "person.crop.circle.badge.exclamationmark")
+                .font(.system(size: 60))
+                .foregroundColor(.secondary)
+            
+            VStack(spacing: 12) {
+                Text("Unable to Load Profile")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                
+                if !viewModel.errorMessage.isEmpty {
+                    Text(viewModel.errorMessage)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
             }
-        }
-        .onAppear {
-            if viewModel.userProfile == nil && !viewModel.isLoading {
-                viewModel.retryFetchProfile()
+            
+            Button("Try Again") {
+                viewModel.fetchUserProfile()
             }
+            .font(.headline)
+            .foregroundColor(.white)
+            .padding(.horizontal, 32)
+            .padding(.vertical, 12)
+            .background(Color.accentColor)
+            .clipShape(Capsule())
         }
+        .padding(40)
     }
     
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
+        formatter.dateFormat = "MMM dd, yyyy"
         return formatter.string(from: date)
     }
 }
 
-struct ProfileImageView: View {
-    let imageURL: String?
-    let fallbackText: String
-    let isUploading: Bool
-    
-    var body: some View {
-        ZStack {
-            if let imageURL = imageURL, !imageURL.isEmpty {
-                AsyncImage(url: URL(string: imageURL)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 120, height: 120)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle()
-                                .stroke(Color.white.opacity(0.3), lineWidth: 3)
-                        )
-                } placeholder: {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.cyan.opacity(0.8), Color.blue.opacity(0.8)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 120, height: 120)
-                        .overlay(
-                            Circle()
-                                .stroke(Color.white.opacity(0.3), lineWidth: 3)
-                        )
-                        .overlay(
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        )
-                }
-            } else {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.cyan.opacity(0.8), Color.blue.opacity(0.8)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 120, height: 120)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white.opacity(0.3), lineWidth: 3)
-                    )
-                    .overlay(
-                        Text(fallbackText)
-                            .font(.system(size: 36, weight: .bold))
-                            .foregroundColor(.white)
-                    )
-            }
-            
-            if isUploading {
-                Circle()
-                    .fill(Color.black.opacity(0.5))
-                    .frame(width: 120, height: 120)
-                    .overlay(
-                        VStack {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            Text("Uploading...")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(.top, 4)
-                        }
-                    )
-            }
-        }
-    }
-}
-
-struct ImagePicker: UIViewControllerRepresentable {
-    @Binding var selectedImage: UIImage?
-    @Environment(\.dismiss) private var dismiss
-    
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.delegate = context.coordinator
-        picker.sourceType = .photoLibrary
-        picker.allowsEditing = true
-        return picker
-    }
-    
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let parent: ImagePicker
-        
-        init(_ parent: ImagePicker) {
-            self.parent = parent
-        }
-        
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let editedImage = info[.editedImage] as? UIImage {
-                parent.selectedImage = editedImage
-            } else if let originalImage = info[.originalImage] as? UIImage {
-                parent.selectedImage = originalImage
-            }
-            parent.dismiss()
-        }
-        
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            parent.dismiss()
-        }
-    }
-}
-
-struct ProfileInfoCard: View {
+struct ModernInfoRow: View {
     let icon: String
     let title: String
-    let value: String
+    @Binding var value: String
+    let isEditing: Bool
+    let placeholder: String
     let iconColor: Color
+    
+    init(icon: String, title: String, value: Binding<String>, isEditing: Bool, placeholder: String = "", iconColor: Color = .accentColor) {
+        self.icon = icon
+        self.title = title
+        self._value = value
+        self.isEditing = isEditing
+        self.placeholder = placeholder.isEmpty ? "Enter \(title.lowercased())" : placeholder
+        self.iconColor = iconColor
+    }
     
     var body: some View {
         HStack(spacing: 16) {
-            ZStack {
-                Circle()
-                    .fill(iconColor.opacity(0.2))
-                    .frame(width: 50, height: 50)
-                
-                Image(systemName: icon)
-                    .font(.system(size: 22))
-                    .foregroundColor(iconColor)
-            }
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(iconColor)
+                .frame(width: 32)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.9))
-                    .textCase(.uppercase)
-                    .tracking(0.5)
-                
-                Text(value)
-                    .font(.body)
                     .fontWeight(.medium)
-                    .foregroundColor(.white)
+                    .foregroundColor(.secondary)
+                    .textCase(.uppercase)
+                
+                if isEditing {
+                    TextField(placeholder, text: $value)
+                        .font(.subheadline)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                } else {
+                    Text(value.isEmpty ? "Not specified" : value)
+                        .font(.subheadline)
+                        .foregroundColor(value.isEmpty ? .secondary : .primary)
+                }
             }
-            
             Spacer()
         }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                )
-        )
     }
 }
 
-struct EditProfileView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var fullName: String
-    let onSave: (String) -> Void
-    
-    init(currentName: String, onSave: @escaping (String) -> Void) {
-        _fullName = State(initialValue: currentName)
-        self.onSave = onSave
-    }
+struct ActionButton: View {
+    let icon: String
+    let title: String
+    let color: Color
+    let action: () -> Void
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.4, green: 0.6, blue: 0.8),
-                        Color(red: 0.3, green: 0.5, blue: 0.7)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundColor(color)
                 
-                VStack(spacing: 30) {
-                    VStack(spacing: 16) {
-                        Image(systemName: "person.crop.circle.badge.plus")
-                            .font(.system(size: 60))
-                            .foregroundColor(.white.opacity(0.8))
-                        
-                        Text("Edit Profile")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                    }
-                    .padding(.top, 40)
-                    
-                    VStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Full Name")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            
-                            TextField("Enter your full name", text: $fullName)
-                                .foregroundColor(.white)
-                                .font(.system(size: 16))
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 20)
-                                        .fill(Color.white.opacity(0.2))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                        )
-                                )
-                        }
-                        
-                        Button(action: {
-                            onSave(fullName)
-                            dismiss()
-                        }) {
-                            Text("Save Changes")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(
-                                    LinearGradient(
-                                        colors: [Color.accentColor, Color.accentColor],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .cornerRadius(25)
-                        }
-                        .disabled(fullName.isEmpty)
-                        .opacity(fullName.isEmpty ? 0.6 : 1.0)
-                    }
-                    .padding(30)
-                    .background(
-                        RoundedRectangle(cornerRadius: 30)
-                            .fill(.ultraThinMaterial)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 30)
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                            )
-                    )
-                    .padding(.horizontal, 20)
-                    
-                    Spacer()
-                }
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
             }
-            .navigationTitle("Edit Profile")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.clear, for: .navigationBar)
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
-                }
-            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(color.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
 }

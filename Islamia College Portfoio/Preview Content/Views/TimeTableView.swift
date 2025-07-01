@@ -157,7 +157,6 @@ struct TimeTableView: View {
                     Spacer(minLength: 100)
                 }
             }
-            .navigationTitle("Time Table")
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden(false)
         }

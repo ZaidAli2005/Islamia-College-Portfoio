@@ -60,21 +60,6 @@ struct AdmissionsView: View {
                 }
                 .padding(.vertical)
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {}) {
-                        HStack {
-                            Text("")
-                        }
-                    }
-                }
-                ToolbarItem(placement: .principal) {
-                    Text("Admission Portal")
-                        .font(.headline)
-                        .bold()
-                }
-            }
         }
     }
     

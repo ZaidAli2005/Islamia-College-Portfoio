@@ -12,7 +12,6 @@ struct Islamia_College_PortfoioApp: App {
     init() {
         FirebaseApp.configure()
         
-        // Configure Firestore settings immediately after Firebase configuration
         let db = Firestore.firestore()
         let settings = FirestoreSettings()
         settings.isPersistenceEnabled = true
@@ -23,7 +22,9 @@ struct Islamia_College_PortfoioApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if session.isLoggedIn {
+                if session.isLoading {
+                    LoadingView()
+                } else if session.isLoggedIn {
                     SplashView()
                 } else {
                     LoginView()
@@ -46,9 +47,10 @@ struct Islamia_College_PortfoioApp: App {
     }
 }
 
-// Rest of your SessionManager and NotificationManager code remains the same...
 class SessionManager: ObservableObject {
     @Published var isLoggedIn = false
+    @Published var isLoading = true
+    
     private var isFirstAuthStateChange = true
     private var shouldSendLoginNotificationFlag = false
     private var shouldSendLogoutNotificationFlag = false
@@ -77,6 +79,8 @@ class SessionManager: ObservableObject {
                 }
                 
                 self.isLoggedIn = isNowLoggedIn
+                self.isLoading = false
+                
                 if self.isFirstAuthStateChange {
                     self.isFirstAuthStateChange = false
                 }
@@ -93,7 +97,20 @@ class SessionManager: ObservableObject {
     }
 }
 
-// MARK: - Notification Manager
+struct LoadingView: View {
+    var body: some View {
+        VStack {
+            ProgressView()
+                .scaleEffect(1.5)
+            Text("Loading...")
+                .padding(.top)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground))
+    }
+}
+
 class NotificationManager: NSObject, ObservableObject {
     
     override init() {
@@ -144,7 +161,6 @@ class NotificationManager: NSObject, ObservableObject {
     }
 }
 
-// MARK: - UNUserNotificationCenterDelegate
 extension NotificationManager: UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {

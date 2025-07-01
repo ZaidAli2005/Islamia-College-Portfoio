@@ -79,8 +79,8 @@ struct FoodDetailView: View {
                                         .font(.caption)
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 4)
-                                        .background(Color.blue.opacity(0.1))
-                                        .foregroundColor(.blue)
+                                        .background(Color.accentColor.opacity(0.1))
+                                        .foregroundColor(.accentColor)
                                         .clipShape(Capsule())
                                 }
                             }
@@ -99,22 +99,6 @@ struct FoodDetailView: View {
                             }
                             
                             Spacer()
-                            
-                            VStack(alignment: .trailing, spacing: 4) {
-                                Text("Status")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                
-                                HStack(spacing: 4) {
-                                    Circle()
-                                        .fill(foodItem.isAvailable ? Color.green : Color.red)
-                                        .frame(width: 8, height: 8)
-                                    Text(foodItem.isAvailable ? "Available" : "Unavailable")
-                                        .font(.subheadline)
-                                        .fontWeight(.medium)
-                                        .foregroundColor(foodItem.isAvailable ? .green : .red)
-                                }
-                            }
                         }
                         
                         Spacer(minLength: 100)
@@ -131,11 +115,6 @@ struct FoodDetailView: View {
                     }
                 }
             }
-        }
-        .alert("Added to Cart!", isPresented: $showingAddedToCart) {
-            Button("OK") { }
-        } message: {
-            Text("\(quantity) \(foodItem.name) added to your cart.")
         }
     }
 }

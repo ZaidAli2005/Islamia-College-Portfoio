@@ -20,7 +20,7 @@ struct Department: Identifiable, Hashable {
             description: "Our college environment is dedicated to providing a conducive atmosphere for studying and academic growth. Within our campus, you will find engaging classrooms that promote active learning and encourage student participation. Our faculty members are passionate about their subjects and are committed to helping you reach your full potential.",
             teacherCount: 12,
             establishedYear: 2010,
-            facilities: ["Computer Lab", "Software Development Lab", "Networking Lab", "Research Center"],
+            facilities: ["Computer Lab", "Networking Lab", "Research Center"],
             contactEmail: "it@islamiacollege.edu.pk",
             contactPhone: "+92-300-1234567"
         ),
@@ -42,7 +42,7 @@ struct Department: Identifiable, Hashable {
             description: "The Physics Department provides students with a strong foundation in theoretical and experimental physics. Our modern laboratories and experienced faculty ensure quality education in physical sciences.",
             teacherCount: 10,
             establishedYear: 1992,
-            facilities: ["Physics Lab", "Optics Lab", "Electronics Lab", "Research Workshop"],
+            facilities: ["Physics Lab", "Optics Lab", "Electronics Lab"],
             contactEmail: "physics@islamiacollege.edu.pk",
             contactPhone: "+92-300-3456789"
         ),
@@ -53,7 +53,7 @@ struct Department: Identifiable, Hashable {
             description: "The Chemistry Department offers comprehensive programs in chemical sciences with emphasis on both theoretical knowledge and practical laboratory skills. Our state-of-the-art facilities support advanced research.",
             teacherCount: 9,
             establishedYear: 1988,
-            facilities: ["Organic Chemistry Lab", "Inorganic Chemistry Lab", "Analytical Lab", "Instrumentation Lab"],
+            facilities: ["Organic Chemistry Lab", "Inorganic Chemistry Lab", "Analytical Lab"],
             contactEmail: "chemistry@islamiacollege.edu.pk",
             contactPhone: "+92-300-4567890"
         ),
@@ -64,7 +64,7 @@ struct Department: Identifiable, Hashable {
             description: "The Zoology Department focuses on the study of animal life and biological systems. Our programs combine field work with laboratory research to provide comprehensive understanding of biological sciences.",
             teacherCount: 7,
             establishedYear: 1985,
-            facilities: ["Zoology Lab", "Microscopy Lab", "Specimen Museum", "Field Research Station"],
+            facilities: ["Zoology Lab", "Microscopy Lab", "Field Research Station"],
             contactEmail: "zoology@islamiacollege.edu.pk",
             contactPhone: "+92-300-5678901"
         ),
@@ -75,7 +75,7 @@ struct Department: Identifiable, Hashable {
             description: "The English Department offers comprehensive programs in literature, linguistics, and communication skills. Our focus is on developing critical thinking and effective communication abilities.",
             teacherCount: 11,
             establishedYear: 1980,
-            facilities: ["Language Lab", "Digital Library", "Writing Center", "Drama Studio"],
+            facilities: ["Language Lab", "Writing Center"],
             contactEmail: "english@islamiacollege.edu.pk",
             contactPhone: "+92-300-7890123"
         ),
@@ -86,7 +86,7 @@ struct Department: Identifiable, Hashable {
             description: "The Economics Department provides analytical tools and theoretical frameworks for understanding economic systems and policy making. Our programs prepare students for careers in finance and policy analysis.",
             teacherCount: 8,
             establishedYear: 1993,
-            facilities: ["Economics Lab", "Data Analysis Center", "Policy Research Unit"],
+            facilities: ["Economics Lab", "Data Analysis Center"],
             contactEmail: "economics@islamiacollege.edu.pk",
             contactPhone: "+92-300-8901234"
         ),
@@ -97,7 +97,7 @@ struct Department: Identifiable, Hashable {
             description: "The Political Science Department studies political systems, governance, and public policy. Our programs prepare students for careers in government, diplomacy, and public service.",
             teacherCount: 2,
             establishedYear: 1987,
-            facilities: ["Mock Parliament", "Policy Analysis Lab", "International Relations Center"],
+            facilities: ["Mock Parliament", "Policy Analysis Lab"],
             contactEmail: "political@islamiacollege.edu.pk",
             contactPhone: "+92-300-1234560"
         )

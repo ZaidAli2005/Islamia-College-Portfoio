@@ -32,17 +32,7 @@ struct CanteenView: View {
                 }
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Canteen")
             .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingCart = true }) {
-                        Image(systemName: "person.crop.circle")
-                            .font(.title2)
-                            .foregroundColor(.green)
-                    }
-                }
-            }
             .sheet(item: $selectedFoodItem) { foodItem in
                 FoodDetailView(foodItem: foodItem, canteenModel: canteenModel)
             }
@@ -64,15 +54,11 @@ struct CanteenView: View {
                 Spacer()
                 
                 HStack(spacing: 4) {
-                    Circle()
-                        .fill(Color.green)
-                        .frame(width: 8, height: 8)
                     Text("Open until 5 PM")
                         .font(.caption)
-                        .foregroundColor(.green)
+                        .foregroundColor(.accentColor)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.green.opacity(0.1))
                         .clipShape(Capsule())
                 }
             }
@@ -142,13 +128,6 @@ struct CanteenView: View {
                     }
                     
                     CategorysButton(
-                        title: "Sandwiches",
-                        isSelected: canteenModel.selectedCategory == .sandwiches
-                    ) {
-                        canteenModel.selectedCategory = .sandwiches
-                    }
-                    
-                    CategorysButton(
                         title: "Fast Foods",
                         isSelected: canteenModel.selectedCategory == .fastFoods
                     ) {
@@ -163,35 +142,14 @@ struct CanteenView: View {
                     }
                     
                     CategorysButton(
-                        title: "Breakfast",
-                        isSelected: canteenModel.selectedCategory == .breakfast
-                    ) {
-                        canteenModel.selectedCategory = .breakfast
-                    }
-                    
-                    CategorysButton(
-                        title: "Lunch",
-                        isSelected: canteenModel.selectedCategory == .lunch
-                    ) {
-                        canteenModel.selectedCategory = .lunch
-                    }
-                    
-                    CategorysButton(
-                        title: "Dinner",
-                        isSelected: canteenModel.selectedCategory == .dinner
-                    ) {
-                        canteenModel.selectedCategory = .dinner
-                    }
-                    
-                    CategorysButton(
-                        title: "Snacks",
+                        title: "Lays",
                         isSelected: canteenModel.selectedCategory == .snacks
                     ) {
                         canteenModel.selectedCategory = .snacks
                     }
                     
                     CategorysButton(
-                        title: "Beverages",
+                        title: "More",
                         isSelected: canteenModel.selectedCategory == .beverages
                     ) {
                         canteenModel.selectedCategory = .beverages
@@ -204,7 +162,6 @@ struct CanteenView: View {
         .background(Color.white)
     }
     
-    // MARK: - Popular Items Section
     private var popularItemsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -219,7 +176,7 @@ struct CanteenView: View {
                 
                 Spacer()
                 
-                Button(showFullMenu ? "Hide Menu" : "See All") {
+                Button(showFullMenu ? "Show Less" : "See All") {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         showFullMenu.toggle()
                     }
@@ -408,7 +365,6 @@ struct MenuItemRow: View {
     }
 }
 
-// MARK: - Preview
 #Preview {
     CanteenView()
 }

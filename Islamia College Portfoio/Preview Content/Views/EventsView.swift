@@ -71,7 +71,6 @@ enum EventCategory: String, CaseIterable, Codable {
     }
 }
 
-// MARK: - Events View Model
 class EventsViewModel: ObservableObject {
     @Published var events: [Event] = []
     @Published var selectedCategory: EventCategory? = nil
@@ -189,7 +188,6 @@ struct EventsView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                headerView
                 searchAndFilterSection
                 eventsListView
             }
@@ -210,51 +208,6 @@ struct EventsView: View {
                 animateCards = true
             }
         }
-    }
-    
-    // MARK: - Header View
-    private var headerView: some View {
-        VStack(spacing: 8) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("College Events")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    Text("Discover upcoming events and activities")
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.9))
-                }
-                
-                Spacer()
-                
-                Button(action: { showingFilters.toggle() }) {
-                    Image(systemName: "slider.horizontal.3")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .padding(12)
-                        .background(Color.white.opacity(0.2))
-                        .clipShape(Circle())
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 50)
-            .padding(.bottom, 20)
-        }
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.2, green: 0.4, blue: 0.5),
-                    Color(red: 0.2, green: 0.4, blue: 0.5)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
-        .padding(.bottom, -25)
-        .zIndex(1)
     }
     
     private var searchAndFilterSection: some View {
@@ -298,7 +251,6 @@ struct EventsView: View {
         .animation(.easeInOut(duration: 0.3), value: showingFilters)
     }
     
-    // MARK: - Category Filters
     private var categoryFiltersView: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {

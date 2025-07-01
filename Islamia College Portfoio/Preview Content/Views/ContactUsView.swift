@@ -37,8 +37,6 @@ struct ContactUsView: View {
                     endPoint: .bottom
                 )
             )
-            .navigationTitle("Contact Us")
-            .navigationBarTitleDisplayMode(.large)
         }
         .sheet(isPresented: $showingMailComposer) {
             MailComposeView(
