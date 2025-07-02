@@ -35,12 +35,9 @@ struct LabsView: View {
             }
             .background(
                 LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(.systemGray6).opacity(0.1),
-                        Color(.systemGray5).opacity(0.2)
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom
+                    gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                 )
             )
         }

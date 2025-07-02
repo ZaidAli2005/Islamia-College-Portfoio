@@ -113,7 +113,13 @@ struct ManagementView: View {
             .padding(.horizontal, 16)
             .padding(.top, 20)
         }
-        .background(Color(.systemBackground))
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
         .navigationBarHidden(true)
     }
     

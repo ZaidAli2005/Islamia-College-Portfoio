@@ -140,7 +140,6 @@ struct PrincipalView: View {
                                     MessageParagraph(text: "I encourage you to make the most of the opportunities available here and wish you all the best in your academic journey.")
                                 }
                                 
-                                // Signature section with enhanced styling
                                 VStack(alignment: .trailing, spacing: 8) {
                                     Divider()
                                         .padding(.vertical, 10)
@@ -185,6 +184,13 @@ struct PrincipalView: View {
                 }
             }
         }
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
         .navigationBarHidden(true)
         .onAppear {
             withAnimation {
@@ -194,7 +200,6 @@ struct PrincipalView: View {
     }
 }
 
-// Helper view for consistent paragraph styling
 struct MessageParagraph: View {
     let text: String
     

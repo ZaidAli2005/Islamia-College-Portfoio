@@ -182,7 +182,13 @@ struct TeachersDetailView: View {
                 }
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
         .navigationBarHidden(true)
         .fullScreenCover(isPresented: $showFullScreenImage) {
             FullScreenImageView(imageName: teacher.imageName, isPresented: $showFullScreenImage)

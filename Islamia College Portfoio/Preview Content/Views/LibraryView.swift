@@ -67,7 +67,13 @@ struct LibraryView: View {
                 }
             }
             .navigationBarHidden(true)
-            .background(Color(.systemGroupedBackground))
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
         }
         .sheet(isPresented: $showingBookDetails) {
             if let book = selectedBook {

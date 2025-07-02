@@ -157,6 +157,13 @@ struct TimeTableView: View {
                     Spacer(minLength: 100)
                 }
             }
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden(false)
         }

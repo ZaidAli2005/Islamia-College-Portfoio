@@ -31,7 +31,13 @@ struct CanteenView: View {
                     }
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
             .navigationBarTitleDisplayMode(.large)
             .sheet(item: $selectedFoodItem) { foodItem in
                 FoodDetailView(foodItem: foodItem, canteenModel: canteenModel)

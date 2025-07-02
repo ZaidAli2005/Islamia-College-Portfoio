@@ -242,6 +242,13 @@ struct ActivityView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
             .navigationTitle("Activity")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

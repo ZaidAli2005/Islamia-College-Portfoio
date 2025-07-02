@@ -33,13 +33,9 @@ struct ClassessView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 0)
-            }
-            .background(
+            }.background(
                 LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(.systemGroupedBackground),
-                        Color(.systemBackground).opacity(0.8)
-                    ]),
+                    gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
