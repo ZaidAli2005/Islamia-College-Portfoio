@@ -532,7 +532,7 @@ struct TabBarItems: View {
                 ZStack {
                     if isSelected {
                         Circle()
-                            .fill(.blue.opacity(0.15))
+                            .fill(.blue.opacity(0))
                             .frame(width: 36, height: 36)
                     }
                     

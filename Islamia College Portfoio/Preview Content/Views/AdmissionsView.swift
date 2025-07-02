@@ -164,7 +164,7 @@ struct AdmissionsView: View {
                 VStack(spacing: 10) {
                     ProgramRow(title: "Pre-Engineering", subjects: "Physics, Chemistry, Mathematics", icon: "gear.circle.fill")
                     ProgramRow(title: "Pre-Medical", subjects: "Physics, Chemistry, Biology", icon: "cross.circle.fill")
-                    ProgramRow(title: "ICS", subjects: "Physics, Statistics", icon: "desktopcomputer.circle.fill")
+                    ProgramRow(title: "ICS", subjects: "Physics, Statistics", icon: "gear.circle.fill")
                 }
             }
         }
@@ -199,7 +199,6 @@ struct AdmissionsView: View {
         }
     }
     
-    // Data arrays
     private let intermediateRequirements = [
         "Matric/O-Level Certificate",
         "Minimum 60% marks in Matric",
@@ -442,7 +441,7 @@ struct DocumentsCard: View {
                     Text("Required Documents")
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.black)
                     
                     Text("Complete documentation checklist")
                         .font(.subheadline)

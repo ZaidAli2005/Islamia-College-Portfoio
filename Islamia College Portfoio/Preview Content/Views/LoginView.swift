@@ -29,7 +29,7 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    func signUp(fullName: String, email: String, password: String) {
+    func signUp(fullName: String, email: String, password: String, regNo: String) {
         isLoading = true
         errorMessage = ""
         successMessage = ""
@@ -40,7 +40,7 @@ class AuthViewModel: ObservableObject {
                 if let error = error {
                     self?.errorMessage = error.localizedDescription
                 } else if let user = result?.user {
-                    self?.saveUserData(uid: user.uid, fullName: fullName, email: email)
+                    self?.saveUserData(uid: user.uid, fullName: fullName, email: email, regNo: regNo)
                     self?.isAuthenticated = true
                 }
             }
@@ -64,10 +64,11 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    private func saveUserData(uid: String, fullName: String, email: String) {
+    private func saveUserData(uid: String, fullName: String, email: String, regNo: String) {
         let userData: [String: Any] = [
             "fullName": fullName,
             "email": email,
+            "regNo": regNo,
             "studentID": generateStudentID(),
             "createdAt": Timestamp()
         ]
@@ -105,6 +106,7 @@ struct LoginView: View {
     @State private var isLoginMode = true
     @State private var fullName = ""
     @State private var email = ""
+    @State private var regNo = ""
     @State private var password = ""
     @State private var confirmPassword = ""
     @State private var showPassword = false
@@ -215,7 +217,18 @@ struct LoginView: View {
                                     insertion: .move(edge: .top).combined(with: .opacity),
                                     removal: .move(edge: .top).combined(with: .opacity)
                                 ))
+                                
+                                CustomTextField(
+                                    text: $regNo,
+                                    placeholder: "University Reg No.",
+                                    icon: "number"
+                                )
+                                .transition(.asymmetric(
+                                    insertion: .move(edge: .top).combined(with: .opacity),
+                                    removal: .move(edge: .top).combined(with: .opacity)
+                                ))
                             }
+                            
                             CustomTextField(
                                 text: $email,
                                 placeholder: "Email Address",
@@ -223,11 +236,13 @@ struct LoginView: View {
                             )
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
+                            
                             CustomSecureField(
                                 text: $password,
                                 placeholder: "Password",
                                 showPassword: $showPassword
                             )
+                            
                             if !isLoginMode {
                                 CustomSecureField(
                                     text: $confirmPassword,
@@ -360,6 +375,7 @@ struct LoginView: View {
             return !email.isEmpty && !password.isEmpty
         } else {
             return !fullName.isEmpty &&
+                   !regNo.isEmpty &&
                    !email.isEmpty &&
                    !password.isEmpty &&
                    !confirmPassword.isEmpty &&
@@ -372,7 +388,7 @@ struct LoginView: View {
         if isLoginMode {
             authViewModel.signIn(email: email, password: password)
         } else {
-            authViewModel.signUp(fullName: fullName, email: email, password: password)
+            authViewModel.signUp(fullName: fullName, email: email, password: password, regNo: regNo)
         }
     }
 }

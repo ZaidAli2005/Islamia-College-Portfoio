@@ -40,7 +40,7 @@ class ProfileViewModel: ObservableObject {
                         id: currentUser.uid,
                         fullName: data["fullName"] as? String ?? "",
                         email: data["email"] as? String ?? "",
-                        studentID: data["studentID"] as? String ?? "",
+                        regNo: data["studentID"] as? String ?? "",
                         profileImageURL: data["profileImageURL"] as? String,
                         phoneNumber: data["phoneNumber"] as? String,
                         department: data["department"] as? String,
@@ -48,6 +48,10 @@ class ProfileViewModel: ObservableObject {
                         createdAt: data["createdAt"] as? Timestamp ?? Timestamp()
                     )
                     self?.profileImageURL = data["profileImageURL"] as? String
+                    
+                    if let imageURL = self?.profileImageURL, !imageURL.isEmpty {
+                        self?.validateImageURL(imageURL)
+                    }
                 } else {
                     self?.createBasicProfile(for: currentUser)
                 }
@@ -55,12 +59,30 @@ class ProfileViewModel: ObservableObject {
         }
     }
     
+    private func validateImageURL(_ urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                if let httpResponse = response as? HTTPURLResponse,
+                   httpResponse.statusCode == 200,
+                   data != nil {
+                    return
+                } else {
+                    print("Profile image URL is no longer accessible, clearing...")
+                    self?.profileImageURL = nil
+                    self?.updateProfileImageURL(url: "")
+                }
+            }
+        }.resume()
+    }
+    
     private func createBasicProfile(for user: User) {
         let basicProfile = UserProfile(
             id: user.uid,
             fullName: user.displayName ?? "",
             email: user.email ?? "",
-            studentID: "",
+            regNo: "",
             profileImageURL: user.photoURL?.absoluteString,
             phoneNumber: nil,
             department: nil,
@@ -71,7 +93,7 @@ class ProfileViewModel: ObservableObject {
         let userData: [String: Any] = [
             "fullName": basicProfile.fullName,
             "email": basicProfile.email,
-            "studentID": basicProfile.studentID,
+            "studentID": basicProfile.regNo,
             "profileImageURL": basicProfile.profileImageURL ?? "",
             "phoneNumber": basicProfile.phoneNumber ?? "",
             "department": basicProfile.department ?? "",
@@ -103,11 +125,12 @@ class ProfileViewModel: ObservableObject {
         let userData: [String: Any] = [
             "fullName": profile.fullName,
             "email": profile.email,
-            "studentID": profile.studentID,
+            "studentID": profile.regNo,
             "phoneNumber": profile.phoneNumber ?? "",
             "department": profile.department ?? "",
             "semester": profile.semester ?? "",
-            "profileImageURL": profileImageURL ?? ""
+            "profileImageURL": profileImageURL ?? "",
+            "updatedAt": Timestamp()
         ]
         
         db.collection("users").document(userId).updateData(userData) { [weak self] error in
@@ -116,6 +139,7 @@ class ProfileViewModel: ObservableObject {
                 if let error = error {
                     self?.errorMessage = error.localizedDescription
                 } else {
+                    self?.userProfile?.profileImageURL = self?.profileImageURL
                     self?.isEditing = false
                     self?.showingProfileSetup = false
                 }
@@ -126,16 +150,27 @@ class ProfileViewModel: ObservableObject {
     func uploadProfileImage() {
         guard let userId = Auth.auth().currentUser?.uid,
               let image = selectedImage,
-              let imageData = image.jpegData(compressionQuality: 0.7) else { return }
+              let imageData = image.jpegData(compressionQuality: 0.8) else { return }
         
         isUploadingImage = true
-        let storageRef = storage.reference().child("profile_images/\(userId).jpg")
+        errorMessage = ""
         
-        storageRef.putData(imageData, metadata: nil) { [weak self] _, error in
+        let timestamp = Int(Date().timeIntervalSince1970)
+        let filename = "profile_\(userId)_\(timestamp).jpg"
+        let storageRef = storage.reference().child("profile_images/\(filename)")
+        
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        metadata.customMetadata = [
+            "userId": userId,
+            "uploadDate": ISO8601DateFormatter().string(from: Date())
+        ]
+        
+        storageRef.putData(imageData, metadata: metadata) { [weak self] _, error in
             if let error = error {
                 DispatchQueue.main.async {
                     self?.isUploadingImage = false
-                    self?.errorMessage = error.localizedDescription
+                    self?.errorMessage = "Failed to upload image: \(error.localizedDescription)"
                 }
                 return
             }
@@ -144,22 +179,112 @@ class ProfileViewModel: ObservableObject {
                 DispatchQueue.main.async {
                     self?.isUploadingImage = false
                     if let error = error {
-                        self?.errorMessage = error.localizedDescription
+                        self?.errorMessage = "Failed to get image URL: \(error.localizedDescription)"
                     } else if let url = url {
-                        self?.profileImageURL = url.absoluteString
-                        self?.updateProfileImageURL(url: url.absoluteString)
+                        let urlString = url.absoluteString
+                        self?.profileImageURL = urlString
+                        
+                        self?.updateProfileImageURL(url: urlString) {
+                            self?.userProfile?.profileImageURL = urlString
+                        }
+                        
+                        self?.selectedImage = nil
                     }
                 }
             }
         }
     }
     
-    private func updateProfileImageURL(url: String) {
-        guard let userId = Auth.auth().currentUser?.uid else { return }
+    private func updateProfileImageURL(url: String, completion: (() -> Void)? = nil) {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            completion?()
+            return
+        }
         
-        db.collection("users").document(userId).updateData(["profileImageURL": url]) { error in
+        let updateData: [String: Any] = [
+            "profileImageURL": url,
+            "imageUpdatedAt": Timestamp()
+        ]
+        
+        db.collection("users").document(userId).updateData(updateData) { error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error updating profile image URL: \(error.localizedDescription)")
+                } else {
+                    print("Profile image URL updated successfully")
+                }
+                completion?()
+            }
+        }
+    }
+    
+    private func deleteOldProfileImage(oldURL: String) {
+        do {
+            let oldImageRef = try storage.reference(forURL: oldURL)
+            oldImageRef.delete { error in
+                if let error = error {
+                    print("Error deleting old profile image: \(error.localizedDescription)")
+                } else {
+                    print("Old profile image deleted successfully")
+                }
+            }
+        } catch {
+            print("Error creating reference for old image URL: \(error.localizedDescription)")
+        }
+    }
+    
+    func uploadProfileImageWithCleanup() {
+        guard let userId = Auth.auth().currentUser?.uid,
+              let image = selectedImage,
+              let imageData = image.jpegData(compressionQuality: 0.8) else { return }
+        
+        isUploadingImage = true
+        errorMessage = ""
+        
+        let oldImageURL = profileImageURL
+        
+        let timestamp = Int(Date().timeIntervalSince1970)
+        let filename = "profile_\(userId)_\(timestamp).jpg"
+        let storageRef = storage.reference().child("profile_images/\(filename)")
+        
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        metadata.customMetadata = [
+            "userId": userId,
+            "uploadDate": ISO8601DateFormatter().string(from: Date())
+        ]
+        
+        storageRef.putData(imageData, metadata: metadata) { [weak self] _, error in
             if let error = error {
-                print("Error updating profile image URL: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self?.isUploadingImage = false
+                    self?.errorMessage = "Failed to upload image: \(error.localizedDescription)"
+                }
+                return
+            }
+            
+            storageRef.downloadURL { url, error in
+                DispatchQueue.main.async {
+                    self?.isUploadingImage = false
+                    if let error = error {
+                        self?.errorMessage = "Failed to get image URL: \(error.localizedDescription)"
+                    } else if let url = url {
+                        let urlString = url.absoluteString
+                        self?.profileImageURL = urlString
+                        
+                        self?.updateProfileImageURL(url: urlString) {
+                            self?.userProfile?.profileImageURL = urlString
+                            
+                            if let oldURL = oldImageURL,
+                               !oldURL.isEmpty,
+                               oldURL != urlString {
+                                self?.deleteOldProfileImage(oldURL: oldURL)
+                            }
+                        }
+                        
+                        self?.selectedImage = nil
+                    }
+                }
             }
         }
     }
@@ -169,12 +294,16 @@ struct UserProfile {
     let id: String
     var fullName: String
     var email: String
-    let studentID: String
+    let regNo: String
     var profileImageURL: String?
     var phoneNumber: String?
     var department: String?
     var semester: String?
     let createdAt: Timestamp
+    
+    var hasProfileImage: Bool {
+        return profileImageURL != nil && !profileImageURL!.isEmpty
+    }
 }
 
 struct ProfileView: View {
@@ -304,7 +433,7 @@ struct ProfileView: View {
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(.white)
                         }
-                        .shadow(color: .blue.opacity(0.4), radius: 6, x: 0, y: 3)
+                        .shadow(color: .accentColor.opacity(0.4), radius: 6, x: 0, y: 3)
                     }
                     .offset(x: 40, y: 40)
                     
@@ -333,7 +462,7 @@ struct ProfileView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
-                    Text(profile.studentID)
+                    Text(profile.regNo)
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)

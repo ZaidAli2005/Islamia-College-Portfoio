@@ -32,7 +32,20 @@ struct MediaItem: Identifiable, Codable {
     }
 }
 
-// MARK: - Enhanced Data Manager
+struct Movie: Transferable {
+    let url: URL
+    
+    static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(contentType: .movie) { movie in
+            SentTransferredFile(movie.url)
+        } importing: { received in
+            let copy = URL.documentsDirectory.appending(path: "movie-\(UUID().uuidString).mov")
+            try FileManager.default.copyItem(at: received.file, to: copy)
+            return Self.init(url: copy)
+        }
+    }
+}
+
 class ActivityDataManager: ObservableObject {
     @Published var posts: [ActivityPost] = []
     
@@ -148,10 +161,14 @@ class ActivityDataManager: ObservableObject {
     }
     
     func saveVideoToDocuments(_ videoURL: URL) -> String? {
-        let fileName = "\(UUID().uuidString).mov"
+        let fileName = "\(UUID().uuidString).\(videoURL.pathExtension.isEmpty ? "mov" : videoURL.pathExtension)"
         let destinationURL = documentsPath.appendingPathComponent(fileName)
         
         do {
+            if FileManager.default.fileExists(atPath: destinationURL.path) {
+                try FileManager.default.removeItem(at: destinationURL)
+            }
+            
             try FileManager.default.copyItem(at: videoURL, to: destinationURL)
             return fileName
         } catch {
@@ -314,7 +331,6 @@ struct ActivityPostCard: View {
                 }
             }
             
-            // Caption
             if !post.caption.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(displayCaption)
@@ -337,12 +353,10 @@ struct ActivityPostCard: View {
                 }
             }
             
-            // Media
             if !post.mediaItems.isEmpty {
                 MediaGridView(mediaItems: post.mediaItems, dataManager: dataManager)
             }
             
-            // Tags
             if !post.tags.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
@@ -361,7 +375,6 @@ struct ActivityPostCard: View {
                 }
             }
             
-            // Actions
             HStack(spacing: 20) {
                 Button(action: {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -388,12 +401,149 @@ struct ActivityPostCard: View {
     }
 }
 
+struct FullScreenImageGallery: View {
+    let mediaItems: [MediaItem]
+    let dataManager: ActivityDataManager
+    let initialIndex: Int
+    @Binding var isPresented: Bool
+    
+    @State private var currentIndex: Int
+    @State private var dragOffset: CGSize = .zero
+    @State private var scale: CGFloat = 1.0
+    @State private var lastScale: CGFloat = 1.0
+    @GestureState private var magnifyBy = 1.0
+    
+    init(mediaItems: [MediaItem], dataManager: ActivityDataManager, initialIndex: Int, isPresented: Binding<Bool>) {
+        self.mediaItems = mediaItems.filter { $0.type == .image }
+        self.dataManager = dataManager
+        self.initialIndex = initialIndex
+        self._isPresented = isPresented
+        self._currentIndex = State(initialValue: initialIndex)
+    }
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            if !mediaItems.isEmpty && currentIndex < mediaItems.count {
+                TabView(selection: $currentIndex) {
+                    ForEach(Array(mediaItems.enumerated()), id: \.element.id) { index, item in
+                        if let image = dataManager.loadImageFromDocuments(item.fileName) {
+                            GeometryReader { geometry in
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: geometry.size.width, height: geometry.size.height)
+                                    .scaleEffect(scale * magnifyBy)
+                                    .offset(dragOffset)
+                                    .gesture(
+                                        SimultaneousGesture(
+                                            MagnificationGesture()
+                                                .updating($magnifyBy) { currentState, gestureState, transaction in
+                                                    gestureState = currentState
+                                                }
+                                                .onEnded { value in
+                                                    scale = max(1.0, min(scale * value, 5.0))
+                                                },
+                                            
+                                            DragGesture()
+                                                .onChanged { value in
+                                                    if scale > 1.0 {
+                                                        dragOffset = value.translation
+                                                    }
+                                                }
+                                                .onEnded { value in
+                                                    if scale > 1.0 {
+                                                        withAnimation(.spring()) {
+                                                            dragOffset = .zero
+                                                        }
+                                                    }
+                                                }
+                                        )
+                                    )
+                                    .onTapGesture(count: 2) {
+                                        withAnimation(.spring()) {
+                                            if scale > 1.0 {
+                                                scale = 1.0
+                                                dragOffset = .zero
+                                            } else {
+                                                scale = 3.0
+                                            }
+                                        }
+                                    }
+                            }
+                            .tag(index)
+                        }
+                    }
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .onChange(of: currentIndex) { _, _ in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        scale = 1.0
+                        dragOffset = .zero
+                    }
+                }
+            }
+            
+            VStack {
+                HStack {
+                    Button(action: {
+                        isPresented = false
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .padding(12)
+                            .background(Color.black.opacity(0.6))
+                            .clipShape(Circle())
+                    }
+                    
+                    Spacer()
+                    
+                    Text("\(currentIndex + 1) of \(mediaItems.count)")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.black.opacity(0.6))
+                        .cornerRadius(20)
+                }
+                .padding()
+                
+                Spacer()
+            }
+            
+            if mediaItems.count > 1 {
+                VStack {
+                    Spacer()
+                    
+                    HStack(spacing: 8) {
+                        ForEach(0..<mediaItems.count, id: \.self) { index in
+                            Circle()
+                                .fill(index == currentIndex ? Color.white : Color.white.opacity(0.4))
+                                .frame(width: 8, height: 8)
+                                .animation(.easeInOut(duration: 0.2), value: currentIndex)
+                        }
+                    }
+                    .padding(.bottom, 50)
+                }
+            }
+        }
+        .statusBarHidden()
+        .onAppear {
+            currentIndex = initialIndex
+        }
+    }
+}
+
 struct MediaGridView: View {
     let mediaItems: [MediaItem]
     let dataManager: ActivityDataManager
     @State private var selectedVideoURL: URL?
     @State private var showingVideoPlayer = false
     @State private var showingAllMedia = false
+    @State private var showingImageGallery = false
+    @State private var selectedImageIndex = 0
     
     private let maxDisplayItems = 4
     
@@ -412,6 +562,12 @@ struct MediaGridView: View {
                                 .frame(height: imageHeight(for: displayItems.count))
                                 .clipped()
                                 .cornerRadius(12)
+                                .onTapGesture {
+                                    if let originalIndex = mediaItems.firstIndex(where: { $0.id == item.id }) {
+                                        selectedImageIndex = getImageIndex(for: originalIndex)
+                                        showingImageGallery = true
+                                    }
+                                }
                         }
                     } else if item.type == .video {
                         Button(action: {
@@ -432,11 +588,6 @@ struct MediaGridView: View {
                                 VStack(spacing: 8) {
                                     Image(systemName: "play.circle.fill")
                                         .font(.system(size: 40))
-                                        .foregroundColor(.white)
-                                    
-                                    Text("Video")
-                                        .font(.caption)
-                                        .fontWeight(.medium)
                                         .foregroundColor(.white)
                                 }
                             }
@@ -472,6 +623,19 @@ struct MediaGridView: View {
         .sheet(isPresented: $showingAllMedia) {
             AllMediaView(mediaItems: mediaItems, dataManager: dataManager)
         }
+        .fullScreenCover(isPresented: $showingImageGallery) {
+            FullScreenImageGallery(
+                mediaItems: mediaItems,
+                dataManager: dataManager,
+                initialIndex: selectedImageIndex,
+                isPresented: $showingImageGallery
+            )
+        }
+    }
+    
+    private func getImageIndex(for originalIndex: Int) -> Int {
+        let imagesBeforeIndex = mediaItems.prefix(originalIndex).filter { $0.type == .image }.count
+        return imagesBeforeIndex
     }
     
     private func gridColumns(for itemCount: Int) -> [GridItem] {
@@ -507,12 +671,14 @@ struct AllMediaView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedVideoURL: URL?
     @State private var showingVideoPlayer = false
+    @State private var showingImageGallery = false
+    @State private var selectedImageIndex = 0
     
     var body: some View {
         NavigationView {
             ScrollView {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 2), spacing: 8) {
-                    ForEach(mediaItems) { item in
+                    ForEach(Array(mediaItems.enumerated()), id: \.element.id) { index, item in
                         if item.type == .image {
                             if let image = dataManager.loadImageFromDocuments(item.fileName) {
                                 Image(uiImage: image)
@@ -522,7 +688,8 @@ struct AllMediaView: View {
                                     .clipped()
                                     .cornerRadius(12)
                                     .onTapGesture {
-                                        // Handle image tap if needed
+                                        selectedImageIndex = getImageIndex(for: index)
+                                        showingImageGallery = true
                                     }
                             }
                         } else if item.type == .video {
@@ -544,11 +711,6 @@ struct AllMediaView: View {
                                     VStack(spacing: 8) {
                                         Image(systemName: "play.circle.fill")
                                             .font(.system(size: 40))
-                                            .foregroundColor(.white)
-                                        
-                                        Text("Video")
-                                            .font(.caption)
-                                            .fontWeight(.medium)
                                             .foregroundColor(.white)
                                     }
                                 }
@@ -573,7 +735,20 @@ struct AllMediaView: View {
                     VideosPlayerView(videoURL: videoURL, isPresented: $showingVideoPlayer)
                 }
             }
+            .fullScreenCover(isPresented: $showingImageGallery) {
+                FullScreenImageGallery(
+                    mediaItems: mediaItems,
+                    dataManager: dataManager,
+                    initialIndex: selectedImageIndex,
+                    isPresented: $showingImageGallery
+                )
+            }
         }
+    }
+    
+    private func getImageIndex(for originalIndex: Int) -> Int {
+        let imagesBeforeIndex = mediaItems.prefix(originalIndex).filter { $0.type == .image }.count
+        return imagesBeforeIndex
     }
 }
 
@@ -589,17 +764,23 @@ struct VideosPlayerView: View {
             if let player = player {
                 VideoPlayer(player: player)
                     .onAppear {
-                        player.play()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            player.play()
+                        }
                     }
                     .onDisappear {
                         player.pause()
                     }
+            } else {
+                ProgressView("Loading video...")
+                    .foregroundColor(.white)
             }
             
             VStack {
                 HStack {
                     Spacer()
                     Button(action: {
+                        player?.pause()
                         isPresented = false
                     }) {
                         Image(systemName: "xmark.circle.fill")
@@ -614,12 +795,34 @@ struct VideosPlayerView: View {
             }
         }
         .onAppear {
-            player = AVPlayer(url: videoURL)
+            setupPlayer()
         }
         .onDisappear {
-            player?.pause()
-            player = nil
+            cleanupPlayer()
         }
+    }
+    
+    private func setupPlayer() {
+        guard FileManager.default.fileExists(atPath: videoURL.path) else {
+            print("Video file does not exist at: \(videoURL.path)")
+            return
+        }
+        
+        player = AVPlayer(url: videoURL)
+        
+        NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: player?.currentItem,
+            queue: .main
+        ) { _ in
+            player?.seek(to: .zero)
+        }
+    }
+    
+    private func cleanupPlayer() {
+        player?.pause()
+        player = nil
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
@@ -711,7 +914,8 @@ struct NewPostView: View {
     @State private var caption = ""
     @State private var tags = ""
     @State private var selectedImages: [UIImage] = []
-    @State private var selectedVideos: [URL] = []
+    @State private var selectedVideoURLs: [URL] = []
+    @State private var isProcessingMedia = false
     @State private var photoPickerItems: [PhotosPickerItem] = []
     
     var body: some View {
@@ -730,7 +934,7 @@ struct NewPostView: View {
                         Label("Select Photos & Videos", systemImage: "photo.on.rectangle.angled")
                     }
                     
-                    if !selectedImages.isEmpty || !selectedVideos.isEmpty {
+                    if !selectedImages.isEmpty || !selectedVideoURLs.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
                                 ForEach(Array(selectedImages.enumerated()), id: \.offset) { index, image in
@@ -754,19 +958,21 @@ struct NewPostView: View {
                                     }
                                 }
                                 
-                                ForEach(Array(selectedVideos.enumerated()), id: \.offset) { index, videoURL in
+                                ForEach(Array(selectedVideoURLs.enumerated()), id: \.offset) { index, videoURL in
                                     ZStack(alignment: .topTrailing) {
                                         RoundedRectangle(cornerRadius: 8)
                                             .fill(Color.gray.opacity(0.3))
                                             .frame(width: 80, height: 80)
                                             .overlay(
-                                                Image(systemName: "play.circle.fill")
-                                                    .font(.title2)
-                                                    .foregroundColor(.white)
+                                                VStack {
+                                                    Image(systemName: "play.circle.fill")
+                                                        .font(.title2)
+                                                        .foregroundColor(.white)
+                                                }
                                             )
                                         
                                         Button(action: {
-                                            selectedVideos.remove(at: index)
+                                            selectedVideoURLs.remove(at: index)
                                         }) {
                                             Image(systemName: "xmark.circle.fill")
                                                 .foregroundColor(.white)
@@ -802,28 +1008,54 @@ struct NewPostView: View {
                     Button("Post") {
                         createPost()
                     }
-                    .disabled(caption.isEmpty && selectedImages.isEmpty && selectedVideos.isEmpty)
+                    .disabled(caption.isEmpty && selectedImages.isEmpty && selectedVideoURLs.isEmpty)
                 }
             }
             .onChange(of: photoPickerItems) { _, newItems in
-                Task {
-                    selectedImages.removeAll()
-                    selectedVideos.removeAll()
-                    
-                    for item in newItems {
-                        if let data = try? await item.loadTransferable(type: Data.self) {
-                            if let image = UIImage(data: data) {
-                                selectedImages.append(image)
-                            } else {
-                                // Handle video
-                                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-                                try? data.write(to: tempURL)
-                                selectedVideos.append(tempURL)
-                            }
-                        }
+                processSelectedMedia(newItems)
+            }
+        }
+    }
+    
+    private func processSelectedMedia(_ items: [PhotosPickerItem]) {
+        guard !items.isEmpty else { return }
+        
+        isProcessingMedia = true
+        selectedImages.removeAll()
+        selectedVideoURLs.removeAll()
+        
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                for item in items {
+                    group.addTask {
+                        await processMediaItem(item)
                     }
                 }
             }
+            
+            await MainActor.run {
+                isProcessingMedia = false
+            }
+        }
+    }
+    
+    private func processMediaItem(_ item: PhotosPickerItem) async {
+        do {
+            if let imageData = try? await item.loadTransferable(type: Data.self),
+               let image = UIImage(data: imageData) {
+                await MainActor.run {
+                    selectedImages.append(image)
+                }
+                return
+            }
+            
+            if let movie = try? await item.loadTransferable(type: Movie.self) {
+                await MainActor.run {
+                    selectedVideoURLs.append(movie.url)
+                }
+            }
+        } catch {
+            print("Error processing media item: \(error)")
         }
     }
     
@@ -837,7 +1069,7 @@ struct NewPostView: View {
             }
         }
         
-        for videoURL in selectedVideos {
+        for videoURL in selectedVideoURLs {
             if let fileName = dataManager.saveVideoToDocuments(videoURL) {
                 let mediaItem = MediaItem(type: .video, fileName: fileName)
                 mediaItems.append(mediaItem)

@@ -86,7 +86,6 @@ struct DocumentItem: Identifiable {
     var type: String
 }
 
-// MARK: - PDF Generator
 class PDFGenerator {
     static func generateApplicationPDF(from data: ApplicationData) -> Data? {
         let pdfMetaData = [
@@ -134,7 +133,8 @@ class PDFGenerator {
             yPosition = addTextToPDF(text: "Email: \(data.personalInfo.email)", yPosition: yPosition, margin: margin)
             yPosition = addTextToPDF(text: "Phone: \(data.personalInfo.phoneNumber)", yPosition: yPosition, margin: margin)
             yPosition = addTextToPDF(text: "Gender: \(data.personalInfo.gender.displayName)", yPosition: yPosition, margin: margin)
-            yPosition = addTextToPDF(text: "Address: \(data.personalInfo.temporaryAddress)", yPosition: yPosition, margin: margin)
+            yPosition = addTextToPDF(text: "Temporary Address: \(data.personalInfo.temporaryAddress)", yPosition: yPosition, margin: margin)
+            yPosition = addTextToPDF(text: "Permanent Address: \(data.personalInfo.permanentAddress)", yPosition: yPosition, margin: margin)
             yPosition = addTextToPDF(text: "City: \(data.personalInfo.city), ZIP: \(data.personalInfo.zipCode)", yPosition: yPosition, margin: margin)
             yPosition += 20
             
@@ -1183,6 +1183,31 @@ struct AdmissionPortalForm: View {
                     )
                     .shadow(color: .green.opacity(0.2), radius: 6, x: 0, y: 3)
                 }
+            } else if canSubmit {
+                Button(action: {
+                    downloadPDF()
+                }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .font(.system(size: 18, weight: .medium))
+                        
+                        Text("Preview PDF")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.blue)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(.blue.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(.blue, lineWidth: 2)
+                            )
+                    )
+                    .shadow(color: .blue.opacity(0.2), radius: 6, x: 0, y: 3)
+                }
             }
         }
     }
@@ -1256,7 +1281,6 @@ struct AdmissionPortalForm: View {
         }
     }
     
-    // MARK: - Modern UI Components
     struct ModernSectionCard<Content: View>: View {
         let title: String
         let icon: String
