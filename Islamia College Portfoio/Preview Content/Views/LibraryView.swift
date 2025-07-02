@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct LibraryView: View {
     @State private var searchText = ""
@@ -15,6 +16,9 @@ struct LibraryView: View {
     @State private var showingBookDetails = false
     @State private var selectedBook: Book?
     @State private var books: [Book] = SampleData.books
+    @State private var showingScanner = false
+    @State private var scannedBookNotFound = false
+    @State private var scannedISBN = ""
     
     var filteredBooks: [Book] {
         var filtered = books
@@ -37,8 +41,6 @@ struct LibraryView: View {
             filtered.sort { $0.year > $1.year }
         case .rating:
             filtered.sort { $0.rating > $1.rating }
-        case .timesBorrowed:
-            filtered.sort { $0.timesBorrowed > $1.timesBorrowed }
         }
         
         return filtered
@@ -72,6 +74,28 @@ struct LibraryView: View {
                 BookDetailsView(book: book)
             }
         }
+        .sheet(isPresented: $showingScanner) {
+            BarcodeScannerView { scannedCode in
+                handleScannedCode(scannedCode)
+            }
+        }
+        .alert("Book Not Found", isPresented: $scannedBookNotFound) {
+            Button("OK") { }
+        } message: {
+            Text("No book found with ISBN: \(scannedISBN)")
+        }
+    }
+    
+    private func handleScannedCode(_ code: String) {
+        scannedISBN = code
+        showingScanner = false
+        
+        if let book = books.first(where: { $0.isbn == code }) {
+            selectedBook = book
+            showingBookDetails = true
+        } else {
+            scannedBookNotFound = true
+        }
     }
     
     private var searchAndTitleSection: some View {
@@ -95,6 +119,19 @@ struct LibraryView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+                
+                Button(action: {
+                    showingScanner = true
+                }) {
+                    Image(systemName: "barcode.viewfinder")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(.accentColor)
+                        .padding(8)
+                        .background(
+                            Circle()
+                                .fill(Color.accentColor.opacity(0.1))
+                        )
+                }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
@@ -109,6 +146,7 @@ struct LibraryView: View {
         .padding(.bottom, 14)
         .background(Color(.systemGroupedBackground))
     }
+    
     private var filterTabsView: some View {
         VStack(spacing: 16) {
             HStack(spacing: 0) {
@@ -244,6 +282,197 @@ struct LibraryView: View {
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 20)
+    }
+}
+
+struct BarcodeScannerView: UIViewControllerRepresentable {
+    let onCodeScanned: (String) -> Void
+    
+    func makeUIViewController(context: Context) -> BarcodeScannerViewController {
+        let scanner = BarcodeScannerViewController()
+        scanner.onCodeScanned = onCodeScanned
+        return scanner
+    }
+    
+    func updateUIViewController(_ uiViewController: BarcodeScannerViewController, context: Context) {
+        // No updates needed
+    }
+}
+
+class BarcodeScannerViewController: UIViewController {
+    var captureSession: AVCaptureSession!
+    var previewLayer: AVCaptureVideoPreviewLayer!
+    var onCodeScanned: ((String) -> Void)?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupScanner()
+        setupUI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if captureSession?.isRunning == false {
+            DispatchQueue.global(qos: .background).async {
+                self.captureSession.startRunning()
+            }
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        if captureSession?.isRunning == true {
+            captureSession.stopRunning()
+        }
+    }
+    
+    private func setupScanner() {
+        captureSession = AVCaptureSession()
+        
+        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { return }
+        let videoInput: AVCaptureDeviceInput
+        
+        do {
+            videoInput = try AVCaptureDeviceInput(device: videoCaptureDevice)
+        } catch {
+            return
+        }
+        
+        if captureSession.canAddInput(videoInput) {
+            captureSession.addInput(videoInput)
+        } else {
+            failed()
+            return
+        }
+        
+        let metadataOutput = AVCaptureMetadataOutput()
+        
+        if captureSession.canAddOutput(metadataOutput) {
+            captureSession.addOutput(metadataOutput)
+            
+            metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
+            metadataOutput.metadataObjectTypes = [.ean8, .ean13, .pdf417, .qr, .code128]
+        } else {
+            failed()
+            return
+        }
+        
+        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        previewLayer.frame = view.layer.bounds
+        previewLayer.videoGravity = .resizeAspectFill
+        view.layer.addSublayer(previewLayer)
+    }
+    
+    private func setupUI() {
+        let overlayView = UIView()
+        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        overlayView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(overlayView)
+        
+        NSLayoutConstraint.activate([
+            overlayView.topAnchor.constraint(equalTo: view.topAnchor),
+            overlayView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            overlayView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            overlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
+        let scanningFrame = UIView()
+        scanningFrame.layer.borderColor = UIColor.systemBlue.cgColor
+        scanningFrame.layer.borderWidth = 2
+        scanningFrame.layer.cornerRadius = 12
+        scanningFrame.backgroundColor = UIColor.clear
+        scanningFrame.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scanningFrame)
+        
+        NSLayoutConstraint.activate([
+            scanningFrame.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            scanningFrame.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            scanningFrame.widthAnchor.constraint(equalToConstant: 280),
+            scanningFrame.heightAnchor.constraint(equalToConstant: 200)
+        ])
+        
+        let path = UIBezierPath(rect: overlayView.bounds)
+        let cutoutPath = UIBezierPath(roundedRect: CGRect(x: view.center.x - 140, y: view.center.y - 100, width: 280, height: 200), cornerRadius: 12)
+        path.append(cutoutPath.reversing())
+        
+        let maskLayer = CAShapeLayer()
+        maskLayer.path = path.cgPath
+        overlayView.layer.mask = maskLayer
+        
+        let titleLabel = UILabel()
+        titleLabel.text = "Scan Book Barcode"
+        titleLabel.textColor = .white
+        titleLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        titleLabel.textAlignment = .center
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(titleLabel)
+        
+        NSLayoutConstraint.activate([
+            titleLabel.bottomAnchor.constraint(equalTo: scanningFrame.topAnchor, constant: -30),
+            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+        
+        let instructionLabel = UILabel()
+        instructionLabel.text = "Position the barcode within the frame"
+        instructionLabel.textColor = .white
+        instructionLabel.font = UIFont.systemFont(ofSize: 16)
+        instructionLabel.textAlignment = .center
+        instructionLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(instructionLabel)
+        
+        NSLayoutConstraint.activate([
+            instructionLabel.topAnchor.constraint(equalTo: scanningFrame.bottomAnchor, constant: 30),
+            instructionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+        
+        let closeButton = UIButton(type: .system)
+        closeButton.setTitle("Cancel", for: .normal)
+        closeButton.setTitleColor(.white, for: .normal)
+        closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(closeButton)
+        
+        NSLayoutConstraint.activate([
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+    }
+    
+    @objc private func closeButtonTapped() {
+        dismiss(animated: true)
+    }
+    
+    private func failed() {
+        let alert = UIAlertController(title: "Scanning not supported", message: "Your device does not support scanning a code from an item. Please use a device with a camera.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+        captureSession = nil
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        previewLayer?.frame = view.layer.bounds
+    }
+}
+
+extension BarcodeScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
+    func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+        captureSession.stopRunning()
+        
+        if let metadataObject = metadataObjects.first {
+            guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else { return }
+            guard let stringValue = readableObject.stringValue else { return }
+            
+            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+            
+            DispatchQueue.main.async {
+                self.onCodeScanned?(stringValue)
+                self.dismiss(animated: true)
+            }
+        }
     }
 }
 
@@ -432,12 +661,12 @@ struct BookDetailsView: View {
                         .font(.system(size: 17))
                         .foregroundColor(.secondary)
                     
-                    HStack(spacing: 6) {
+                    HStack(spacing: 4) {
                         Circle()
                             .fill(book.isAvailable ? Color.accentColor : Color.red)
                             .frame(width: 8, height: 8)
                         Text(book.isAvailable ? "Available" : "Checked Out")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(book.isAvailable ? .accentColor : .red)
                     }
                     .padding(.horizontal, 12)
@@ -459,9 +688,6 @@ struct BookDetailsView: View {
                                 .foregroundColor(.orange)
                         }
                     }
-                    Text("Rating")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.secondary)
                 }
             }
             .padding(.top, 8)

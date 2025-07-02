@@ -91,16 +91,12 @@ struct DashboardContentView: View {
                             handleLogout()
                         }) {
                             Circle()
-                                .fill(.white.opacity(0.2))
                                 .frame(width: 48, height: 48)
                                 .overlay(
                                     Image(systemName: "rectangle.portrait.and.arrow.right")
                                         .foregroundColor(.white)
                                         .font(.system(size: 18, weight: .semibold))
                                 )
-                                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-                                .scaleEffect(showGreeting ? 1.0 : 0.8)
-                                .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.2), value: showGreeting)
                         }
                     }
                     .padding(.horizontal, 24)
@@ -181,14 +177,14 @@ struct DashboardContentView: View {
                         
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20), count: 4), spacing: 24) {
                             let items = [
-                                ("grid.circle.fill", "Classes", Color.blue),
-                                ("building.2.fill", "Canteen", Color.orange),
-                                ("person.fill", "Principal", Color.indigo),
-                                ("person.2.fill", "Teachers", Color.purple),
-                                ("trophy.fill", "Events", Color.pink),
+                                ("grid.circle.fill", "Classes", Color.teal),
+                                ("building.2.fill", "Canteen", Color.teal),
+                                ("person.fill", "Principal", Color.teal),
+                                ("person.2.fill", "Teachers", Color.teal),
+                                ("trophy.fill", "Events", Color.teal),
                                 ("clock.fill", "Timetable", Color.teal),
-                                ("flask.fill", "Labs", Color.cyan),
-                                ("info.circle.fill", "About", Color.mint)
+                                ("flask.fill", "Labs", Color.teal),
+                                ("info.circle.fill", "About", Color.teal)
                             ]
                             
                             ForEach(Array(items.enumerated()), id: \.offset) { index, item in
@@ -293,11 +289,20 @@ struct DashboardContentView: View {
                                     iconColor: .accentColor
                                 )
                             }
+                            
+                            NavigationLink(destination: ExamsView()) {
+                                EnhancedRecommendedItem(
+                                    icon: "creditcard.fill",
+                                    title: "Exams",
+                                    subtitle: "About Mid Exams",
+                                    iconColor: .accentColor
+                                )
+                            }
                         }
                         .padding(.horizontal, 24)
                     }
                     
-                    AutoPlayVideoView(videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
+                    AutoPlayVideoView(videoURL: "https://www.facebook.com/100063707065866/videos/1051444996517028")
                         .padding(.top, 20)
                     
                     Spacer(minLength: 140)
@@ -350,6 +355,7 @@ struct EnhancedDashboardItem: View {
                 Image(systemName: icon)
                     .foregroundColor(iconColor)
                     .font(.system(size: 24, weight: .semibold))
+                    .opacity(1)
             }
             
             Text(title)

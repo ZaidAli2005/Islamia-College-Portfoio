@@ -1,5 +1,6 @@
 import SwiftUI
 import AVKit
+import Photos
 
 struct SportsView: View {
     @State private var selectedTab = 0
@@ -7,26 +8,18 @@ struct SportsView: View {
     @State private var showImageViewer = false
     @State private var selectedImage = ""
     @State private var animateCards = false
+    @State private var showVideoPlayer = false
+    @State private var selectedVideoURL = ""
     
     let sportsImages = [
-        "Splash Img", "Splash Img", "Splash Img", "Splash Img",
-        "Splash Img", "Splash Img", "Splash Img", "Splash Img"
+        "50", "51", "52", "53","54", "55", "56", "57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","86","87","88","89","90","91","92","93","94","95","72","73","74","75","76","77","78","79","80","81","82","83","84","85"
     ]
     
     let sportsVideos = [
-        SportVideo(title: "Football Championship", thumbnail: "football_thumb", videoURL: "football_video"),
-        SportVideo(title: "Basketball Finals", thumbnail: "basketball_thumb", videoURL: "basketball_video"),
-        SportVideo(title: "Cricket Match", thumbnail: "cricket_thumb", videoURL: "cricket_video"),
-        SportVideo(title: "Track & Field", thumbnail: "track_thumb", videoURL: "track_video")
-    ]
-    
-    let activities = [
-        Activity(title: "Football", icon: "⚽️", color: .green),
-        Activity(title: "Basketball", icon: "🏀", color: .orange),
-        Activity(title: "Cricket", icon: "🏏", color: .blue),
-        Activity(title: "Tennis", icon: "🎾", color: .yellow),
-        Activity(title: "Swimming", icon: "🏊‍♂️", color: .cyan),
-        Activity(title: "Athletics", icon: "🏃‍♂️", color: .red)
+        SportVideo(title: "Football Championship", thumbnail: "50", videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"),
+        SportVideo(title: "Basketball Finals", thumbnail: "64", videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"),
+        SportVideo(title: "Cricket Match", thumbnail: "53", videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"),
+        SportVideo(title: "Track & Field", thumbnail: "56", videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4")
     ]
     
     var body: some View {
@@ -36,8 +29,6 @@ struct SportsView: View {
                     headerSection
                     tabSelector
                     if selectedTab == 0 {
-                        activitiesSection
-                    } else if selectedTab == 1 {
                         imageGallerySection
                     } else {
                         videoGallerySection
@@ -62,6 +53,9 @@ struct SportsView: View {
         .sheet(isPresented: $showImageViewer) {
             ImageViewer(imageName: selectedImage, isPresented: $showImageViewer)
         }
+        .fullScreenCover(isPresented: $showVideoPlayer) {
+            VideoPlayerView(videoURL: selectedVideoURL, isPresented: $showVideoPlayer)
+        }
     }
     
     private var headerSection: some View {
@@ -77,22 +71,15 @@ struct SportsView: View {
                     )
                     .frame(height: 200)
                 
-                AsyncImage(url: Bundle.main.url(forResource: sportsImages[currentImageIndex], withExtension: "jpg")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                } placeholder: {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.gray.opacity(0.3))
-                        .overlay(
-                            Image(systemName: "photo")
-                                .font(.system(size: 40))
-                                .foregroundColor(.gray)
-                        )
-                }
-                .frame(height: 200)
-                .clipped()
+                Image(sportsImages[currentImageIndex])
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .clipped()
+                    .onTapGesture {
+                        print("Image tapped: \(sportsImages[currentImageIndex])")
+                    }
                 
                 RoundedRectangle(cornerRadius: 20)
                     .fill(
@@ -128,7 +115,7 @@ struct SportsView: View {
     
     private var tabSelector: some View {
         HStack(spacing: 0) {
-            ForEach(0..<3) { index in
+            ForEach(0..<2) { index in 
                 Button(action: {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         selectedTab = index
@@ -146,7 +133,7 @@ struct SportsView: View {
                     .padding(.vertical, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(selectedTab == index ? Color.blue : Color.clear)
+                            .fill(selectedTab == index ? Color.accentColor : Color.clear)
                             .animation(.easeInOut(duration: 0.3), value: selectedTab)
                     )
                 }
@@ -160,17 +147,6 @@ struct SportsView: View {
         .scaleEffect(animateCards ? 1 : 0.8)
         .opacity(animateCards ? 1 : 0)
         .animation(.easeOut(duration: 0.6).delay(0.2), value: animateCards)
-    }
-    
-    private var activitiesSection: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 2), spacing: 16) {
-            ForEach(Array(activities.enumerated()), id: \.offset) { index, activity in
-                ActivityCard(activity: activity)
-                    .scaleEffect(animateCards ? 1 : 0.5)
-                    .opacity(animateCards ? 1 : 0)
-                    .animation(.easeOut(duration: 0.6).delay(Double(index) * 0.1 + 0.4), value: animateCards)
-            }
-        }
     }
     
     private var imageGallerySection: some View {
@@ -190,28 +166,29 @@ struct SportsView: View {
     private var videoGallerySection: some View {
         LazyVStack(spacing: 16) {
             ForEach(Array(sportsVideos.enumerated()), id: \.offset) { index, video in
-                VideoCard(video: video)
-                    .scaleEffect(animateCards ? 1 : 0.5)
-                    .opacity(animateCards ? 1 : 0)
-                    .animation(.easeOut(duration: 0.6).delay(Double(index) * 0.1 + 0.4), value: animateCards)
+                VideoCard(video: video) {
+                    selectedVideoURL = video.videoURL
+                    showVideoPlayer = true
+                }
+                .scaleEffect(animateCards ? 1 : 0.5)
+                .opacity(animateCards ? 1 : 0)
+                .animation(.easeOut(duration: 0.6).delay(Double(index) * 0.1 + 0.4), value: animateCards)
             }
         }
     }
     
     private func tabIcon(for index: Int) -> String {
         switch index {
-        case 0: return "figure.run"
-        case 1: return "photo.on.rectangle"
-        case 2: return "play.rectangle"
+        case 0: return "photo.on.rectangle"
+        case 1: return "play.rectangle"
         default: return "questionmark"
         }
     }
     
     private func tabTitle(for index: Int) -> String {
         switch index {
-        case 0: return "Activities"
-        case 1: return "Gallery"
-        case 2: return "Videos"
+        case 0: return "Gallery"
+        case 1: return "Videos"
         default: return ""
         }
     }
@@ -225,52 +202,6 @@ struct SportsView: View {
     }
 }
 
-struct ActivityCard: View {
-    let activity: Activity
-    @State private var isPressed = false
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            Text(activity.icon)
-                .font(.system(size: 40))
-                .scaleEffect(isPressed ? 1.2 : 1.0)
-                .animation(.easeInOut(duration: 0.2), value: isPressed)
-            
-            Text(activity.title)
-                .font(.headline)
-                .fontWeight(.semibold)
-                .multilineTextAlignment(.center)
-        }
-        .frame(height: 120)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        colors: [activity.color.opacity(0.2), activity.color.opacity(0.1)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(activity.color.opacity(0.3), lineWidth: 1)
-        )
-        .scaleEffect(isPressed ? 0.95 : 1.0)
-        .onTapGesture {
-            withAnimation(.easeInOut(duration: 0.1)) {
-                isPressed = true
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    isPressed = false
-                }
-            }
-        }
-    }
-}
-
 struct ImageCard: View {
     let imageName: String
     let onTap: () -> Void
@@ -278,22 +209,19 @@ struct ImageCard: View {
     
     var body: some View {
         Button(action: onTap) {
-            AsyncImage(url: Bundle.main.url(forResource: imageName, withExtension: "jpg")) { image in
-                image
+            ZStack {
+                Image(imageName)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.3))
-                    .overlay(
-                        Image(systemName: "photo")
-                            .font(.system(size: 30))
-                            .foregroundColor(.gray)
-                    )
+                    .frame(height: 120)
+                    .clipped()
+                    .cornerRadius(12)
+                    .onAppear {
+                        if UIImage(named: imageName) == nil {
+                            print("Warning: Image '\(imageName)' not found in bundle")
+                        }
+                    }
             }
-            .frame(height: 120)
-            .clipped()
-            .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
@@ -310,27 +238,24 @@ struct ImageCard: View {
 
 struct VideoCard: View {
     let video: SportVideo
+    let onTap: () -> Void
     @State private var isPressed = false
     
     var body: some View {
         HStack(spacing: 16) {
-            AsyncImage(url: Bundle.main.url(forResource: video.thumbnail, withExtension: "jpg")) { image in
-                image
+            ZStack {
+                Image(video.thumbnail)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.3))
-                    .overlay(
-                        Image(systemName: "video")
-                            .font(.system(size: 25))
-                            .foregroundColor(.gray)
-                    )
-            }
-            .frame(width: 80, height: 60)
-            .clipped()
-            .cornerRadius(12)
-            .overlay(
+                    .frame(width: 80, height: 60)
+                    .clipped()
+                    .cornerRadius(12)
+                    .onAppear {
+                        if UIImage(named: video.thumbnail) == nil {
+                            print("Warning: Thumbnail '\(video.thumbnail)' not found in bundle")
+                        }
+                    }
+                
                 Image(systemName: "play.fill")
                     .font(.system(size: 16))
                     .foregroundColor(.white)
@@ -339,7 +264,8 @@ struct VideoCard: View {
                             .fill(Color.black.opacity(0.6))
                             .frame(width: 30, height: 30)
                     )
-            )
+            }
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(video.title)
                     .font(.headline)
@@ -372,44 +298,114 @@ struct VideoCard: View {
                 withAnimation(.easeInOut(duration: 0.1)) {
                     isPressed = false
                 }
+                onTap()
             }
         }
     }
 }
 
-struct ImageViewer: View {
-    let imageName: String
+struct VideoPlayerView: View {
+    let videoURL: String
     @Binding var isPresented: Bool
-    @State private var scale: CGFloat = 1.0
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    @State private var isDownloading = false
+    @State private var downloadProgress: Float = 0.0
     
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
-                AsyncImage(url: Bundle.main.url(forResource: imageName, withExtension: "jpg")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .scaleEffect(scale)
-                        .gesture(
-                            MagnificationGesture()
-                                .onChanged { value in
-                                    scale = value
+                if let url = URL(string: videoURL) {
+                    VideoPlayer(player: AVPlayer(url: url))
+                        .onAppear {
+                            AVPlayer(url: url).play()
+                        }
+                } else {
+                    VStack {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 50))
+                            .foregroundColor(.white)
+                        Text("Unable to load video")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.top)
+                    }
+                }
+                
+                if showToast {
+                    VStack {
+                        Spacer()
+                        HStack(spacing: 12) {
+                            if isDownloading {
+                                ZStack {
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 3)
+                                        .frame(width: 24, height: 24)
+                                    
+                                    Circle()
+                                        .trim(from: 0, to: CGFloat(downloadProgress))
+                                        .stroke(Color.blue, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                                        .frame(width: 24, height: 24)
+                                        .rotationEffect(.degrees(-90))
+                                        .animation(.easeInOut(duration: 0.2), value: downloadProgress)
                                 }
-                                .onEnded { _ in
-                                    withAnimation(.easeInOut) {
-                                        scale = max(1.0, min(scale, 3.0))
-                                    }
+                            } else {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                    .font(.system(size: 20))
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(toastMessage)
+                                    .foregroundColor(.white)
+                                    .font(.system(size: 16, weight: .medium))
+                                
+                                if isDownloading {
+                                    Text("\(Int(downloadProgress * 100))%")
+                                        .foregroundColor(.white.opacity(0.8))
+                                        .font(.system(size: 14, weight: .regular))
                                 }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 25)
+                                .fill(Color.black.opacity(0.85))
                         )
-                } placeholder: {
-                    ProgressView()
-                        .tint(.white)
+                        .padding(.bottom, 100)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: downloadVideo) {
+                        if isDownloading {
+                            ZStack {
+                                Circle()
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 2)
+                                    .frame(width: 20, height: 20)
+                                
+                                Circle()
+                                    .trim(from: 0, to: CGFloat(downloadProgress))
+                                    .stroke(Color.white, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                                    .frame(width: 20, height: 20)
+                                    .rotationEffect(.degrees(-90))
+                                    .animation(.easeInOut(duration: 0.2), value: downloadProgress)
+                            }
+                        } else {
+                            Image(systemName: "arrow.down.circle")
+                                .font(.system(size: 20))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .disabled(isDownloading)
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         isPresented = false
@@ -419,13 +415,244 @@ struct ImageViewer: View {
             }
         }
     }
+    
+    private func downloadVideo() {
+        guard let url = URL(string: videoURL) else {
+            showToastMessage("Invalid video URL", isDownloading: false)
+            return
+        }
+        
+        PHPhotoLibrary.requestAuthorization { status in
+            DispatchQueue.main.async {
+                switch status {
+                case .authorized, .limited:
+                    self.performDownload(url: url)
+                case .denied, .restricted:
+                    self.showToastMessage("Photo library access denied", isDownloading: false)
+                case .notDetermined:
+                    self.showToastMessage("Photo library permission required", isDownloading: false)
+                @unknown default:
+                    self.showToastMessage("Unknown permission status", isDownloading: false)
+                }
+            }
+        }
+    }
+    
+    private func performDownload(url: URL) {
+        isDownloading = true
+        downloadProgress = 0.0
+        showToastMessage("Downloading video...", isDownloading: true)
+        
+        let session = URLSession(configuration: .default, delegate: DownloadDelegate { progress in
+            DispatchQueue.main.async {
+                self.downloadProgress = progress
+                self.showToastMessage("Downloading video...", isDownloading: true)
+            }
+        } completion: { localURL, error in
+            DispatchQueue.main.async {
+                self.isDownloading = false
+                
+                if let error = error {
+                    self.showToastMessage("Download failed: \(error.localizedDescription)", isDownloading: false)
+                    return
+                }
+                
+                guard let localURL = localURL else {
+                    self.showToastMessage("Download failed", isDownloading: false)
+                    return
+                }
+                
+                self.saveVideoToPhotos(videoURL: localURL)
+            }
+        }, delegateQueue: nil)
+        
+        let downloadTask = session.downloadTask(with: url)
+        downloadTask.resume()
+    }
+    
+    private func saveVideoToPhotos(videoURL: URL) {
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: videoURL)
+        }) { success, error in
+            DispatchQueue.main.async {
+                if success {
+                    self.showToastMessage("Video saved to Photos", isDownloading: false)
+                } else {
+                    let errorMessage = error?.localizedDescription ?? "Unknown error"
+                    self.showToastMessage("Failed to save: \(errorMessage)", isDownloading: false)
+                }
+            }
+        }
+    }
+    
+    private func showToastMessage(_ message: String, isDownloading: Bool) {
+        toastMessage = message
+        self.isDownloading = isDownloading
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showToast = true
+        }
+        
+        if !isDownloading {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showToast = false
+                }
+            }
+        }
+    }
 }
 
+class DownloadDelegate: NSObject, URLSessionDownloadDelegate {
+    private let progressHandler: (Float) -> Void
+    private let completionHandler: (URL?, Error?) -> Void
+    
+    init(progressHandler: @escaping (Float) -> Void, completion: @escaping (URL?, Error?) -> Void) {
+        self.progressHandler = progressHandler
+        self.completionHandler = completion
+        super.init()
+    }
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        
+        let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+        progressHandler(progress)
+    }
+    
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        completionHandler(location, nil)
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if let error = error {
+            completionHandler(nil, error)
+        }
+    }
+}
 
-struct Activity {
-    let title: String
-    let icon: String
-    let color: Color
+struct LinearProgressView: View {
+    let progress: Float
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text("Downloading...")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+                Spacer()
+                Text("\(Int(progress * 100))%")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+            }
+            
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.white.opacity(0.3))
+                        .frame(height: 4)
+                    
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.blue)
+                        .frame(width: geometry.size.width * CGFloat(progress), height: 4)
+                        .animation(.easeInOut(duration: 0.2), value: progress)
+                }
+            }
+            .frame(height: 4)
+        }
+    }
+}
+
+struct ImageViewer: View {
+    let imageName: String
+    @Binding var isPresented: Bool
+    @State private var scale: CGFloat = 1.0
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .scaleEffect(scale)
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                scale = value
+                            }
+                            .onEnded { _ in
+                                withAnimation(.easeInOut) {
+                                    scale = max(1.0, min(scale, 3.0))
+                                }
+                            }
+                    )
+                
+                if showToast {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Text(toastMessage)
+                                .foregroundColor(.white)
+                                .font(.system(size: 16, weight: .medium))
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 25)
+                                .fill(Color.black.opacity(0.8))
+                        )
+                        .padding(.bottom, 100)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: downloadImage) {
+                        Image(systemName: "arrow.down.circle")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        isPresented = false
+                    }
+                    .foregroundColor(.white)
+                }
+            }
+        }
+    }
+    
+    private func downloadImage() {
+        guard let image = UIImage(named: imageName) else {
+            showToastMessage("Failed to download image")
+            return
+        }
+        
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+        showToastMessage("Image downloaded successfully")
+    }
+    
+    private func showToastMessage(_ message: String) {
+        toastMessage = message
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showToast = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showToast = false
+            }
+        }
+    }
 }
 
 struct SportVideo {

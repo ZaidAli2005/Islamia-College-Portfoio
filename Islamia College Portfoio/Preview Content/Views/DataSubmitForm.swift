@@ -18,6 +18,7 @@ struct PersonalInfo: Codable {
     var phoneNumber: String = ""
     var dateOfBirth: Date = Date()
     var temporaryAddress: String = ""
+    var permanentAddress: String = ""
     var city: String = ""
     var zipCode: String = ""
     var gender: Gender = .male
@@ -436,7 +437,6 @@ struct AdmissionPortalForm: View {
                 }
             }
             
-            // Progress bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 10)
@@ -544,6 +544,13 @@ struct AdmissionPortalForm: View {
                     title: "Temporary Address",
                     text: $applicationData.personalInfo.temporaryAddress,
                     placeholder: "Current address",
+                    icon: "house.fill"
+                )
+                
+                ModernTextField(
+                    title: "Parmanent Address",
+                    text: $applicationData.personalInfo.permanentAddress,
+                    placeholder: "Parmanent address",
                     icon: "house.fill"
                 )
                 
@@ -1115,10 +1122,8 @@ struct AdmissionPortalForm: View {
         }
     }
     
-    // Action Buttons
     private var actionButtons: some View {
         VStack(spacing: 16) {
-            // Submit Application Button
             Button(action: {
                 submitApplication()
             }) {
@@ -1147,13 +1152,12 @@ struct AdmissionPortalForm: View {
                     )
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16))
-                .shadow(color: canSubmit ? .blue.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
+                .shadow(color: canSubmit ? .accentColor.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
                 .scaleEffect(applicationData.isSubmitting ? 0.98 : 1.0)
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: applicationData.isSubmitting)
             }
             .disabled(!canSubmit || applicationData.isSubmitting)
             
-            // Download PDF Button (only show after successful submission)
             if case .success = applicationData.submissionStatus {
                 Button(action: {
                     downloadPDF()
@@ -1193,7 +1197,6 @@ struct AdmissionPortalForm: View {
         applicationData.agreedToTerms
     }
     
-    // MARK: - Functions
     private func submitApplication() {
         applicationData.isSubmitting = true
         
@@ -1234,14 +1237,12 @@ struct AdmissionPortalForm: View {
             return
         }
         
-        // Save PDF to Files app
         let fileName = "Islamia_College_Application_\(applicationData.referenceID).pdf"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         
         do {
             try pdfData.write(to: tempURL)
             
-            // Present activity view controller to save to Files
             let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
             
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -1273,7 +1274,6 @@ struct AdmissionPortalForm: View {
         
         var body: some View {
             VStack(spacing: 20) {
-                // Section Header
                 HStack(spacing: 12) {
                     ZStack {
                         Circle()
@@ -1305,7 +1305,6 @@ struct AdmissionPortalForm: View {
                     }
                 }
                 
-                // Section Content
                 content
             }
             .padding(24)

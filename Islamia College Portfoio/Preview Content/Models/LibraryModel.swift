@@ -20,7 +20,6 @@ struct Book: Identifiable, Codable {
     let dateAdded: Date
     let description: String
     let rating: Double
-    let timesBorrowed: Int
     let isAvailable: Bool
     let category: BookCategory
     
@@ -39,7 +38,6 @@ struct Book: Identifiable, Codable {
     }
 }
 
-// MARK: - Book Category
 enum BookCategory: String, CaseIterable, Codable {
     case all = "All"
     case books = "Books"
@@ -62,13 +60,11 @@ struct LibraryStats {
     }
 }
 
-// MARK: - Sort Options
 enum SortOption: String, CaseIterable {
     case title = "Title"
     case author = "Author"
     case year = "Year"
     case rating = "Rating"
-    case timesBorrowed = "Times Borrowed"
     
     var displayName: String {
         return self.rawValue
@@ -88,7 +84,6 @@ struct SampleData {
             dateAdded: Date(),
             description: "A dystopian social science fiction novel and cautionary tale.",
             rating: 4.9,
-            timesBorrowed: 234,
             isAvailable: false,
             category: .books
         ),
@@ -103,7 +98,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date(),
             description: "Hawking's attempt to explain cosmology to the general public.",
             rating: 4.8,
-            timesBorrowed: 201,
             isAvailable: true,
             category: .books
         ),
@@ -118,7 +112,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -60, to: Date()) ?? Date(),
             description: "A memoir by former First Lady Michelle Obama.",
             rating: 4.8,
-            timesBorrowed: 456,
             isAvailable: true,
             category: .books
         ),
@@ -133,7 +126,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date(),
             description: "A novel about racial injustice and moral growth in the American South.",
             rating: 4.7,
-            timesBorrowed: 189,
             isAvailable: true,
             category: .books
         ),
@@ -148,7 +140,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -45, to: Date()) ?? Date(),
             description: "A classic American novel set in the Jazz Age.",
             rating: 4.2,
-            timesBorrowed: 145,
             isAvailable: false,
             category: .books
         ),
@@ -163,7 +154,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -15, to: Date()) ?? Date(),
             description: "An exploration of how Homo sapiens came to dominate the world.",
             rating: 4.6,
-            timesBorrowed: 278,
             isAvailable: true,
             category: .books
         ),
@@ -178,7 +168,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -75, to: Date()) ?? Date(),
             description: "A coming-of-age story following teenager Holden Caulfield.",
             rating: 4.0,
-            timesBorrowed: 167,
             isAvailable: true,
             category: .books
         ),
@@ -193,7 +182,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -120, to: Date()) ?? Date(),
             description: "A romantic novel dealing with issues of marriage, money, and social status.",
             rating: 4.5,
-            timesBorrowed: 298,
             isAvailable: false,
             category: .books
         ),
@@ -208,7 +196,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -100, to: Date()) ?? Date(),
             description: "Darwin's groundbreaking work on the theory of evolution.",
             rating: 4.3,
-            timesBorrowed: 112,
             isAvailable: true,
             category: .books
         ),
@@ -223,7 +210,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -20, to: Date()) ?? Date(),
             description: "A memoir about education and the struggle for self-invention.",
             rating: 4.7,
-            timesBorrowed: 203,
             isAvailable: true,
             category: .books
         ),
@@ -238,7 +224,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
             description: "Monthly journal covering biotechnology research and applications.",
             rating: 4.4,
-            timesBorrowed: 89,
             isAvailable: true,
             category: .journals
         ),
@@ -253,7 +238,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -10, to: Date()) ?? Date(),
             description: "Quarterly review journal in computer science and engineering.",
             rating: 4.2,
-            timesBorrowed: 67,
             isAvailable: false,
             category: .journals
         ),
@@ -268,7 +252,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date(),
             description: "Academic journal focusing on Islamic civilization and contemporary issues.",
             rating: 4.6,
-            timesBorrowed: 134,
             isAvailable: true,
             category: .journals
         ),
@@ -283,7 +266,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -25, to: Date()) ?? Date(),
             description: "Research compilation on AI applications in medical diagnosis and treatment.",
             rating: 4.5,
-            timesBorrowed: 78,
             isAvailable: true,
             category: .research
         ),
@@ -298,7 +280,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -35, to: Date()) ?? Date(),
             description: "Comprehensive research on global climate patterns and environmental changes.",
             rating: 4.3,
-            timesBorrowed: 92,
             isAvailable: false,
             category: .research
         ),
@@ -313,7 +294,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -50, to: Date()) ?? Date(),
             description: "Advanced research on quantum algorithms and computing applications.",
             rating: 4.1,
-            timesBorrowed: 56,
             isAvailable: true,
             category: .research
         ),
@@ -328,7 +308,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -80, to: Date()) ?? Date(),
             description: "A philosophical novel about following one's dreams.",
             rating: 4.4,
-            timesBorrowed: 312,
             isAvailable: true,
             category: .books
         ),
@@ -343,7 +322,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -40, to: Date()) ?? Date(),
             description: "Insights into how the mind makes decisions and forms judgments.",
             rating: 4.6,
-            timesBorrowed: 187,
             isAvailable: true,
             category: .books
         ),
@@ -358,7 +336,6 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -65, to: Date()) ?? Date(),
             description: "Why we do what we do in life and business - the science of habit formation.",
             rating: 4.2,
-            timesBorrowed: 245,
             isAvailable: false,
             category: .books
         ),
@@ -373,9 +350,121 @@ struct SampleData {
             dateAdded: Calendar.current.date(byAdding: .day, value: -12, to: Date()) ?? Date(),
             description: "An easy and proven way to build good habits and break bad ones.",
             rating: 4.8,
-            timesBorrowed: 389,
             isAvailable: true,
             category: .books
+        ),
+        Book(
+            title: "The Lord of the Rings",
+            author: "J.R.R. Tolkien",
+            publisher: "Allen & Unwin",
+            year: 1954,
+            isbn: "978-0-618-00222-8",
+            pages: 1178,
+            location: "Floor 2, Section FANT-100",
+            dateAdded: Calendar.current.date(byAdding: .day, value: -130, to: Date()) ?? Date(),
+            description: "An epic high-fantasy novel that defined the modern fantasy genre.",
+            rating: 4.9,
+            isAvailable: true,
+            category: .books
+        ),
+        Book(
+            title: "Harry Potter and the Sorcerer's Stone",
+            author: "J.K. Rowling",
+            publisher: "Bloomsbury",
+            year: 1997,
+            isbn: "978-0-7475-3269-9",
+            pages: 309,
+            location: "Floor 2, Section FANT-120",
+            dateAdded: Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date(),
+            description: "The first book in the Harry Potter series, introducing the wizarding world.",
+            rating: 4.8,
+            isAvailable: false,
+            category: .books
+        ),
+        Book(
+            title: "The Hobbit",
+            author: "J.R.R. Tolkien",
+            publisher: "George Allen & Unwin",
+            year: 1937,
+            isbn: "978-0-618-00221-1",
+            pages: 310,
+            location: "Floor 2, Section FANT-110",
+            dateAdded: Calendar.current.date(byAdding: .day, value: -85, to: Date()) ?? Date(),
+            description: "A fantasy novel and prelude to The Lord of the Rings.",
+            rating: 4.7,
+            isAvailable: true,
+            category: .books
+        ),
+        Book(
+            title: "The Diary of a Young Girl",
+            author: "Anne Frank",
+            publisher: "Contact Publishing",
+            year: 1947,
+            isbn: "978-0-553-29698-3",
+            pages: 283,
+            location: "Floor 3, Section BIOG-200",
+            dateAdded: Calendar.current.date(byAdding: .day, value: -100, to: Date()) ?? Date(),
+            description: "The poignant diary of a Jewish girl hiding during WWII.",
+            rating: 4.8,
+            isAvailable: true,
+            category: .books
+        ),
+        Book(
+            title: "The Road",
+            author: "Cormac McCarthy",
+            publisher: "Alfred A. Knopf",
+            year: 2006,
+            isbn: "978-0-307-26524-4",
+            pages: 287,
+            location: "Floor 2, Section LIT-350",
+            dateAdded: Calendar.current.date(byAdding: .day, value: -60, to: Date()) ?? Date(),
+            description: "A bleak post-apocalyptic journey of a father and son.",
+            rating: 4.3,
+            isAvailable: true,
+            category: .books
+        ),
+        Book(
+            title: "The Book Thief",
+            author: "Markus Zusak",
+            publisher: "Picador",
+            year: 2005,
+            isbn: "978-0-375-84220-7",
+            pages: 552,
+            location: "Floor 2, Section HIST-100",
+            dateAdded: Calendar.current.date(byAdding: .day, value: -70, to: Date()) ?? Date(),
+            description: "A powerful story narrated by Death set in Nazi Germany.",
+            rating: 4.6,
+            isAvailable: false,
+            category: .books
+        ),
+        Book(
+            title: "The Shining",
+            author: "Stephen King",
+            publisher: "Doubleday",
+            year: 1977,
+            isbn: "978-0-385-12167-5",
+            pages: 447,
+            location: "Floor 3, Section HORR-100",
+            dateAdded: Calendar.current.date(byAdding: .day, value: -55, to: Date()) ?? Date(),
+            description: "A psychological horror novel set in an isolated hotel.",
+            rating: 4.4,
+            isAvailable: true,
+            category: .books
+        ),
+        Book(
+            title: "The Fault in Our Stars",
+            author: "John Green",
+            publisher: "Dutton Books",
+            year: 2012,
+            isbn: "978-0-525-47881-2",
+            pages: 313,
+            location: "Floor 1, Section YA-100",
+            dateAdded: Calendar.current.date(byAdding: .day, value: -40, to: Date()) ?? Date(),
+            description: "A young adult novel about love and terminal illness.",
+            rating: 4.5,
+            isAvailable: false,
+            category: .books
         )
+
     ]
 }

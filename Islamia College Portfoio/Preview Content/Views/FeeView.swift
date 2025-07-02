@@ -9,7 +9,6 @@ struct FeeView: View {
     @State private var showDetails = false
     
     let sessions = ["Morning", "Evening"]
-    let degrees = ["BS", "MS", "PhD"]
     let semesters = Array(1...8)
     
     var body: some View {
@@ -67,7 +66,7 @@ struct FeeView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
                     
-                    Text("Fee Structure & Payment")
+                    Text("Fee Structure")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
@@ -151,72 +150,28 @@ struct FeeView: View {
     
     private var selectionSection: some View {
         VStack(spacing: 20) {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Select Degree Program")
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                
-                HStack(spacing: 12) {
-                    ForEach(degrees, id: \.self) { degree in
-                        Button(action: {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                selectedDegree = degree
-                            }
-                        }) {
-                            Text(degree)
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(selectedDegree == degree ? .white : .secondary)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .fill(selectedDegree == degree ?
-                                              LinearGradient(colors: [.accentColor, .accentColor], startPoint: .leading, endPoint: .trailing) :
-                                                LinearGradient(colors: [.clear], startPoint: .leading, endPoint: .trailing))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 25)
-                                                .stroke(Color.secondary, lineWidth: 2)
-                                                .opacity(selectedDegree == degree ? 0 : 1)
-                                        )
-                                )
-                                .scaleEffect(selectedDegree == degree ? 1.05 : 1.0)
-                        }
-                    }
-                    Spacer()
-                }
-            }
-            
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 15) {
                 Text("Select Semester")
                     .font(.headline)
                     .foregroundColor(.primary)
                 
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 12) {
-                    ForEach(semesters, id: \.self) { semester in
-                        Button(action: {
+                Text("Choose your current semester")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            VStack(spacing: 12) {
+                ForEach(semesters, id: \.self) { semester in
+                    SemesterListCard(
+                        semester: semester,
+                        isSelected: selectedSemester == semester,
+                        onTap: {
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                 selectedSemester = semester
                                 showDetails = true
                             }
-                        }) {
-                            Text("\(semester)")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(selectedSemester == semester ? .white : .accentColor)
-                                .frame(width: 50, height: 50)
-                                .background(
-                                    Circle()
-                                        .fill(selectedSemester == semester ?
-                                              LinearGradient(colors: [.accentColor, .accentColor], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                                                LinearGradient(colors: [.clear], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.accentColor, lineWidth: 2)
-                                                .opacity(selectedSemester == semester ? 0 : 1)
-                                        )
-                                )
-                                .scaleEffect(selectedSemester == semester ? 1.1 : 1.0)
                         }
-                    }
+                    )
                 }
             }
         }
@@ -244,15 +199,15 @@ struct FeeView: View {
                 FeeCard(
                     title: "Semester Fee",
                     amount: getFeeAmount(for: "semester"),
-                    icon: "book.fill",
+                    icon: "creditcard.fill",
                     color: .accentColor,
                     delay: 0.1
                 )
                 
                 FeeCard(
-                    title: "Mid Exams Fee",
+                    title: "Exams Fee",
                     amount: getFeeAmount(for: "mid exam"),
-                    icon: "flask.fill",
+                    icon: "creditcard.fill",
                     color: .accentColor,
                     delay: 0.2
                 )
@@ -275,13 +230,94 @@ struct FeeView: View {
         ]
         
         let degreeMultiplier = selectedDegree == "BS" ? 1.0 : selectedDegree == "MS" ? 1.5 : 2.0
-        let sessionMultiplier = selectedSession == "Evening" ? 1.2 : 1.0 // Evening session is 20% more
+        let sessionMultiplier = selectedSession == "Evening" ? 1.2 : 1.0
         
         return Int(Double(baseFees[type] ?? 0) * degreeMultiplier * sessionMultiplier)
     }
     
     private func getTotalFee() -> Int {
         return getFeeAmount(for: "semester") + getFeeAmount(for: "mid exam")
+    }
+}
+
+struct SemesterListCard: View {
+    let semester: Int
+    let isSelected: Bool
+    let onTap: () -> Void
+    
+    @State private var animateCard = false
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 20) {
+                ZStack {
+                    Circle()
+                        .fill(isSelected ? Color.accentColor : Color.accentColor.opacity(0.1))
+                        .frame(width: 50, height: 50)
+                    
+                    Text("\(semester)")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(isSelected ? .white : .accentColor)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Semester \(semester)")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.primary)
+                    
+                    Text(getSemesterYear(semester: semester))
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.accentColor)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.systemBackground))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                    )
+                    .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 3)
+            )
+            .scaleEffect(isSelected ? 1.02 : 1.0)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .scaleEffect(animateCard ? 1.0 : 0.8)
+        .opacity(animateCard ? 1.0 : 0.0)
+        .onAppear {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(Double(semester) * 0.1)) {
+                animateCard = true
+            }
+        }
+    }
+    
+    private func getSemesterYear(semester: Int) -> String {
+        switch semester {
+        case 1, 2:
+            return "1st Year"
+        case 3, 4:
+            return "2nd Year"
+        case 5, 6:
+            return "3rd Year"
+        case 7, 8:
+            return "4th Year"
+        default:
+            return "Year \((semester + 1) / 2)"
+        }
     }
 }
 
@@ -440,81 +476,6 @@ struct TotalFeeCard: View {
         .opacity(animateCard ? 1.0 : 0.0)
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(delay)) {
-                animateCard = true
-            }
-        }
-    }
-}
-
-struct PaymentStatusCard: View {
-    @State private var animateCard = false
-    
-    var body: some View {
-        VStack(spacing: 15) {
-            HStack {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(.green)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Last Payment")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
-                    
-                    Text("Paid on 15 May 2025")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                Text("PAID")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.green)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.green.opacity(0.1))
-                    .cornerRadius(8)
-            }
-            
-            Divider()
-            
-            HStack {
-                Image(systemName: "clock.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(.orange)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Next Due Date")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
-                    
-                    Text("15 July 2025")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                Text("PENDING")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.orange)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.orange.opacity(0.1))
-                    .cornerRadius(8)
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(UIColor.systemBackground))
-                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
-        )
-        .scaleEffect(animateCard ? 1.0 : 0.8)
-        .opacity(animateCard ? 1.0 : 0.0)
-        .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.3)) {
                 animateCard = true
             }
         }

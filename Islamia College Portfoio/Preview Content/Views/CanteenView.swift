@@ -143,16 +143,9 @@ struct CanteenView: View {
                     
                     CategorysButton(
                         title: "Lays",
-                        isSelected: canteenModel.selectedCategory == .snacks
+                        isSelected: canteenModel.selectedCategory == .lays
                     ) {
-                        canteenModel.selectedCategory = .snacks
-                    }
-                    
-                    CategorysButton(
-                        title: "More",
-                        isSelected: canteenModel.selectedCategory == .beverages
-                    ) {
-                        canteenModel.selectedCategory = .beverages
+                        canteenModel.selectedCategory = .lays
                     }
                 }
                 .padding(.horizontal)

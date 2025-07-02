@@ -22,6 +22,7 @@ struct ManagementPerson {
 }
 
 struct ManagementView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
     @State private var selectedDepartment = "All"
     
@@ -120,6 +121,7 @@ struct ManagementView: View {
         VStack(spacing: 0) {
             HStack {
                 Button(action: {
+                    dismiss()
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.title2)
@@ -301,6 +303,7 @@ struct ManagementCard: View {
 
 // MARK: - Detail View
 struct ManagementDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     let person: ManagementPerson
     
     var body: some View {
@@ -393,21 +396,17 @@ struct ManagementDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading: BackButton())
-    }
-}
-
-struct BackButton: View {
-    @Environment(\.presentationMode) var presentationMode
-    
-    var body: some View {
-        Button(action: {
-            presentationMode.wrappedValue.dismiss()
-        }) {
-            Image(systemName: "chevron.left")
-                .font(.title2)
-                .fontWeight(.medium)
-                .foregroundColor(.primary)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.title2)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                }
+            }
         }
     }
 }

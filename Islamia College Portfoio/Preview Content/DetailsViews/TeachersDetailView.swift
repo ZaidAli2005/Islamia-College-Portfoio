@@ -10,6 +10,7 @@ import SwiftUI
 struct TeachersDetailView: View {
     let teacher: Teacher
     @Environment(\.presentationMode) var presentationMode
+    @State private var showFullScreenImage = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -44,11 +45,16 @@ struct TeachersDetailView: View {
                     VStack(spacing: 20) {
                         Group {
                             if !teacher.imageName.isEmpty {
-                                Image(teacher.imageName)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 130, height: 130)
-                                    .clipShape(Circle())
+                                Button(action: {
+                                    showFullScreenImage = true
+                                }) {
+                                    Image(teacher.imageName)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 130, height: 130)
+                                        .clipShape(Circle())
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             } else {
                                 Circle()
                                     .fill(
@@ -133,7 +139,7 @@ struct TeachersDetailView: View {
                                 }) {
                                     Text(teacher.email)
                                         .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(.accentColor)
+                                        .foregroundColor(.blue)
                                         .underline()
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -157,7 +163,7 @@ struct TeachersDetailView: View {
                                         }) {
                                             Text(contact)
                                                 .font(.system(size: 16, weight: .medium))
-                                                .foregroundColor(.accentColor)
+                                                .foregroundColor(.blue)
                                                 .underline()
                                         }
                                         .buttonStyle(PlainButtonStyle())
@@ -178,6 +184,90 @@ struct TeachersDetailView: View {
         }
         .background(Color(.systemGroupedBackground))
         .navigationBarHidden(true)
+        .fullScreenCover(isPresented: $showFullScreenImage) {
+            FullScreenImageView(imageName: teacher.imageName, isPresented: $showFullScreenImage)
+        }
+    }
+}
+
+struct FullScreenImageView: View {
+    let imageName: String
+    @Binding var isPresented: Bool
+    @State private var scale: CGFloat = 1.0
+    @State private var offset: CGSize = .zero
+    @State private var lastOffset: CGSize = .zero
+    
+    var body: some View {
+        ZStack {
+            Color.black
+                .ignoresSafeArea()
+            
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        isPresented = false
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 30))
+                            .foregroundColor(.white)
+                            .background(Color.black.opacity(0.6))
+                            .clipShape(Circle())
+                    }
+                    .padding()
+                }
+                
+                Spacer()
+                
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .scaleEffect(scale)
+                    .offset(offset)
+                    .gesture(
+                        SimultaneousGesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    scale = value
+                                }
+                                .onEnded { value in
+                                    if scale < 1.0 {
+                                        withAnimation(.spring()) {
+                                            scale = 1.0
+                                        }
+                                    } else if scale > 3.0 {
+                                        withAnimation(.spring()) {
+                                            scale = 3.0
+                                        }
+                                    }
+                                },
+                            DragGesture()
+                                .onChanged { value in
+                                    offset = CGSize(
+                                        width: lastOffset.width + value.translation.width,
+                                        height: lastOffset.height + value.translation.height
+                                    )
+                                }
+                                .onEnded { value in
+                                    lastOffset = offset
+                                }
+                        )
+                    )
+                    .onTapGesture(count: 2) {
+                        withAnimation(.spring()) {
+                            if scale > 1.0 {
+                                scale = 1.0
+                                offset = .zero
+                                lastOffset = .zero
+                            } else {
+                                scale = 2.0
+                            }
+                        }
+                    }
+                
+                Spacer()
+            }
+        }
     }
 }
 
@@ -196,7 +286,7 @@ struct DetailSectionView: View {
                 
                 Image(systemName: icon)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(iconColor)
+                    .foregroundColor(.white)
             }
             
             VStack(alignment: .leading, spacing: 8) {

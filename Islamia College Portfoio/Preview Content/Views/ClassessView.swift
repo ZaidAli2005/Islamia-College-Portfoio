@@ -32,7 +32,7 @@ struct ClassessView: View {
                     Spacer(minLength: 100)
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 20)
+                .padding(.top, 0)
             }
             .background(
                 LinearGradient(
@@ -44,7 +44,8 @@ struct ClassessView: View {
                     endPoint: .bottomTrailing
                 )
             )
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarHidden(true)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
@@ -56,6 +57,7 @@ struct ClassessView: View {
                 }
             }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .onAppear {
             withAnimation {
                 animateStats = true
@@ -143,7 +145,7 @@ struct ClassessView: View {
                 .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 4)
                 .shadow(color: .blue.opacity(0.1), radius: 20, x: 0, y: 8)
         )
-        .padding(.top, 5)
+        .padding(.top, 10)
     }
     
     private func statCard(icon: String, value: String, label: String, color: Color, delay: Double) -> some View {
@@ -297,7 +299,6 @@ struct ClassessView: View {
     }
 }
 
-// MARK: - Custom Button Style
 struct ScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label

@@ -8,7 +8,7 @@
 import Foundation
 
 struct FoodItem: Identifiable, Codable {
-    let id = UUID()
+    var id = UUID()
     let name: String
     let description: String
     let price: Double
@@ -25,47 +25,32 @@ struct FoodItem: Identifiable, Codable {
 }
 
 enum FoodCategory: String, CaseIterable, Codable {
-    case breakfast = "Breakfast"
-    case lunch = "Lunch"
-    case dinner = "Dinner"
     case coldDrinks = "Cold Drinks"
-    case sandwiches = "Sandwiches"
     case fastFoods = "Fast Foods"
     case desserts = "Desserts"
-    case snacks = "Snacks"
-    case beverages = "Beverages"
+    case lays = "Lays"
     
     var icon: String {
         switch self {
-        case .breakfast: return "sunrise.fill"
-        case .lunch: return "sun.max.fill"
-        case .dinner: return "moon.fill"
         case .coldDrinks: return "cup.and.saucer.fill"
-        case .sandwiches: return "rectangle.fill"
         case .fastFoods: return "flame.fill"
         case .desserts: return "birthday.cake.fill"
-        case .snacks: return "circle.fill"
-        case .beverages: return "mug.fill"
+        case .lays: return "mug.fill"
         }
     }
     
     var color: String {
         switch self {
-        case .breakfast: return "orange"
-        case .lunch: return "yellow"
-        case .dinner: return "purple"
         case .coldDrinks: return "blue"
-        case .sandwiches: return "brown"
         case .fastFoods: return "red"
         case .desserts: return "pink"
-        case .snacks: return "green"
-        case .beverages: return "teal"
+        case .lays: return "teal"
         }
     }
 }
 
 struct OrderItem: Identifiable, Codable {
-    let id = UUID()
+    var id = UUID()
     let foodItem: FoodItem
     var quantity: Int
     let timestamp: Date
@@ -108,7 +93,7 @@ enum OrderStatus: String, CaseIterable, Codable {
 }
 
 struct Order: Identifiable, Codable {
-    let id = UUID()
+    var id = UUID()
     let orderNumber: String
     let items: [OrderItem]
     let timestamp: Date
@@ -233,35 +218,12 @@ class CanteenModel: ObservableObject {
     
     private func loadSampleData() {
         foodItems = [
-            FoodItem(name: "Paratha", description: "Fresh handmade paratha with butter", price: 15, category: .breakfast, imageName: "paratha", isAvailable: true, preparationTime: 10, rating: 4.5, ingredients: ["Wheat flour", "Butter", "Salt"]),
-            FoodItem(name: "Omelette", description: "Fluffy omelette with vegetables", price: 25, category: .breakfast, imageName: "omelette", isAvailable: true, preparationTime: 8, rating: 4.2, ingredients: ["Eggs", "Onions", "Tomatoes", "Green chilies"]),
-            FoodItem(name: "Halwa Puri", description: "Traditional breakfast with sweet halwa", price: 35, category: .breakfast, imageName: "halwa_puri", isAvailable: true, preparationTime: 15, rating: 4.8, ingredients: ["Semolina", "Sugar", "Puri", "Chickpeas"]),
-            FoodItem(name: "Nashta Plate", description: "Complete breakfast with parathas, eggs and chai", price: 55, category: .breakfast, imageName: "nashta_plate", isAvailable: true, preparationTime: 12, rating: 4.6, ingredients: ["Paratha", "Eggs", "Butter", "Pickles"]),
-            FoodItem(name: "Aloo Paratha", description: "Stuffed paratha with spiced potatoes", price: 20, category: .breakfast, imageName: "aloo_paratha", isAvailable: true, preparationTime: 15, rating: 4.4, ingredients: ["Wheat flour", "Potatoes", "Spices", "Butter"]),
-            
-            FoodItem(name: "Chicken Biryani", description: "Aromatic basmati rice with tender chicken", price: 120, category: .lunch, imageName: "biryani", isAvailable: true, preparationTime: 20, rating: 4.9, ingredients: ["Basmati rice", "Chicken", "Spices", "Yogurt"]),
-            FoodItem(name: "Dal Chawal", description: "Lentils with steamed rice", price: 60, category: .lunch, imageName: "dal_chawal", isAvailable: true, preparationTime: 15, rating: 4.3, ingredients: ["Lentils", "Rice", "Turmeric", "Onions"]),
-            FoodItem(name: "Karahi Chicken", description: "Spicy chicken curry with naan", price: 100, category: .lunch, imageName: "karahi", isAvailable: true, preparationTime: 25, rating: 4.6, ingredients: ["Chicken", "Tomatoes", "Ginger", "Spices"]),
-            FoodItem(name: "Mutton Pulao", description: "Fragrant rice cooked with tender mutton", price: 140, category: .lunch, imageName: "mutton_pulao", isAvailable: true, preparationTime: 30, rating: 4.7, ingredients: ["Basmati rice", "Mutton", "Whole spices", "Yogurt"]),
-            FoodItem(name: "Chicken Korma", description: "Creamy chicken curry with rice", price: 110, category: .lunch, imageName: "chicken_korma", isAvailable: true, preparationTime: 22, rating: 4.5, ingredients: ["Chicken", "Cream", "Spices", "Onions"]),
-            
-            FoodItem(name: "Beef Karahi", description: "Spicy beef curry with fresh naan", price: 130, category: .dinner, imageName: "beef_karahi", isAvailable: true, preparationTime: 35, rating: 4.8, ingredients: ["Beef", "Tomatoes", "Ginger", "Green chilies"]),
-            FoodItem(name: "Fish Curry", description: "Traditional fish curry with rice", price: 95, category: .dinner, imageName: "fish_curry", isAvailable: true, preparationTime: 20, rating: 4.3, ingredients: ["Fish", "Curry spices", "Coconut", "Rice"]),
-            FoodItem(name: "Palak Chicken", description: "Chicken cooked in spinach gravy", price: 105, category: .dinner, imageName: "palak_chicken", isAvailable: true, preparationTime: 25, rating: 4.4, ingredients: ["Chicken", "Spinach", "Cream", "Spices"]),
-            
             FoodItem(name: "Coca Cola", description: "Chilled Coca Cola bottle", price: 25, category: .coldDrinks, imageName: "coca_cola", isAvailable: true, preparationTime: 2, rating: 4.2, ingredients: ["Regular", "Half Liter", "Liter"]),
             FoodItem(name: "Pepsi", description: "Ice cold Pepsi bottle", price: 25, category: .coldDrinks, imageName: "pepsi", isAvailable: true, preparationTime: 2, rating: 4.1, ingredients: ["Regular", "Half Liter", "Liter"]),
             FoodItem(name: "Sprite", description: "Refreshing lemon-lime soda", price: 25, category: .coldDrinks, imageName: "sprite", isAvailable: true, preparationTime: 2, rating: 4.0, ingredients: ["Regular", "Half Liter", "Liter"]),
             FoodItem(name: "Fanta", description: "Orange flavored fizzy drink", price: 25, category: .coldDrinks, imageName: "fanta", isAvailable: true, preparationTime: 2, rating: 3.9, ingredients: ["Regular", "Half Liter", "Liter"]),
             FoodItem(name: "7UP", description: "Crisp lemon-lime soda", price: 25, category: .coldDrinks, imageName: "7up", isAvailable: true, preparationTime: 2, rating: 4.0, ingredients: ["Regular", "Half Liter", "Liter"]),
             FoodItem(name: "Dew", description: "Energizing citrus soda", price: 30, category: .coldDrinks, imageName: "mountain_dew", isAvailable: true, preparationTime: 2, rating: 4.3, ingredients: ["Regular", "Half Liter", "Liter"]),
-            
-            FoodItem(name: "Club Sandwich", description: "Triple decker sandwich with chicken and vegetables", price: 65, category: .sandwiches, imageName: "club_sandwich", isAvailable: true, preparationTime: 12, rating: 4.6, ingredients: ["Bread", "Chicken", "Lettuce", "Tomatoes", "Mayo"]),
-            FoodItem(name: "Chicken Sandwich", description: "Grilled chicken sandwich with fresh salad", price: 50, category: .sandwiches, imageName: "chicken_sandwich", isAvailable: true, preparationTime: 10, rating: 4.4, ingredients: ["Chicken breast", "Bread", "Vegetables", "Sauce"]),
-            FoodItem(name: "Cheese Sandwich", description: "Grilled cheese sandwich", price: 40, category: .sandwiches, imageName: "cheese_sandwich", isAvailable: true, preparationTime: 8, rating: 4.1, ingredients: ["Cheese", "Bread", "Butter"]),
-            FoodItem(name: "BLT Sandwich", description: "Bacon, lettuce and tomato sandwich", price: 55, category: .sandwiches, imageName: "blt_sandwich", isAvailable: true, preparationTime: 10, rating: 4.3, ingredients: ["Bacon", "Lettuce", "Tomatoes", "Bread", "Mayo"]),
-            FoodItem(name: "Tuna Sandwich", description: "Fresh tuna salad sandwich", price: 60, category: .sandwiches, imageName: "tuna_sandwich", isAvailable: true, preparationTime: 8, rating: 4.2, ingredients: ["Tuna", "Mayo", "Vegetables", "Bread"]),
-            FoodItem(name: "Veggie Sandwich", description: "Fresh vegetable sandwich", price: 35, category: .sandwiches, imageName: "veggie_sandwich", isAvailable: true, preparationTime: 7, rating: 4.0, ingredients: ["Mixed vegetables", "Bread", "Hummus"]),
             
             FoodItem(name: "Chicken Burger", description: "Juicy chicken burger with fries", price: 80, category: .fastFoods, imageName: "chicken_burger", isAvailable: true, preparationTime: 15, rating: 4.7, ingredients: ["Chicken patty", "Bun", "Lettuce", "Tomato", "Sauce"]),
             FoodItem(name: "Beef Burger", description: "Classic beef burger with cheese", price: 90, category: .fastFoods, imageName: "beef_burger", isAvailable: true, preparationTime: 15, rating: 4.8, ingredients: ["Beef patty", "Cheese", "Bun", "Pickles", "Sauce"]),
@@ -278,15 +240,10 @@ class CanteenModel: ObservableObject {
             FoodItem(name: "Ice Cream", description: "Vanilla ice cream scoop", price: 40, category: .desserts, imageName: "ice_cream", isAvailable: true, preparationTime: 3, rating: 4.4, ingredients: ["Cream", "Sugar", "Vanilla"]),
             FoodItem(name: "Chocolate Cake", description: "Rich chocolate cake slice", price: 50, category: .desserts, imageName: "chocolate_cake", isAvailable: true, preparationTime: 5, rating: 4.8, ingredients: ["Chocolate", "Flour", "Sugar", "Cream"]),
             
-            FoodItem(name: "Samosa", description: "Crispy fried pastry with savory filling", price: 10, category: .snacks, imageName: "samosa", isAvailable: true, preparationTime: 5, rating: 4.4, ingredients: ["Pastry", "Potatoes", "Peas", "Spices"]),
-            FoodItem(name: "Roll", description: "Chicken roll with fresh vegetables", price: 45, category: .snacks, imageName: "roll", isAvailable: true, preparationTime: 12, rating: 4.1, ingredients: ["Chicken", "Roti", "Vegetables", "Sauce"]),
-            FoodItem(name: "Pakora", description: "Mixed vegetable fritters", price: 15, category: .snacks, imageName: "pakora", isAvailable: true, preparationTime: 8, rating: 4.2, ingredients: ["Mixed vegetables", "Gram flour", "Spices"]),
-            FoodItem(name: "Chips", description: "Crispy potato chips packet", price: 20, category: .snacks, imageName: "chips", isAvailable: true, preparationTime: 1, rating: 4.0, ingredients: ["Potatoes", "Oil", "Salt", "Spices"]),
-            
-            FoodItem(name: "Chai", description: "Hot milk tea with cardamom", price: 8, category: .beverages, imageName: "chai", isAvailable: true, preparationTime: 5, rating: 4.7, ingredients: ["Tea", "Milk", "Sugar", "Cardamom"]),
-            FoodItem(name: "Coffee", description: "Fresh brewed coffee", price: 15, category: .beverages, imageName: "coffee", isAvailable: true, preparationTime: 5, rating: 4.3, ingredients: ["Coffee beans", "Hot water", "Sugar"]),
-            FoodItem(name: "Green Tea", description: "Healthy green tea", price: 12, category: .beverages, imageName: "green_tea", isAvailable: true, preparationTime: 4, rating: 4.1, ingredients: ["Green tea leaves", "Hot water"]),
-            FoodItem(name: "Lassi", description: "Sweet yogurt drink", price: 25, category: .beverages, imageName: "lassi", isAvailable: true, preparationTime: 5, rating: 4.5, ingredients: ["Yogurt", "Sugar", "Cardamom"])
+            FoodItem(name: "Masala", description: "Hot milk tea with cardamom", price: 8, category: .lays, imageName: "chai", isAvailable: true, preparationTime: 5, rating: 4.7, ingredients: ["Tea", "Milk", "Sugar", "Cardamom"]),
+            FoodItem(name: "Yougert", description: "Fresh brewed coffee", price: 15, category: .lays, imageName: "coffee", isAvailable: true, preparationTime: 5, rating: 4.3, ingredients: ["Coffee beans", "Hot water", "Sugar"]),
+            FoodItem(name: "Paprika", description: "Healthy green tea", price: 12, category: .lays, imageName: "green_tea", isAvailable: true, preparationTime: 4, rating: 4.1, ingredients: ["Green tea leaves", "Hot water"]),
+            FoodItem(name: "French Cheese", description: "Sweet yogurt drink", price: 25, category: .lays, imageName: "lassi", isAvailable: true, preparationTime: 5, rating: 4.5, ingredients: ["Yogurt", "Sugar", "Cardamom"])
         ]
     }
 }

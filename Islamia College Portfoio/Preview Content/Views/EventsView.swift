@@ -113,7 +113,7 @@ class EventsViewModel: ObservableObject {
                 description: "Showcase of innovative projects by students from various departments. Join us for an exciting display of creativity and scientific innovation.",
                 date: calendar.date(byAdding: .day, value: 15, to: today) ?? today,
                 location: "Main Auditorium",
-                imageNames: ["science_fair_1", "science_fair_2", "science_fair_3", "science_fair_4"],
+                imageNames: ["Splash Img", "Splash Img", "Splash Img", "Splash Img"],
                 category: .academic,
                 isUpcoming: true,
                 attendeesCount: 450,
@@ -124,7 +124,7 @@ class EventsViewModel: ObservableObject {
                 description: "Annual football tournament featuring teams from multiple colleges. Come support our team as they compete for the championship title.",
                 date: calendar.date(byAdding: .day, value: 8, to: today) ?? today,
                 location: "Sports Complex",
-                imageNames: ["football_1", "football_2", "sports_complex"],
+                imageNames: ["Splash Img", "Splash Img", "Splash Img"],
                 category: .sports,
                 isUpcoming: true,
                 attendeesCount: 1200,
@@ -135,7 +135,7 @@ class EventsViewModel: ObservableObject {
                 description: "An evening celebrating diverse cultures with traditional performances, music, and food from around the world.",
                 date: calendar.date(byAdding: .day, value: 22, to: today) ?? today,
                 location: "College Grounds",
-                imageNames: ["cultural_night_1", "cultural_night_2", "cultural_night_3", "cultural_performances", "cultural_food"],
+                imageNames: ["Splash Img", "Splash Img", "Splash Img", "Splash Img", "Splash Img"],
                 category: .cultural,
                 isUpcoming: true,
                 attendeesCount: 800,
@@ -146,7 +146,7 @@ class EventsViewModel: ObservableObject {
                 description: "Learn the fundamentals of iOS app development with Swift and SwiftUI. Perfect for beginners and intermediate developers.",
                 date: calendar.date(byAdding: .day, value: 5, to: today) ?? today,
                 location: "Computer Lab A",
-                imageNames: ["ios_workshop_1", "ios_workshop_2", "computer_lab"],
+                imageNames: ["Splash Img", "Splash Img", "Splash Img"],
                 category: .workshop,
                 isUpcoming: true,
                 attendeesCount: 60,
@@ -157,7 +157,7 @@ class EventsViewModel: ObservableObject {
                 description: "Professional guidance session with industry experts sharing insights about career opportunities and job market trends.",
                 date: calendar.date(byAdding: .day, value: -10, to: today) ?? today,
                 location: "Conference Hall",
-                imageNames: ["career_seminar_1", "career_seminar_2", "conference_hall"],
+                imageNames: ["Splash Img", "Splash Img", "Splash Img"],
                 category: .seminar,
                 isUpcoming: false,
                 attendeesCount: 320,
@@ -168,7 +168,7 @@ class EventsViewModel: ObservableObject {
                 description: "Test your programming skills in this exciting coding challenge with attractive prizes for winners.",
                 date: calendar.date(byAdding: .day, value: 12, to: today) ?? today,
                 location: "IT Block",
-                imageNames: ["coding_competition_1", "coding_competition_2", "it_block", "programming_setup"],
+                imageNames: ["Splash Img", "Splash Img2", "Splash Img", "Splash Img"],
                 category: .competition,
                 isUpcoming: true,
                 attendeesCount: 150,
@@ -178,7 +178,6 @@ class EventsViewModel: ObservableObject {
     }
 }
 
-// MARK: - Main Events View
 struct EventsView: View {
     @StateObject private var viewModel = EventsViewModel()
     @State private var selectedEvent: Event?
@@ -254,7 +253,6 @@ struct EventsView: View {
     private var categoryFiltersView: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
-                // All categories button
                 Button(action: {
                     withAnimation(.spring()) {
                         viewModel.selectedCategory = nil
@@ -295,7 +293,6 @@ struct EventsView: View {
         }
     }
     
-    // MARK: - Events List
     private var eventsListView: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
@@ -320,7 +317,6 @@ struct EventsView: View {
     }
 }
 
-// MARK: - Event Card View
 struct EventCardView: View {
     let event: Event
     @State private var isPressed = false
@@ -328,9 +324,7 @@ struct EventCardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Image section with carousel
             ZStack(alignment: .topTrailing) {
-                // Image carousel
                 TabView(selection: $currentImageIndex) {
                     ForEach(Array(event.imageNames.enumerated()), id: \.offset) { index, imageName in
                         Image(imageName)
@@ -339,7 +333,6 @@ struct EventCardView: View {
                             .frame(height: 180)
                             .clipped()
                             .overlay(
-                                // Fallback gradient overlay if image doesn't exist
                                 LinearGradient(
                                     gradient: Gradient(colors: [Color.clear, event.category.color.opacity(0.3)]),
                                     startPoint: .top,
@@ -352,17 +345,14 @@ struct EventCardView: View {
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                 .frame(height: 180)
                 .onAppear {
-                    // Auto-scroll through images if multiple exist
                     if event.hasMultipleImages {
                         startImageTimer()
                     }
                 }
                 
                 VStack(alignment: .trailing, spacing: 8) {
-                    // Status badge
                     statusBadge
                     
-                    // Image counter (if multiple images)
                     if event.hasMultipleImages {
                         imageCounter
                     }
@@ -371,9 +361,7 @@ struct EventCardView: View {
                 .padding(.trailing, 12)
             }
             
-            // Content section
             VStack(alignment: .leading, spacing: 12) {
-                // Title and date
                 VStack(alignment: .leading, spacing: 6) {
                     Text(event.title)
                         .font(.headline)
@@ -389,14 +377,11 @@ struct EventCardView: View {
                     }
                 }
                 
-                // Description
                 Text(event.description)
                     .font(.body)
                     .foregroundColor(.secondary)
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
-                
-                // Location and attendees
                 HStack {
                     HStack(spacing: 4) {
                         Image(systemName: "location")
@@ -417,7 +402,6 @@ struct EventCardView: View {
                     }
                 }
                 
-                // Organizer
                 HStack {
                     Text("Organized by")
                         .font(.caption2)
@@ -484,7 +468,6 @@ struct EventCardView: View {
     }
 }
 
-// MARK: - Event Detail View
 struct EventDetailView: View {
     let event: Event
     @Environment(\.dismiss) private var dismiss
@@ -494,7 +477,6 @@ struct EventDetailView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // Hero image carousel
                     ZStack(alignment: .bottomLeading) {
                         TabView(selection: $currentImageIndex) {
                             ForEach(Array(event.imageNames.enumerated()), id: \.offset) { index, imageName in
@@ -504,7 +486,6 @@ struct EventDetailView: View {
                                     .frame(height: 250)
                                     .clipped()
                                     .overlay(
-                                        // Dark gradient overlay for text readability
                                         LinearGradient(
                                             gradient: Gradient(colors: [Color.clear, Color.black.opacity(0.6)]),
                                             startPoint: .top,
@@ -523,26 +504,24 @@ struct EventDetailView: View {
                                 .fontWeight(.medium)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
-                                .background(Color.white.opacity(0.2))
+                                .background(Color.black.opacity(0.2))
                                 .clipShape(Capsule())
-                                .foregroundColor(.white)
+                                .foregroundColor(.black)
                             
                             Text(event.title)
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(.black)
                         }
                         .padding(20)
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                     
-                    // Image thumbnails (if multiple images)
                     if event.hasMultipleImages {
                         imageGalleryThumbnails
                     }
                     
                     VStack(alignment: .leading, spacing: 16) {
-                        // Event details
                         detailRow(icon: "calendar", title: "Date & Time", value: event.formattedDate)
                         detailRow(icon: "location", title: "Location", value: event.location)
                         detailRow(icon: "person.2", title: "Expected Attendees", value: "\(event.attendeesCount) people")
@@ -550,7 +529,6 @@ struct EventDetailView: View {
                         
                         Divider()
                         
-                        // Description
                         VStack(alignment: .leading, spacing: 8) {
                             Text("About This Event")
                                 .font(.headline)
@@ -564,7 +542,6 @@ struct EventDetailView: View {
                         
                         Spacer(minLength: 20)
                         
-                        // Action buttons
                         VStack(spacing: 12) {
                             Button(action: {}) {
                                 HStack {
@@ -665,7 +642,6 @@ struct EventDetailView: View {
     }
 }
 
-// MARK: - Preview
 #Preview {
     EventsView()
 }

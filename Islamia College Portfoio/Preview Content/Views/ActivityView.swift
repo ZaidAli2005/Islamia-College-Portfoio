@@ -501,7 +501,6 @@ struct MediaGridView: View {
     }
 }
 
-// MARK: - All Media View
 struct AllMediaView: View {
     let mediaItems: [MediaItem]
     let dataManager: ActivityDataManager
@@ -624,7 +623,6 @@ struct VideosPlayerView: View {
     }
 }
 
-// MARK: - Settings View
 struct SettingsView: View {
     @ObservedObject var dataManager: ActivityDataManager
     @Environment(\.dismiss) private var dismiss
