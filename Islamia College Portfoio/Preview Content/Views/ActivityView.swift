@@ -654,9 +654,9 @@ struct MediaGridView: View {
     private func imageHeight(for itemCount: Int) -> CGFloat {
         switch itemCount {
         case 1:
-            return 250
+            return 140
         case 2:
-            return 180
+            return 140
         case 3, 4:
             return 140
         default:
@@ -928,7 +928,7 @@ struct NewPostView: View {
                 Section("Media") {
                     PhotosPicker(
                         selection: $photoPickerItems,
-                        maxSelectionCount: 6,
+                        maxSelectionCount: 20,
                         matching: .any(of: [.images, .videos])
                     ) {
                         Label("Select Photos & Videos", systemImage: "photo.on.rectangle.angled")

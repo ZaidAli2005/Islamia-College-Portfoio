@@ -15,7 +15,7 @@ struct DashboardView: View {
                     case 0:
                         DashboardContentView()
                     case 1:
-                        AIChatBotView()
+                        CalendarView()
                     case 2:
                         ActivityView()
                     case 3:
@@ -485,8 +485,8 @@ struct CustomTabBar: View {
             }
             
             TabBarItems(
-                icon: "message.fill",
-                title: "Chat",
+                icon: "calendar",
+                title: "Calendar",
                 isSelected: selectedTab == 1
             ) {
                 selectedTab = 1

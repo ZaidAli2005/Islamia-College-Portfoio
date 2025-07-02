@@ -1,25 +1,19 @@
-//
-//  SplashView.swift
-//  Islamia College Portfolio
-//
-//  Created by Development on 17/06/2025.
-//
-
 import SwiftUI
 
 struct SplashView: View {
     @State private var navigateToDashboard = false
     @State private var imageScale: CGFloat = 0.5
+    @State private var imageOpacity: Double = 0
+    @State private var imageOffset: CGFloat = 50
     @State private var contentOpacity: Double = 0
     @State private var buttonScale: CGFloat = 0.95
     @State private var gradientOffset: CGFloat = -200
     @State private var titleOffset: CGFloat = -50
     @State private var subtitleOffset: CGFloat = 50
     @State private var dotsAnimation = false
-    @State private var imageRotation: Double = 0
     @State private var pulseAnimation = false
     @State private var backgroundOffset: CGFloat = 0
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -34,7 +28,7 @@ struct SplashView: View {
                 )
                 .ignoresSafeArea()
                 .offset(x: backgroundOffset)
-                
+
                 ForEach(0..<6, id: \.self) { index in
                     Circle()
                         .fill(Color.white.opacity(0.1))
@@ -62,7 +56,8 @@ struct SplashView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
                         .scaleEffect(imageScale)
-                        .rotationEffect(.degrees(imageRotation))
+                        .opacity(imageOpacity)
+                        .offset(y: imageOffset)
 
                     VStack(spacing: 15) {
                         Text("Islamia College")
@@ -150,37 +145,44 @@ struct SplashView: View {
         .navigationBarHidden(true)
     }
 
-    
     private func handleButtonTap() {
         withAnimation(.easeInOut(duration: 0.1)) {
             buttonScale = 0.92
         }
-        
+
         let impactFeedback = UIImpactFeedbackGenerator(style: .heavy)
         impactFeedback.impactOccurred()
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
                 buttonScale = 1.05
             }
         }
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 buttonScale = 1.0
             }
         }
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             navigateToDashboard = true
         }
     }
-    
+
     private func startAnimations() {
-        withAnimation(.spring(response: 1.5, dampingFraction: 0.7)) {
-            imageScale = 1.0
-            imageRotation = 360
+        // Updated image animation
+        withAnimation(.spring(response: 1.2, dampingFraction: 0.6)) {
+            imageScale = 1.05
+            imageOpacity = 1.0
+            imageOffset = 0
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.5)) {
+                imageScale = 1.0
+            }
+        }
+
         withAnimation(.spring(response: 1.0, dampingFraction: 0.8).delay(0.3)) {
             titleOffset = 0
         }

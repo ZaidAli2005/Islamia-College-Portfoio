@@ -271,7 +271,7 @@ struct VideoCard: View {
                     .font(.headline)
                     .fontWeight(.semibold)
                 
-                Text("Tap to watch")
+                Text("Play Now")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }

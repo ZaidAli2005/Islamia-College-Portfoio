@@ -87,7 +87,29 @@ struct Teacher: Identifiable, Hashable {
             ],
             email: "awais.muhammad@gmail.com",
             contactNumbers: ["+92 304 9990000"]
-        )
+        ),
+        Teacher(
+            name: "Prof. Muhammad Abdul Shakoor",
+            department: "Math Department",
+            designation: "Assistant Professor",
+            imageName: "Abdul Shakoor",
+            education: [
+                "Bachelor of Arts in Math"
+            ],
+            email: "abdulshakoor@gmail.com",
+            contactNumbers: ["+92 304 9990000"]
+        ),
+        Teacher(
+            name: "Prof. Muhammad Bilal",
+            department: "Math Department",
+            designation: "Assistant Professor",
+            imageName: "Bilal",
+            education: [
+                "Bachelor of Arts in Math"
+            ],
+            email: "bilal@gmail.com",
+            contactNumbers: ["+92 304 9990000"]
+        ),
     ]
 }
 
