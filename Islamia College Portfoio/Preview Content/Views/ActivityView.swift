@@ -1,6 +1,7 @@
 import SwiftUI
 import PhotosUI
 import AVKit
+import UniformTypeIdentifiers
 
 struct ActivityPost: Identifiable, Codable {
     let id = UUID()
@@ -132,17 +133,7 @@ class ActivityDataManager: ObservableObject {
     }
     
     private func loadSampleData() {
-        let samplePost = ActivityPost(
-            userName: "Ethan",
-            userImage: "person.circle.fill",
-            date: Date(),
-            caption: "Integrated approach to learning with modern educational techniques and methodologies for better understanding.",
-            mediaItems: [],
-            likes: 0,
-            tags: ["learning", "education"]
-        )
-        posts = [samplePost]
-        savePosts()
+        posts = []
     }
     
     func saveImageToDocuments(_ image: UIImage) -> String? {
@@ -221,26 +212,69 @@ class ActivityDataManager: ObservableObject {
         
         let url = documentsPath.appendingPathComponent(postsFileName)
         try? FileManager.default.removeItem(at: url)
-        
-        loadSampleData()
     }
 }
 
 struct ActivityView: View {
     @StateObject private var dataManager = ActivityDataManager()
+    @StateObject private var profileViewModel = ProfileViewModel()
     @State private var showingNewPost = false
     @State private var showingSettings = false
     
     var body: some View {
         NavigationView {
             ScrollView {
-                LazyVStack(spacing: 20) {
-                    ForEach(dataManager.posts) { post in
-                        ActivityPostCard(post: post, dataManager: dataManager)
+                if dataManager.posts.isEmpty {
+                    VStack(spacing: 20) {
+                        Spacer()
+                        
+                        Image(systemName: "doc.text")
+                            .font(.system(size: 60))
+                            .foregroundColor(.gray.opacity(0.5))
+                        
+                        VStack(spacing: 8) {
+                            Text("No Posts Yet")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.primary)
+                            
+                            Text("Create your first post to get started")
+                                .font(.body)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        
+                        Button(action: { showingNewPost = true }) {
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title3)
+                                Text("Create Post")
+                                    .fontWeight(.medium)
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(Color.accentColor)
+                            .cornerRadius(25)
+                        }
+                        
+                        Spacer()
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.horizontal, 32)
+                } else {
+                    LazyVStack(spacing: 20) {
+                        ForEach(dataManager.posts) { post in
+                            ActivityPostCard(
+                                post: post,
+                                dataManager: dataManager,
+                                profileViewModel: profileViewModel
+                            )
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
             }
             .background(
                 LinearGradient(
@@ -268,7 +302,7 @@ struct ActivityView: View {
                 }
             }
             .sheet(isPresented: $showingNewPost) {
-                NewPostView(dataManager: dataManager)
+                NewPostView(dataManager: dataManager, profileViewModel: profileViewModel)
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView(dataManager: dataManager)
@@ -280,6 +314,7 @@ struct ActivityView: View {
 struct ActivityPostCard: View {
     let post: ActivityPost
     let dataManager: ActivityDataManager
+    let profileViewModel: ProfileViewModel
     @State private var isExpanded = false
     
     private var shouldShowReadMore: Bool {
@@ -297,31 +332,52 @@ struct ActivityPostCard: View {
         return post.caption
     }
     
+    private var displayUserName: String {
+        if let userProfile = profileViewModel.userProfile, !userProfile.fullName.isEmpty {
+            return userProfile.fullName
+        }
+        return post.userName.isEmpty ? "Current User" : post.userName
+    }
+    
+    private var profileImageView: some View {
+        Group {
+            if let profileImageURL = profileViewModel.profileImageURL,
+               !profileImageURL.isEmpty {
+                AsyncImage(url: URL(string: profileImageURL)) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Image(systemName: "person.fill")
+                        .foregroundColor(.white)
+                }
+            } else {
+                Image(systemName: post.userImage.isEmpty ? "person.fill" : post.userImage)
+                    .font(.title2)
+                    .foregroundColor(.white)
+            }
+        }
+        .frame(width: 44, height: 44)
+        .background(
+            LinearGradient(
+                colors: [.accentColor, .accentColor],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .clipShape(Circle())
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
-                Image(systemName: post.userImage)
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .frame(width: 44, height: 44)
-                    .background(
-                        LinearGradient(
-                            colors: [.accentColor, .accentColor],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .clipShape(Circle())
+                profileImageView
                 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
-                        Text(post.userName)
+                        Text(displayUserName)
                             .font(.headline)
                             .fontWeight(.semibold)
-                        
-                        Image(systemName: "checkmark.seal.fill")
-                            .font(.caption)
-                            .foregroundColor(.blue)
                     }
                     
                     Text(DateFormatter.activityDate.string(from: post.date))
@@ -802,205 +858,125 @@ struct VideosPlayerView: View {
             }
         }
         .onAppear {
-            setupPlayer()
+            player = AVPlayer(url: videoURL)
         }
         .onDisappear {
-            cleanupPlayer()
+            player?.pause()
+            player = nil
         }
     }
-    
-    private func setupPlayer() {
-        guard FileManager.default.fileExists(atPath: videoURL.path) else {
-            print("Video file does not exist at: \(videoURL.path)")
-            return
-        }
-        
-        player = AVPlayer(url: videoURL)
-        
-        NotificationCenter.default.addObserver(
-            forName: .AVPlayerItemDidPlayToEndTime,
-            object: player?.currentItem,
-            queue: .main
-        ) { _ in
-            player?.seek(to: .zero)
-        }
-    }
-    
-    private func cleanupPlayer() {
-        player?.pause()
-        player = nil
-        NotificationCenter.default.removeObserver(self)
-    }
-}
-
-struct SettingsView: View {
-    @ObservedObject var dataManager: ActivityDataManager
-    @Environment(\.dismiss) private var dismiss
-    @State private var showingClearAlert = false
-    @State private var showingExportShare = false
-    @State private var exportData: Data?
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                Section("Data Management") {
-                    Button(action: exportPosts) {
-                        Label("Export Posts", systemImage: "square.and.arrow.up")
-                    }
-                    
-                    Button(action: { showingClearAlert = true }) {
-                        Label("Clear All Data", systemImage: "trash")
-                            .foregroundColor(.red)
-                    }
-                }
-                
-                Section("Info") {
-                    HStack {
-                        Text("Total Posts")
-                        Spacer()
-                        Text("\(dataManager.posts.count)")
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    HStack {
-                        Text("Storage")
-                        Spacer()
-                        Text("Local Device")
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-            .alert("Clear All Data", isPresented: $showingClearAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Clear", role: .destructive) {
-                    dataManager.clearAllData()
-                }
-            } message: {
-                Text("This will permanently delete all your posts and images. This action cannot be undone.")
-            }
-            .sheet(isPresented: $showingExportShare) {
-                if let data = exportData {
-                    ActivityViewController(activityItems: [data])
-                }
-            }
-        }
-    }
-    
-    private func exportPosts() {
-        if let data = dataManager.exportPosts() {
-            exportData = data
-            showingExportShare = true
-        }
-    }
-}
-
-struct ActivityViewController: UIViewControllerRepresentable {
-    let activityItems: [Any]
-    
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        return UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-    }
-    
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 struct NewPostView: View {
-    @ObservedObject var dataManager: ActivityDataManager
+    let dataManager: ActivityDataManager
+    let profileViewModel: ProfileViewModel
     @Environment(\.dismiss) private var dismiss
     
-    @State private var userName = "Current User"
     @State private var caption = ""
-    @State private var tags = ""
     @State private var selectedImages: [UIImage] = []
-    @State private var selectedVideoURLs: [URL] = []
-    @State private var isProcessingMedia = false
-    @State private var photoPickerItems: [PhotosPickerItem] = []
+    @State private var selectedVideos: [URL] = []
+    @State private var tags = ""
+    @State private var showingImagePicker = false
+    @State private var showingVideoPicker = false
+    @State private var showingActionSheet = false
     
     var body: some View {
         NavigationView {
-            Form {
-                Section("User Info") {
-                    TextField("Your Name", text: $userName)
-                }
-                
-                Section("Media") {
-                    PhotosPicker(
-                        selection: $photoPickerItems,
-                        maxSelectionCount: 20,
-                        matching: .any(of: [.images, .videos])
-                    ) {
-                        Label("Select Photos & Videos", systemImage: "photo.on.rectangle.angled")
+            ScrollView {
+                VStack(spacing: 20) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Caption")
+                            .font(.headline)
+                        
+                        TextEditor(text: $caption)
+                            .frame(minHeight: 100)
+                            .padding(12)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(12)
                     }
                     
-                    if !selectedImages.isEmpty || !selectedVideoURLs.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Tags (separate with commas)")
+                            .font(.headline)
+                        
+                        TextField("fitness, workout, healthy etc.", text: $tags)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Media")
+                            .font(.headline)
+                        
+                        Button(action: {
+                            showingActionSheet = true
+                        }) {
                             HStack {
-                                ForEach(Array(selectedImages.enumerated()), id: \.offset) { index, image in
-                                    ZStack(alignment: .topTrailing) {
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 80, height: 80)
-                                            .clipped()
-                                            .cornerRadius(8)
-                                        
-                                        Button(action: {
-                                            selectedImages.remove(at: index)
-                                        }) {
-                                            Image(systemName: "xmark.circle.fill")
-                                                .foregroundColor(.white)
-                                                .background(Color.black.opacity(0.6))
-                                                .clipShape(Circle())
-                                        }
-                                        .padding(4)
-                                    }
-                                }
-                                
-                                ForEach(Array(selectedVideoURLs.enumerated()), id: \.offset) { index, videoURL in
-                                    ZStack(alignment: .topTrailing) {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.gray.opacity(0.3))
-                                            .frame(width: 80, height: 80)
-                                            .overlay(
-                                                VStack {
-                                                    Image(systemName: "play.circle.fill")
-                                                        .font(.title2)
-                                                        .foregroundColor(.white)
-                                                }
-                                            )
-                                        
-                                        Button(action: {
-                                            selectedVideoURLs.remove(at: index)
-                                        }) {
-                                            Image(systemName: "xmark.circle.fill")
-                                                .foregroundColor(.white)
-                                                .background(Color.black.opacity(0.6))
-                                                .clipShape(Circle())
-                                        }
-                                        .padding(4)
-                                    }
-                                }
+                                Image(systemName: "plus.circle.fill")
+                                Text("Add Photos/Videos")
                             }
-                            .padding(.horizontal)
+                            .foregroundColor(.accentColor)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.accentColor.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                        
+                        if !selectedImages.isEmpty || !selectedVideos.isEmpty {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 12) {
+                                    ForEach(Array(selectedImages.enumerated()), id: \.offset) { index, image in
+                                        ZStack(alignment: .topTrailing) {
+                                            Image(uiImage: image)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width: 80, height: 80)
+                                                .clipped()
+                                                .cornerRadius(8)
+                                            
+                                            Button(action: {
+                                                selectedImages.remove(at: index)
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundColor(.red)
+                                                    .background(Color.white)
+                                                    .clipShape(Circle())
+                                            }
+                                            .offset(x: 8, y: -8)
+                                        }
+                                    }
+                                    
+                                    ForEach(Array(selectedVideos.enumerated()), id: \.offset) { index, url in
+                                        ZStack(alignment: .topTrailing) {
+                                            ZStack {
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .fill(Color.gray.opacity(0.3))
+                                                    .frame(width: 80, height: 80)
+                                                
+                                                Image(systemName: "play.circle.fill")
+                                                    .font(.title)
+                                                    .foregroundColor(.white)
+                                            }
+                                            
+                                            Button(action: {
+                                                selectedVideos.remove(at: index)
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundColor(.red)
+                                                    .background(Color.white)
+                                                    .clipShape(Circle())
+                                            }
+                                            .offset(x: 8, y: -8)
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
                         }
                     }
-                }
-                
-                Section("Content") {
-                    TextField("What's happening?", text: $caption, axis: .vertical)
-                        .lineLimit(3...6)
                     
-                    TextField("Tags (comma separated)", text: $tags)
+                    Spacer()
                 }
+                .padding()
             }
             .navigationTitle("New Post")
             .navigationBarTitleDisplayMode(.inline)
@@ -1015,54 +991,29 @@ struct NewPostView: View {
                     Button("Post") {
                         createPost()
                     }
-                    .disabled(caption.isEmpty && selectedImages.isEmpty && selectedVideoURLs.isEmpty)
+                    .disabled(caption.isEmpty && selectedImages.isEmpty && selectedVideos.isEmpty)
                 }
             }
-            .onChange(of: photoPickerItems) { _, newItems in
-                processSelectedMedia(newItems)
+            .sheet(isPresented: $showingImagePicker) {
+                ImagePicker(selectedImages: $selectedImages)
             }
-        }
-    }
-    
-    private func processSelectedMedia(_ items: [PhotosPickerItem]) {
-        guard !items.isEmpty else { return }
-        
-        isProcessingMedia = true
-        selectedImages.removeAll()
-        selectedVideoURLs.removeAll()
-        
-        Task {
-            await withTaskGroup(of: Void.self) { group in
-                for item in items {
-                    group.addTask {
-                        await processMediaItem(item)
-                    }
-                }
+            .sheet(isPresented: $showingVideoPicker) {
+                VideoPicker(selectedVideos: $selectedVideos)
             }
-            
-            await MainActor.run {
-                isProcessingMedia = false
+            .actionSheet(isPresented: $showingActionSheet) {
+                ActionSheet(
+                    title: Text("Add Media"),
+                    buttons: [
+                        .default(Text("Photos")) {
+                            showingImagePicker = true
+                        },
+                        .default(Text("Videos")) {
+                            showingVideoPicker = true
+                        },
+                        .cancel()
+                    ]
+                )
             }
-        }
-    }
-    
-    private func processMediaItem(_ item: PhotosPickerItem) async {
-        do {
-            if let imageData = try? await item.loadTransferable(type: Data.self),
-               let image = UIImage(data: imageData) {
-                await MainActor.run {
-                    selectedImages.append(image)
-                }
-                return
-            }
-            
-            if let movie = try? await item.loadTransferable(type: Movie.self) {
-                await MainActor.run {
-                    selectedVideoURLs.append(movie.url)
-                }
-            }
-        } catch {
-            print("Error processing media item: \(error)")
         }
     }
     
@@ -1071,23 +1022,21 @@ struct NewPostView: View {
         
         for image in selectedImages {
             if let fileName = dataManager.saveImageToDocuments(image) {
-                let mediaItem = MediaItem(type: .image, fileName: fileName)
-                mediaItems.append(mediaItem)
+                mediaItems.append(MediaItem(type: .image, fileName: fileName))
             }
         }
         
-        for videoURL in selectedVideoURLs {
+        for videoURL in selectedVideos {
             if let fileName = dataManager.saveVideoToDocuments(videoURL) {
-                let mediaItem = MediaItem(type: .video, fileName: fileName)
-                mediaItems.append(mediaItem)
+                mediaItems.append(MediaItem(type: .video, fileName: fileName))
             }
         }
         
-        let tagArray = tags.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        let tagArray = tags.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
         
-        let newPost = ActivityPost(
-            userName: userName,
-            userImage: "person.circle.fill",
+        let post = ActivityPost(
+            userName: profileViewModel.userProfile?.fullName ?? "Current User",
+            userImage: "person.fill",
             date: Date(),
             caption: caption,
             mediaItems: mediaItems,
@@ -1095,15 +1044,228 @@ struct NewPostView: View {
             tags: tagArray
         )
         
-        dataManager.addPost(newPost)
+        dataManager.addPost(post)
         dismiss()
     }
+}
+
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var selectedImages: [UIImage]
+    @Environment(\.dismiss) private var dismiss
+    
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.filter = .images
+        config.selectionLimit = 0
+        
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let parent: ImagePicker
+        
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+        
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            parent.dismiss()
+            
+            for result in results {
+                if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
+                    result.itemProvider.loadObject(ofClass: UIImage.self) { image, _ in
+                        if let image = image as? UIImage {
+                            DispatchQueue.main.async {
+                                self.parent.selectedImages.append(image)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct VideoPicker: UIViewControllerRepresentable {
+    @Binding var selectedVideos: [URL]
+    @Environment(\.dismiss) private var dismiss
+    
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.filter = .videos
+        config.selectionLimit = 0
+        
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let parent: VideoPicker
+        
+        init(_ parent: VideoPicker) {
+            self.parent = parent
+        }
+        
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            parent.dismiss()
+            
+            for result in results {
+                if result.itemProvider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
+                    result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { url, _ in
+                        if let url = url {
+                            DispatchQueue.main.async {
+                                self.parent.selectedVideos.append(url)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct SettingsView: View {
+    let dataManager: ActivityDataManager
+    @Environment(\.dismiss) private var dismiss
+    @State private var showingExportShare = false
+    @State private var showingImportPicker = false
+    @State private var showingClearAlert = false
+    @State private var exportData: Data?
+    
+    var body: some View {
+        NavigationView {
+            List {
+                Section("Data Management") {
+                    Button(action: {
+                        exportData = dataManager.exportPosts()
+                        showingExportShare = true
+                    }) {
+                        HStack {
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundColor(.blue)
+                            Text("Export Posts")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                    
+                    Button(action: {
+                        showingImportPicker = true
+                    }) {
+                        HStack {
+                            Image(systemName: "square.and.arrow.down")
+                                .foregroundColor(.accentColor)
+                            Text("Import Posts")
+                        }
+                    }
+                    
+                    Button(action: {
+                        showingClearAlert = true
+                    }) {
+                        HStack {
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                            Text("Clear All Data")
+                                .foregroundColor(.red)
+                        }
+                    }
+                }
+                
+                Section("About") {
+                    HStack {
+                        Text("Posts Count")
+                        Spacer()
+                        Text("\(dataManager.posts.count)")
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    HStack {
+                        Text("Version")
+                        Spacer()
+                        Text("1.0.0")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+            .sheet(isPresented: $showingExportShare) {
+                if let data = exportData {
+                    ShareSheet(items: [data])
+                }
+            }
+            .fileImporter(
+                isPresented: $showingImportPicker,
+                allowedContentTypes: [.json],
+                allowsMultipleSelection: false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    if let url = urls.first {
+                        importPosts(from: url)
+                    }
+                case .failure(let error):
+                    print("Import failed: \(error)")
+                }
+            }
+            .alert("Clear All Data", isPresented: $showingClearAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Clear", role: .destructive) {
+                    dataManager.clearAllData()
+                }
+            } message: {
+                Text("This will permanently delete all your posts and cannot be undone.")
+            }
+        }
+    }
+    
+    private func importPosts(from url: URL) {
+        do {
+            let data = try Data(contentsOf: url)
+            dataManager.importPosts(from: data)
+        } catch {
+            print("Failed to import posts: \(error)")
+        }
+    }
+}
+
+struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+    
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 extension DateFormatter {
     static let activityDate: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM dd, yyyy"
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
         return formatter
     }()
 }

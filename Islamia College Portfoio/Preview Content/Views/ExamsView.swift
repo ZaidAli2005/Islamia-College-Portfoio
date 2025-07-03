@@ -252,6 +252,13 @@ struct ExamDetailsView: View {
                 Spacer(minLength: 20)
             }
         }
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
         .navigationTitle(level.rawValue)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)

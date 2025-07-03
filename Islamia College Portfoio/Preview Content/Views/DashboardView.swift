@@ -302,7 +302,7 @@ struct DashboardContentView: View {
                         .padding(.horizontal, 24)
                     }
                     
-                    AutoPlayVideoView(videoURL: "https://www.facebook.com/100063707065866/videos/1051444996517028")
+                    AutoPlayVideoView(videoURL: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
                         .padding(.top, 20)
                     
                     Spacer(minLength: 140)

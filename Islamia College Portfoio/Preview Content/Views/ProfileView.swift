@@ -311,6 +311,7 @@ struct ProfileView: View {
     @StateObject private var authViewModel = AuthViewModel()
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var showSettingsSheet = false
+    @State private var showLogoutAlert = false
     
     var body: some View {
         NavigationView {
@@ -352,6 +353,14 @@ struct ProfileView: View {
                 }
             }
         }
+        .alert("Logout", isPresented: $showLogoutAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Logout", role: .destructive) {
+                authViewModel.signOut()
+            }
+        } message: {
+            Text("Are you sure you want to logout?")
+        }
     }
     
     @ViewBuilder
@@ -365,7 +374,7 @@ struct ProfileView: View {
             Spacer()
             
             Button(action: {
-                authViewModel.signOut()
+                showLogoutAlert = true
             }) {
                 HStack(spacing: 6) {
                     Image(systemName: "rectangle.portrait.and.arrow.right")

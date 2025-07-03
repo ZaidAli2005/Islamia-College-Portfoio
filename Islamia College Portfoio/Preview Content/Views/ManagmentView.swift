@@ -211,7 +211,6 @@ struct ManagementView: View {
     }
 }
 
-// MARK: - Management Card Component
 struct ManagementCard: View {
     let person: ManagementPerson
     
@@ -307,7 +306,6 @@ struct ManagementCard: View {
     }
 }
 
-// MARK: - Detail View
 struct ManagementDetailView: View {
     @Environment(\.dismiss) private var dismiss
     let person: ManagementPerson
@@ -400,6 +398,13 @@ struct ManagementDetailView: View {
             }
             .padding(.horizontal, 16)
         }
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [Color.accentColor.opacity(0.1), Color.accentColor.opacity(0.1)]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
